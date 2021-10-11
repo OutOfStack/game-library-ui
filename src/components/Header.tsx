@@ -1,7 +1,7 @@
 import React from 'react'
-import { AppBar, Toolbar, Typography } from '@material-ui/core'
 import { useHistory } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
+import { AppBar, Toolbar, Typography } from '@mui/material'
+import { makeStyles } from '@mui/styles'
 
 const useStyles = makeStyles(() => ({
   title: {

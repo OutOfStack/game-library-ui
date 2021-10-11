@@ -1,12 +1,15 @@
 /**
- * IGetGame represents game get model
+ * IGame represents game get model
  */
-interface IGetGame {
+interface IGame {
 	id: number,
 	name: string,
 	developer: string,
+	publisher: string,
 	releaseDate: string,
 	price: number,
+	currentPrice: number,
+	rating: number,
 	genre: string[]
 }
 
@@ -32,4 +35,4 @@ interface IUpdateGame {
 	genre?: string[]
 }
 
-export type { IGetGame, ICreateGame, IUpdateGame }
+export type { IGame, ICreateGame, IUpdateGame }

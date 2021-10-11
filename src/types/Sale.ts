@@ -1,7 +1,7 @@
 /**
- * IGetSale represents sale get model
+ * ISale represents sale get model
  */
-interface IGetSale {
+interface ISale {
 	id: number,
 	name: string,
 	beginDate: string,
@@ -17,4 +17,4 @@ interface ICreateSale {
 	endDate: string
 }
 
-export type { IGetSale, ICreateSale }
+export type { ISale, ICreateSale }

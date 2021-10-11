@@ -1,8 +1,10 @@
 import React from 'react'
-import { Container, Paper, CssBaseline } from '@material-ui/core'
+import { CssBaseline, Container, Paper } from '@mui/material'
+import { makeStyles } from '@mui/styles'
+import { Theme } from '@mui/material/styles'
+
 import Header from './Header'
 
-import { makeStyles, Theme } from '@material-ui/core/styles'
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {

@@ -1,7 +1,7 @@
 /**
- * IGetGameSale represents game sale get model
+ * IGameSale represents game sale get model
  */
-interface IGetGameSale {
+interface IGameSale {
 	gameId: number,
 	saleId: number,
 	sale: string,
@@ -18,4 +18,4 @@ interface ICreateGameSale {
 	discountPercent: number
 }
 
-export type { IGetGameSale, ICreateGameSale }
+export type { IGameSale, ICreateGameSale }
