@@ -1,15 +1,13 @@
 import React from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
 
 import Landing from './views/Landing'
+import ThemeConfig from './theme';
 
-
-const theme = createTheme();
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeConfig>
       <BrowserRouter>
         <Switch>
           <Route path='/'>
@@ -17,7 +15,7 @@ const App = () => {
           </Route>
         </Switch>
       </BrowserRouter>
-    </ThemeProvider>
+    </ThemeConfig>
   )
 }
 

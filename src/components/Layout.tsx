@@ -1,7 +1,8 @@
 import React from 'react'
-import { CssBaseline, Container, Paper } from '@mui/material'
+import { Container, Paper } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import { Theme } from '@mui/material/styles'
+import { blueGrey } from '@mui/material/colors'
 
 import Header from './Header'
 
@@ -13,7 +14,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   paper: {
     padding: theme.spacing(3),
-    marginTop: '3px',
+    marginTop: '2px',
+    backgroundColor: blueGrey[50],
     variant: 'outlined'
   },
   container: {
@@ -32,7 +34,6 @@ const Layout = (props: LayoutProps) => {
 
   return (
     <div>
-      <CssBaseline />
       <Header/>
       <Paper className={classes.paper}>
         <Container className={classes.container}>
