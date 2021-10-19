@@ -42,15 +42,17 @@ const GameCard = (props: GameCardProps) => {
   
         <Grid container direction="row" alignItems="center" justifyContent="space-between">
           <Grid item>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <StarIcon fontSize="small" sx={{ color: orange[500] }} />
-              &nbsp;
-              <span>{To1Precision(game.rating)}</span>
-            </div>
+            {game.rating >= 1 &&
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                flexWrap: 'wrap'
+              }}>
+                <StarIcon fontSize="small" sx={{ color: orange[500] }} />
+                &nbsp;
+                <span>{To1Precision(game.rating)}</span>
+              </div>
+            }
           </Grid>
           
           <Grid item>
@@ -107,7 +109,7 @@ const GameCard = (props: GameCardProps) => {
                   <ListItemText primary="Release date: " secondary={game.releaseDate} />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Genre: " secondary={game.genre.join(", ")} />
+                  <ListItemText primary="Genre: " secondary={game.genre?.join(", ")} />
                 </ListItem>
               </List>
             </MouseOverPopover>

@@ -1,4 +1,3 @@
-import React from 'react'
 import { useHistory } from 'react-router-dom'
 import { AppBar, Box, Toolbar, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles'
@@ -19,7 +18,7 @@ const Header = () => {
         <Toolbar>
           <Typography variant="h5">
             <span 
-              onClick={() => history.push('/')} 
+              onClick={() => history.push('/')}
               className={classes.title}
             >
               Game Library

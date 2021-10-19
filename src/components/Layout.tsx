@@ -1,8 +1,7 @@
-import React from 'react'
 import { Container, Paper } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import { Theme } from '@mui/material/styles'
-import { blue, teal, grey } from '@mui/material/colors'
+import { grey } from '@mui/material/colors'
 
 import Header from './Header'
 
@@ -16,8 +15,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: theme.spacing(3),
     marginTop: '2px',
     backgroundColor: grey[300],
-    variant: 'outlined',
-    height: '90vh'
+    variant: 'outlined'
   },
   container: {
     maxWidth: '1500px'
