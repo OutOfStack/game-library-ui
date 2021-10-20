@@ -1,36 +1,41 @@
-import React, {useState, useEffect }from 'react'
-import { Alert, AlertColor, Box, Button, Container, Grid, Snackbar, Typography } from '@mui/material'
+import React, {useState, useEffect } from 'react'
+import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, Snackbar, Typography } from '@mui/material'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
+import { ISearchFieldProps } from '../components/Header'
 import { IGame } from '../types/Game'
 import useGames from '../hooks/useGames'
 
 
 const Landing = (): JSX.Element => {
 
+  const { fetchAllData, search: searchData } = useGames()
+
   const defaultAlert = {
     open: false,
     message: "",
     severity: "success" as AlertColor
   }
+  const defaultPagination = {
+    pageSize: 20,
+    lastId: 0
+  }
   const [alert, setAlert] = useState(defaultAlert)
   const [data, setData] = useState<IGame[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [pagination, setPagination] = useState({
-    pageSize: 20,
-    lastId: 0
-  })
-
-  const { fetchAllData } = useGames()
+  const [pagination, setPagination] = useState(defaultPagination)
+  const [searchText, setSearchText] = useState<string>("")
+  const [prevSearchTextLen, setPrevSearchTextLen] = useState(0)
+  const [lastUpdated, setLastUpdated] = useState(Date.now())
 
   const handleCloseAlert = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }
-    setAlert(defaultAlert)
+    setAlert(a => ({...defaultAlert, severity: a.severity}))
   }
 
   const showNotification = (message: string, severity: AlertColor = "success") => {
@@ -41,40 +46,83 @@ const Landing = (): JSX.Element => {
     })
   }
 
+  const handleSearchTextChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setSearchText(e.target.value)
+    // if removing text and length of search text less than 2
+    if (e.target.value?.length < 2 && e.target.value?.length < prevSearchTextLen) {
+      // force fetch all with pagination
+      setLastUpdated(Date.now())
+    }
+    setPrevSearchTextLen(e.target.value?.length ?? 0)
+  }
+
   const handlePagination = (forward: boolean = true) => {
     if (forward) {
-      setPagination(p => ({...p, lastId: p.lastId + p.pageSize}))
+      setPagination(p => ({...p, lastId: Math.max(...data.map(d => d.id), 0) }))
     } else {
-      const lastId = 
       setPagination(p => ({
-        ...p, 
-        lastId: p.lastId - p.pageSize < 0 ? 0 : p.lastId - p.pageSize
+        ...p,
+        lastId: Math.max(
+          Math.min(...data.map(d => d.id)) - 1 - p.pageSize,
+          0)
       }))
     }
   }
 
+  // search by searchText when searchText changes
   useEffect(() => {
-    const getData = async () => {
-      const [resp, err] = await fetchAllData(pagination.pageSize, pagination.lastId)
+    const search = async () => {
+      setIsLoading(true)
+      const [resp, err] = await searchData(searchText)
       if (err) {
         showNotification(err, "error")
+        setIsLoading(false)
         return
       }
       const games = resp as IGame[]
       setData(games)
+      setIsLoading(false)
     }
-    setIsLoading(true)
+    if (searchText?.length > 1) {
+      search()
+    }
+  }, [searchText])
+
+  // fetch with pagination when page (lastId) or lastUpdate changes
+  useEffect(() => {
+    const getData = async () => {
+      setIsLoading(true)
+      const [resp, err] = await fetchAllData(pagination.pageSize, pagination.lastId)
+      if (err) {
+        showNotification(err, "error")
+        setIsLoading(false)
+        return
+      }
+      const games = resp as IGame[]
+      setData(games)
+      setIsLoading(false)
+    }
     getData()
-    setIsLoading(false)
-  }, [pagination.lastId])
+  }, [pagination.lastId, lastUpdated])
+
+  const searchFieldProps: ISearchFieldProps = {
+    text: searchText,
+    changeText: handleSearchTextChange
+  }
 
   return (
-    <Layout>
+    <Layout searchFieldProps={searchFieldProps}>
       <Container maxWidth="xl">
+        <Backdrop
+          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={isLoading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
         <Snackbar 
           anchorOrigin={{ vertical: 'top', horizontal: 'right'}} 
           open={alert.open}
-          autoHideDuration={5000} 
+          autoHideDuration={5000}
           onClose={handleCloseAlert}
         >
           <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }} >

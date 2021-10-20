@@ -3,7 +3,7 @@ import { makeStyles } from '@mui/styles'
 import { Theme } from '@mui/material/styles'
 import { grey } from '@mui/material/colors'
 
-import Header from './Header'
+import Header, { ISearchFieldProps } from './Header'
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -23,17 +23,18 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface LayoutProps {
-  children: JSX.Element
+  children: JSX.Element,
+  searchFieldProps: ISearchFieldProps
 }
 
 const Layout = (props: LayoutProps) => {
-  const { children } = props
+  const { children, searchFieldProps } = props
 
   const classes = useStyles()
 
   return (
     <div>
-      <Header/>
+      <Header searchFieldProps={searchFieldProps} />
       <Paper className={classes.paper}>
         <Container className={classes.container}>
           {children}

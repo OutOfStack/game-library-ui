@@ -6,15 +6,21 @@ import { ICreateGame, IGame, IUpdateGame } from '../types/Game'
 const useGames = () => {
   const endpoint = `${config.domain}${config.endpoints.games}`
 
-  const fetchAllData  = async (pageSize: number = 20, lastId: number = 0) => {
+  const fetchAllData = async (pageSize: number = 20, lastId: number = 0) => {
     const url = `${endpoint}?pageSize=${pageSize}&lastId=${lastId}`
     const response = await baseRequest<IGame[]>(url, getRequestConfig)
     return response
   }
 
-  const fetchById  = async (id: number) => {
+  const fetchById = async (id: number) => {
     const url = `${endpoint}/${id}`
     const response = await baseRequest<IGame>(url, getRequestConfig)
+    return response
+  }
+
+  const search = async (name: string) => {
+    const url = `${endpoint}/search?name=${name}`
+    const response = await baseRequest<IGame[]>(url, getRequestConfig)
     return response
   }
 
@@ -33,6 +39,7 @@ const useGames = () => {
   return {
     fetchAllData,
     fetchById,
+    search,
     postData,
     updateById
   }
