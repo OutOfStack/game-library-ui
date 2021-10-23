@@ -1,8 +1,13 @@
 const endpoints = {
+  gamesSvc: {
     domain: "http://localhost:8000",
-    endpoints: {
-      games: "/api/games",
-    }
+    games: "/api/games",
+  },
+  authSvc: {
+    domain: "http://localhost:8001",
+    signIn: "/signin",
+    signUp: "/signup"
   }
+}
   
-  export default endpoints
+export default endpoints

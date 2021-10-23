@@ -1,8 +1,7 @@
-import React from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
 import Landing from './views/Landing'
-import ThemeConfig from './theme';
+import ThemeConfig from './theme'
 
 
 const App = () => {

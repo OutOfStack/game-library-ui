@@ -4,7 +4,7 @@ import baseRequest from './request/baseRequest'
 import { ICreateGame, IGame, IUpdateGame } from '../types/Game'
 
 const useGames = () => {
-  const endpoint = `${config.domain}${config.endpoints.games}`
+  const endpoint = `${config.gamesSvc.domain}${config.gamesSvc.games}`
 
   const fetchAllData = async (pageSize: number = 20, lastId: number = 0) => {
     const url = `${endpoint}?pageSize=${pageSize}&lastId=${lastId}`
