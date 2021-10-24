@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, Snackbar, Typography } from '@mui/material'
+import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, 
+  Snackbar, Typography } from '@mui/material'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 
@@ -8,6 +9,7 @@ import GameCard from '../components/GameCard'
 import { ISearchFieldProps } from '../components/Header'
 import { IGame } from '../types/Game'
 import useGames from '../hooks/useGames'
+import { IValidationResponse } from '../types/Validation'
 
 
 const Landing = (): JSX.Element => {
@@ -75,7 +77,12 @@ const Landing = (): JSX.Element => {
       setIsLoading(true)
       const [resp, err] = await searchData(searchText)
       if (err) {
-        showNotification(err, "error")
+        if (typeof err === 'string') {
+          showNotification(err, "error")
+        } else {
+          const error = err as IValidationResponse
+          showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
+        }
         setIsLoading(false)
         return
       }
@@ -94,7 +101,12 @@ const Landing = (): JSX.Element => {
       setIsLoading(true)
       const [resp, err] = await fetchAllData(pagination.pageSize, pagination.lastId)
       if (err) {
-        showNotification(err, "error")
+        if (typeof err === 'string') {
+          showNotification(err, "error")
+        } else {
+          const error = err as IValidationResponse
+          showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
+        }
         setIsLoading(false)
         return
       }

@@ -125,7 +125,11 @@ const Header = (props: IHeaderProps) => {
     }
     const [resp, err] = await signUp(signUpData)
     if (err) {
-      const error = resp as IValidationResponse
+      if (typeof err === 'string') {
+        setRegisterErrorText(err)
+        return
+      }
+      const error = err as IValidationResponse
       setRegisterErrorText(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error)
       return
     }
@@ -185,11 +189,14 @@ const Header = (props: IHeaderProps) => {
   }
 
   // Login call to server
-  const Login = async (data: ISignIn): Promise<IToken | IValidationResponse> => {
+  const Login = async (data: ISignIn): Promise<IToken | string> => {
     const [resp, err] = await signIn(data)
     if (err) {
-      const error = resp as IValidationResponse
-      return error
+      if (typeof err === 'string') {
+        return err
+      }
+      const error = err as IValidationResponse
+      return error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error
     }
     const token = resp as IToken
     return token
@@ -205,8 +212,6 @@ const Header = (props: IHeaderProps) => {
     if (typeof response === 'string') {
       setLoginErrorText(response)
       return
-    } else {
-
     }
     console.log(response)
     const token = response as IToken
@@ -347,9 +352,11 @@ const Header = (props: IHeaderProps) => {
                     </Grid>
                     {registerErrorText && 
                       <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                        <Typography>
-                          {registerErrorText}
-                        </Typography>
+                        <Alert severity="error" icon={false}>
+                          <Typography>
+                            {registerErrorText}
+                          </Typography>
+                        </Alert>
                       </Grid>
                     }
                   </Grid>
@@ -393,9 +400,11 @@ const Header = (props: IHeaderProps) => {
                     </Grid>
                     {loginErrorText && 
                       <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                        <Typography>
-                          {loginErrorText}
-                        </Typography>
+                        <Alert severity="error" icon={false}>
+                          <Typography>
+                            {loginErrorText}
+                          </Typography>
+                        </Alert>
                       </Grid>
                     }
                   </Grid>
