@@ -138,7 +138,6 @@ const Header = (props: IHeaderProps) => {
       return
     }
     const user = resp as IGetUser
-    console.log(user)
     // automatically log in after registration
     if (user.id) {
       setRegisterDialogText("You have successfully registered")
@@ -279,13 +278,19 @@ const Header = (props: IHeaderProps) => {
             />
           </Search>
 
-          {isAuthenticated()
+          {isAuthenticated
             ? <>
               <Tooltip title={name || ''}>
                 <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : {}} {...stringAvatar(name || '')}/>
               </Tooltip>
               <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : {}}>{username}</Typography>
-              <Button sx={matchesMd ? { mr: '5vw', ml: 3 } : {}} color="inherit" onClick={() => logout()}>Logout</Button>
+              <Button 
+                sx={matchesMd ? { mr: '5vw', ml: 3 } : {}} 
+                color="inherit" 
+                onClick={() => logout()}
+              >
+                Logout
+              </Button>
             </>
             : <ButtonGroup variant="text" size={matchesMd ? "large" : "small"} sx={matchesMd ? { mr: '5vw', ml: 2 } : {}}>
               <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>

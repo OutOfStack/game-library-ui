@@ -1,10 +1,14 @@
 import config from '../api-clients/endpoints'
-import { getRequestConfig, postRequestConfig } from './request/requestConfig'
+import { authorizedRequestConfig, getRequestConfig, postRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
-import { ICreateGame, IGame, IUpdateGame } from '../types/Game'
+import { ICreateGame, IGame, IGameResponse, IUpdateGame } from '../types/Game'
+import { ICreateRating, ICreateRatingResponse } from '../types/Rating'
+import useAuth from './useAuth'
 
 const useGames = () => {
   const endpoint = `${config.gamesSvc.domain}${config.gamesSvc.games}`
+
+  const { getAccessToken } = useAuth()
 
   const fetchAllData = async (pageSize: number = 20, lastId: number = 0) => {
     const url = `${endpoint}?pageSize=${pageSize}&lastId=${lastId}`
@@ -26,13 +30,20 @@ const useGames = () => {
 
   const postData = async (data: ICreateGame) => {
     const url = endpoint
-    const response = await baseRequest<ICreateGame>(url, postRequestConfig(data))
+    const response = await baseRequest<IGameResponse>(url, postRequestConfig(data))
     return response
   }
 
   const updateById = async (data: IUpdateGame, id: number) => {
     const url = `${endpoint}/${id}`
-    const response = await baseRequest<IUpdateGame>(url, {...postRequestConfig(data), method: "PUT" })
+    const response = await baseRequest<IGameResponse>(url, {...postRequestConfig(data), method: "PUT" })
+    return response
+  }
+
+  const rate = async (data: ICreateRating) => {
+    const url = `${endpoint}/rate`
+    const token = getAccessToken()
+    const response = await baseRequest<ICreateRatingResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
 
@@ -41,7 +52,8 @@ const useGames = () => {
     fetchById,
     search,
     postData,
-    updateById
+    updateById,
+    rate
   }
 }
 

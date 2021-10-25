@@ -7,11 +7,25 @@
 }
 
 /**
- * IGetUserRatings represents get user ratings model
+ * ICreateRatingResponse represents response to create rating
  */
-interface IGetUserRatings {
+ interface ICreateRatingResponse {
     gameId: number,
 	rating: number
 }
 
-export type { ICreateRating, IGetUserRatings }
+/**
+ * IGetUserRatings represents get user ratings request model
+ */
+ interface IGetUserRatings {
+    gameIds: number[]
+}
+
+/**
+ * IGetUserRatingsResponse represents get user ratings response model
+ */
+interface IGetUserRatingsResponse {
+    [index: string]: number
+}
+
+export type { ICreateRating, ICreateRatingResponse, IGetUserRatings, IGetUserRatingsResponse }

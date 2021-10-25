@@ -9,12 +9,18 @@ import GameCard from '../components/GameCard'
 import { ISearchFieldProps } from '../components/Header'
 import { IGame } from '../types/Game'
 import useGames from '../hooks/useGames'
+import useUser from '../hooks/useUser'
+import useAuth from '../hooks/useAuth'
 import { IValidationResponse } from '../types/Validation'
+import { roles } from '../auth/roles'
+import { IGetUserRatingsResponse } from '../types/Rating'
 
 
-const Landing = (): JSX.Element => {
+const Landing = () => {
 
   const { fetchAllData, search: searchData } = useGames()
+  const { fetchRatings } = useUser()
+  const { hasRole, isAuthenticated } = useAuth()
 
   const defaultAlert = {
     open: false,
@@ -27,6 +33,7 @@ const Landing = (): JSX.Element => {
   }
   const [alert, setAlert] = useState(defaultAlert)
   const [data, setData] = useState<IGame[]>([])
+  const [userRatings, setUserRatings] = useState<IGetUserRatingsResponse>({})
   const [isLoading, setIsLoading] = useState(false)
   const [pagination, setPagination] = useState(defaultPagination)
   const [searchText, setSearchText] = useState<string>("")
@@ -70,6 +77,33 @@ const Landing = (): JSX.Element => {
       }))
     }
   }
+
+  // get user ratings
+  useEffect(() => {
+    const getRatings = async () => {
+      setIsLoading(true)
+      const gameIds = data.map(d => d.id)
+      const [resp, err] = await fetchRatings({
+        gameIds: gameIds
+      })
+      if (err) {
+        if (typeof err === 'string') {
+          showNotification(err, "error")
+        } else {
+          const error = err as IValidationResponse
+          showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
+        }
+        setIsLoading(false)
+        return
+      }
+      const ratings = resp as IGetUserRatingsResponse
+      setUserRatings(ratings)
+      setIsLoading(false)
+    }
+    if (isAuthenticated && hasRole([roles.user])) {
+      getRatings()
+    }
+  }, [data])
 
   // search by searchText when searchText changes
   useEffect(() => {
@@ -146,7 +180,7 @@ const Landing = (): JSX.Element => {
           <Grid container spacing={3}>
             {data.map((game: IGame) => (
               <Grid key={game.id} item xs={12} sm={6} md={4} lg={3}>
-                <GameCard game={game} />
+                <GameCard game={game} showUserRating={isAuthenticated && hasRole([roles.user])} userRating={userRatings[game.id?.toString()]}/>
               </Grid>
             ))}
           </Grid>

@@ -35,4 +35,17 @@ interface IUpdateGame {
 	genre?: string[]
 }
 
-export type { IGame, ICreateGame, IUpdateGame }
+/**
+ * IGameResponse represents data received after create/update operations
+ */
+interface IGameResponse {
+	id: number,
+	name: string,
+	developer: string,
+	publisher: string,
+	releaseDate: string,
+	price: number,
+	genre: string[]
+}
+
+export type { IGame, ICreateGame, IUpdateGame, IGameResponse }

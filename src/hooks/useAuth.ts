@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import decode from 'jwt-decode'
 
 import config from '../api-clients/endpoints'
@@ -11,6 +12,13 @@ const lsKey = 'gl_user_'
 
 const useAuth = () => {
   const endpoint = config.authSvc.domain
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    const isAuthed = checkAuth()
+    setIsAuthenticated(isAuthed)
+  }, [])
 
   const signUp = async (data: ISignUp) => {
     const url = `${endpoint}${config.authSvc.signUp}`
@@ -28,7 +36,10 @@ const useAuth = () => {
     const token = getAccessToken()
 
     if (!token) {
-        return false
+      if (isAuthenticated) {
+        setIsAuthenticated(false)
+      }
+      return false
     }
 
     try {
@@ -41,6 +52,9 @@ const useAuth = () => {
       }
     } catch (err) {
       console.error(err)
+      if (isAuthenticated) {
+        setIsAuthenticated(false)
+      }
       return false
     }
 
@@ -49,6 +63,8 @@ const useAuth = () => {
 
   const logout = () => {
     localStorage.removeItem(lsKey)
+    setIsAuthenticated(false)
+    // TODO: remove refresh
     window.location.reload()
   }
 
@@ -62,9 +78,10 @@ const useAuth = () => {
 
   const setUserStorage = (data: IToken) => {
     localStorage.setItem(lsKey, JSON.stringify(data))
+    setIsAuthenticated(checkAuth())
+    // TODO: remove refresh
+    window.location.reload()
   }
-
-  const isAuthenticated = () => checkAuth()
 
   const getAccessToken = (): string => {
     const storage = getUserStorage()
@@ -73,7 +90,7 @@ const useAuth = () => {
   }
 
   const getClaims = (): IJWToken => {
-    if (isAuthenticated()) {
+    if (isAuthenticated) {
       const token = getAccessToken()
       return decode<IJWToken>(token)
     }
@@ -86,8 +103,9 @@ const useAuth = () => {
   }
 
   return {
-    setUserStorage,
     isAuthenticated,
+    setUserStorage,
+    getAccessToken,
     getClaims,
     hasRole,
     logout,
