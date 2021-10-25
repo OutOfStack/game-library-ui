@@ -13,4 +13,30 @@ interface ISignIn {
 	accessToken: string
 }
 
-export type { ISignIn, IToken }
+/**
+ * IJWToken represents data of access token
+ */
+interface IJWToken {
+	/** Issuer */
+	iss: string,
+	/** Subject */
+	sub: string,
+	/** Audience */
+	aud: string,
+	/** Expiration Time */
+	exp: number,
+	/** Not Before */
+	nbf: number,
+	/** Issued At */
+	iat: number,
+	/** JWT ID */
+	jti: string,
+	/** User role */
+	user_role: string,
+	/** Username */
+	username: string,
+	/** Name of user */
+	name?: string
+}
+
+export type { ISignIn, IToken, IJWToken }

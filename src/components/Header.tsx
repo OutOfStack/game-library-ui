@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Alert, AlertColor, AppBar, Box, Button, ButtonGroup, Checkbox, Dialog, DialogTitle, DialogContent, 
-  DialogActions, FormControlLabel, Grid, Snackbar, TextField, Toolbar, Typography, useMediaQuery } from '@mui/material'
+import { Alert, AlertColor, AppBar, Avatar, Box, Button, ButtonGroup, Checkbox, Dialog, DialogTitle, 
+  DialogContent, DialogActions, FormControlLabel, Grid, Snackbar, TextField, Toolbar, Tooltip, 
+  Typography, useMediaQuery,  } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
@@ -12,6 +13,7 @@ import useAuth from '../hooks/useAuth'
 import { ISignUp } from '../types/Auth/SignUp'
 import { IGetUser } from '../types/Auth/User'
 import { IValidationResponse } from '../types/Validation'
+import { stringAvatar } from '../utils/avatar'
 
 
 const useStyles = makeStyles(() => ({
@@ -39,11 +41,13 @@ const Header = (props: IHeaderProps) => {
 
   const { searchFieldProps } = props
 
-  const { signIn, signUp } = useAuth()
+  const { signIn, signUp, getClaims, isAuthenticated, setUserStorage, logout } = useAuth()
   const classes = useStyles()
   const history = useHistory()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
+
+  const { name, username } = getClaims()
 
   //#region notification
 
@@ -147,9 +151,8 @@ const Header = (props: IHeaderProps) => {
         setRegisterErrorText(response)
         return
       }
-      console.log(response)
       const token = response as IToken
-      setToken(token.accessToken)
+      setUserStorage(token)
     }
     
     setRegisterDialogText("You have successfully logged in")
@@ -163,7 +166,6 @@ const Header = (props: IHeaderProps) => {
   //#region sign in
 
   const [signInData, setSignInData] = useState<ISignIn>({} as ISignIn)
-  const [token, setToken] = useState("")
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [loginDialogText, setLoginDialogText] = useState("")
   const [loginErrorText, setLoginErrorText] = useState("")
@@ -213,9 +215,8 @@ const Header = (props: IHeaderProps) => {
       setLoginErrorText(response)
       return
     }
-    console.log(response)
     const token = response as IToken
-    setToken(token.accessToken)
+    setUserStorage(token)
     setLoginDialogText("You have successfully logged in")
     setTimeout(() => {
       handleLoginDialogClose()
@@ -226,16 +227,17 @@ const Header = (props: IHeaderProps) => {
 
 
   const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, field: string, isLogin = true) => {
+    const value = e.target.value?.trimLeft()
     if (isLogin) {
-      setSignInData(s => ({...s, [field]: e.target.value}))
+      setSignInData(s => ({...s, [field]: value}))
       // remove error if there is a value now
-      if (loginValidation[field]?.length > 0 && e.target.value?.length > 0) {
+      if (loginValidation[field]?.length > 0 && value?.length > 0) {
         setLoginValidation(v => ({...v, [field]: ''}))
       }
     } else {
-      setSignUpData(s => ({...s, [field]: e.target.value}))
+      setSignUpData(s => ({...s, [field]: value}))
       // remove error if there is a value now
-      if (registerValidation[field]?.length > 0 && e.target.value?.length > 0) {
+      if (registerValidation[field]?.length > 0 && value?.length > 0) {
         setRegisterValidation(v => ({...v, [field]: ''}))
       }
     }
@@ -277,8 +279,14 @@ const Header = (props: IHeaderProps) => {
             />
           </Search>
 
-          {token 
-            ? <Typography sx={matchesMd ? { mr: '5vw', ml: 2 } : {}}>Good day!</Typography>
+          {isAuthenticated()
+            ? <>
+              <Tooltip title={name || ''}>
+                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : {}} {...stringAvatar(name || '')}/>
+              </Tooltip>
+              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : {}}>{username}</Typography>
+              <Button sx={matchesMd ? { mr: '5vw', ml: 3 } : {}} color="inherit" onClick={() => logout()}>Logout</Button>
+            </>
             : <ButtonGroup variant="text" size={matchesMd ? "large" : "small"} sx={matchesMd ? { mr: '5vw', ml: 2 } : {}}>
               <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>
               <Button color="inherit" onClick={() => handleLoginDialogOpen()}>Login</Button>
@@ -299,7 +307,7 @@ const Header = (props: IHeaderProps) => {
                         label="Username"
                         margin="normal"
                         value={signUpData?.username || ""}
-                        onChange={(e) => handleFieldChange(e, 'username', false)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username', false)}
                       />
                     </Grid>
                     <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
@@ -311,7 +319,7 @@ const Header = (props: IHeaderProps) => {
                         label="Name"
                         margin="normal"
                         value={signUpData?.name || ""}
-                        onChange={(e) => handleFieldChange(e, 'name', false)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'name', false)}
                       />
                     </Grid>
                     <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
@@ -324,7 +332,7 @@ const Header = (props: IHeaderProps) => {
                         label="Password"
                         type="password"
                         value={signUpData?.password || ""}
-                        onChange={(e) => handleFieldChange(e, 'password', false)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password', false)}
                       />
                     </Grid>
                     <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
@@ -337,7 +345,7 @@ const Header = (props: IHeaderProps) => {
                         label="Confirm password"
                         type="password"
                         value={signUpData?.confirmPassword || ""}
-                        onChange={(e) => handleFieldChange(e, 'confirmPassword', false)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'confirmPassword', false)}
                       />
                     </Grid>
                     <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
@@ -362,10 +370,12 @@ const Header = (props: IHeaderProps) => {
                   </Grid>
                 }
               </DialogContent>
-              <DialogActions>
-                <Button size="large" variant="contained" onClick={handleRegisterDialogClose}>Cancel</Button>
-                <Button size="large" variant="contained" color="success" onClick={handleRegister}>Register</Button>
-            </DialogActions>
+              {!registerDialogText &&
+                <DialogActions>
+                  <Button size="large" variant="contained" onClick={handleRegisterDialogClose}>Cancel</Button>
+                  <Button size="large" variant="contained" color="success" onClick={handleRegister}>Register</Button>
+                </DialogActions>
+              }
           </Dialog>
 
           <Dialog open={loginDialogOpen} onClose={handleLoginDialogClose} fullWidth={matchesMd}>
@@ -382,7 +392,7 @@ const Header = (props: IHeaderProps) => {
                         label="Username"
                         margin="normal"
                         value={signInData?.username || ""}
-                        onChange={(e) => handleFieldChange(e, 'username')}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username')}
                       />
                     </Grid>
                     <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
@@ -395,7 +405,7 @@ const Header = (props: IHeaderProps) => {
                         label="Password"
                         type="password"
                         value={signInData?.password || ""}
-                        onChange={(e) => handleFieldChange(e, 'password')}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password')}
                       />
                     </Grid>
                     {loginErrorText && 
@@ -410,10 +420,12 @@ const Header = (props: IHeaderProps) => {
                   </Grid>
                 }
               </DialogContent>
-              <DialogActions>
-                <Button size="large" variant="contained" onClick={handleLoginDialogClose}>Cancel</Button>
-                <Button size="large" variant="contained" color="success" onClick={handleLogin}>Login</Button>
-            </DialogActions>
+              {!loginDialogText &&
+                <DialogActions>
+                  <Button size="large" variant="contained" onClick={handleLoginDialogClose}>Cancel</Button>
+                  <Button size="large" variant="contained" color="success" onClick={handleLogin}>Login</Button>
+                </DialogActions>
+              }
           </Dialog>
         </Toolbar>
       </AppBar>

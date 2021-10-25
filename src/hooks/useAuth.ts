@@ -1,9 +1,13 @@
+import decode from 'jwt-decode'
+
 import config from '../api-clients/endpoints'
 import { postRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
 import { ISignUp } from '../types/Auth/SignUp'
-import { ISignIn, IToken } from '../types/Auth/SignIn'
+import { IJWToken, ISignIn, IToken } from '../types/Auth/SignIn'
 import { IGetUser } from '../types/Auth/User'
+
+const lsKey = 'gl_user_'
 
 const useAuth = () => {
   const endpoint = config.authSvc.domain
@@ -20,7 +24,73 @@ const useAuth = () => {
     return response
   }
 
+  const checkAuth = (): boolean => {
+    const token = getAccessToken()
+
+    if (!token) {
+        return false
+    }
+
+    try {
+      const { exp, nbf } = decode<IJWToken>(token)
+      const now = (new Date().getTime() / 1000) + 1
+      if (exp < now || nbf > now) {
+        // TODO: use refresh_token
+        logout()
+        return false
+      }
+    } catch (err) {
+      console.error(err)
+      return false
+    }
+
+    return true
+  }
+
+  const logout = () => {
+    localStorage.removeItem(lsKey)
+    window.location.reload()
+  }
+
+  const getUserStorage = (): IToken | null => {
+    const item = localStorage.getItem(lsKey)
+    if (!item) {
+      return null
+    }
+    return JSON.parse(item)
+  }
+
+  const setUserStorage = (data: IToken) => {
+    localStorage.setItem(lsKey, JSON.stringify(data))
+  }
+
+  const isAuthenticated = () => checkAuth()
+
+  const getAccessToken = (): string => {
+    const storage = getUserStorage()
+    const access_token = storage ? storage.accessToken : ''
+    return access_token
+  }
+
+  const getClaims = (): IJWToken => {
+    if (isAuthenticated()) {
+      const token = getAccessToken()
+      return decode<IJWToken>(token)
+    }
+    return {} as IJWToken
+  }
+
+  const hasRole = (allowedRoles: string[]): boolean => {
+    const claims = getClaims()
+    return allowedRoles.includes(claims.user_role)
+  }
+
   return {
+    setUserStorage,
+    isAuthenticated,
+    getClaims,
+    hasRole,
+    logout,
     signUp,
     signIn
   }
