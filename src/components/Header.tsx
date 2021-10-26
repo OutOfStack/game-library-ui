@@ -360,7 +360,7 @@ const Header = (props: IHeaderProps) => {
                             checked={signUpData.isPublisher || false} 
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => (setSignUpData(d => ({...d, isPublisher: e.target.checked})))}
                           />}
-                        label="Is publisher" 
+                        label="I am a publisher"
                       />
                     </Grid>
                     {registerErrorText && 

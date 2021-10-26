@@ -21,7 +21,8 @@ const stringToColor = (string: string) => {
 
 export const stringAvatar = (name: string) => {
   name = name.trim()
-  const shortName = `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`
+  const splitted = name.split(' ')
+  const shortName = `${splitted[0] ? splitted[0][0] : ''}${splitted[1] ? splitted[1][0] : ''}`
   return {
     sx: {
       bgcolor: stringToColor(name),
