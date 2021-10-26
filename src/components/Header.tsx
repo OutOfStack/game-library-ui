@@ -256,7 +256,7 @@ const Header = (props: IHeaderProps) => {
       </Snackbar>
       <AppBar position="static" >
         <Toolbar>
-          <Typography variant="h5" sx={matchesMd ? {  mr: 2, ml: '5vw' } : {}}>
+          <Typography variant={matchesMd ? "h5" : "h6"} sx={matchesMd ? {  mr: 2, ml: '5vw' } : {}}>
             <span
               onClick={() => { history.push("/"); history.go(0); }}
               className={classes.title}
@@ -281,11 +281,11 @@ const Header = (props: IHeaderProps) => {
           {isAuthenticated
             ? <>
               <Tooltip title={name || ''}>
-                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : {}} {...stringAvatar(name || '')}/>
+                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: '2px' }} {...stringAvatar(name || '')}/>
               </Tooltip>
-              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : {}}>{username}</Typography>
+              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: '2px' }}>{username}</Typography>
               <Button 
-                sx={matchesMd ? { mr: '5vw', ml: 3 } : {}} 
+                sx={matchesMd ? { mr: '5vw', ml: 3 } : { ml: '2px'}} 
                 color="inherit" 
                 onClick={() => logout()}
               >
