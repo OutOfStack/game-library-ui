@@ -1,0 +1,44 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+    name: game-library-ui-config
+    namespace: game-library
+data:
+    GAMES_URL: http://vmi644117.contaboserver.net/_api
+    AUTH_URL: http://vmi644117.contaboserver.net/_auth
+---
+kind: Service
+apiVersion: v1
+metadata:
+    name: game-library-ui-service
+    namespace: game-library
+spec:
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+    selector:
+        app: game-library-ui
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+    name: game-library-ui-ingress
+    namespace: game-library
+    annotations:
+        ingressclass.kubernetes.io/is-default-class: 'true'
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+spec:
+    rules:
+      - host: vmi644117.contaboserver.net
+        http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                    service:
+                        name: game-library-ui-service
+                        port:
+                            number: 80

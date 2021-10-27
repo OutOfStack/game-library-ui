@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: game-library-ui-deployment
+    namespace: game-library
+    labels:
+        app: game-library-ui
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: game-library-ui
+    template:
+        metadata:
+            labels:
+                app: game-library-ui
+        spec:
+            containers:
+              - name: game-library-ui
+                image: asctod/game-library-ui:latest
+                ports:
+                  - containerPort: 80
+                envFrom:
+                  - configMapRef:
+                        name: game-library-ui-config
+                imagePullPolicy: Always
