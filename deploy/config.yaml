@@ -26,11 +26,16 @@ metadata:
     name: game-library-ui-ingress
     namespace: game-library
     annotations:
+        cert-manager.io/cluster-issuer: "letsencrypt"
         ingressclass.kubernetes.io/is-default-class: 'true'
         nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
         nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
         nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
 spec:
+    tls:
+      - hosts:
+          - vmi644117.contaboserver.net
+        secretName: tls-secret
     rules:
       - host: vmi644117.contaboserver.net
         http:
