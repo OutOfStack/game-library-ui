@@ -4,8 +4,8 @@ metadata:
     name: game-library-ui-config
     namespace: game-library
 data:
-    GAMES_URL: http://vmi644117.contaboserver.net/_api
-    AUTH_URL: http://vmi644117.contaboserver.net/_auth
+    GAMES_URL: https://vmi644117.contaboserver.net/_api
+    AUTH_URL: https://vmi644117.contaboserver.net/_auth
 ---
 kind: Service
 apiVersion: v1
