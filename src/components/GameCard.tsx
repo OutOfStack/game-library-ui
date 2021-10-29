@@ -28,10 +28,7 @@ const GameCard = (props: GameCardProps) => {
     if (!rating) {
       return
     }
-    const [resp, err] = await rate({
-      gameId: game.id,
-      rating: rating
-    })
+    const [, err] = await rate({ rating: rating }, game.id)
     if (err) {
       if (typeof err === 'string') {
         showNotification(err, "error")

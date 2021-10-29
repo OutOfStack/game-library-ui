@@ -2,14 +2,13 @@
  * ICreateRating represents rating create model
  */
  interface ICreateRating {
-	gameId: number,
 	rating: number
 }
 
 /**
- * ICreateRatingResponse represents response to create rating
+ * IRatingResponse represents response to create rating
  */
- interface ICreateRatingResponse {
+ interface IRatingResponse {
     gameId: number,
 	rating: number
 }
@@ -28,4 +27,4 @@ interface IGetUserRatingsResponse {
     [index: string]: number
 }
 
-export type { ICreateRating, ICreateRatingResponse, IGetUserRatings, IGetUserRatingsResponse }
+export type { ICreateRating, IRatingResponse, IGetUserRatings, IGetUserRatingsResponse }

@@ -2,7 +2,7 @@ import config from '../api-clients/endpoints'
 import { authorizedRequestConfig, getRequestConfig, postRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
 import { ICreateGame, IGame, IGameResponse, IUpdateGame } from '../types/Game'
-import { ICreateRating, ICreateRatingResponse } from '../types/Rating'
+import { ICreateRating, IRatingResponse } from '../types/Rating'
 import useAuth from './useAuth'
 
 const useGames = () => {
@@ -40,10 +40,10 @@ const useGames = () => {
     return response
   }
 
-  const rate = async (data: ICreateRating) => {
-    const url = `${endpoint}/rate`
+  const rate = async (data: ICreateRating, id: number) => {
+    const url = `${endpoint}/${id}/rate`
     const token = getAccessToken()
-    const response = await baseRequest<ICreateRatingResponse>(url, authorizedRequestConfig("POST", token, data))
+    const response = await baseRequest<IRatingResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
 

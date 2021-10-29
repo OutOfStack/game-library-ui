@@ -65,13 +65,13 @@ const Header = (props: IHeaderProps) => {
     setAlert(a => ({...defaultAlert, severity: a.severity}))
   }
 
-  const showNotification = (message: string, severity: AlertColor = "success") => {
+  /*const showNotification = (message: string, severity: AlertColor = "success") => {
     setAlert({
       message: message,
       severity: severity,
       open: true
     })
-  }
+  }*/
 
   //#endregion
 
