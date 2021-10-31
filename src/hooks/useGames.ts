@@ -30,7 +30,8 @@ const useGames = () => {
 
   const postData = async (data: ICreateGame) => {
     const url = endpoint
-    const response = await baseRequest<IGameResponse>(url, postRequestConfig(data))
+    const token = getAccessToken()
+    const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
 
