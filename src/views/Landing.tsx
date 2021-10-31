@@ -130,12 +130,14 @@ const Landing = () => {
     if (!validateRegisterForm()) {
       return
     }
-    const g: ICreateGame = {
+    
+    const newGame: ICreateGame = {
       ...addGame,
       releaseDate: moment(addGame.releaseDate).format("yyyy-MM-DD"),
-      genre: addGame.genre?.join(",").split(",").map(g => g.trim())
+      // in fact price is stored in state as a string so we need to double convert it to number
+      price: parseInt(addGame.price.toString())
     }
-    const [resp, err] = await postData(g)
+    const [resp, err] = await postData(newGame)
     if (err) {
       if (typeof err === 'string') {
         setAddGameErrorText(err)
@@ -146,16 +148,16 @@ const Landing = () => {
       return
     }
     const game = resp as IGameResponse
-    // automatically log in after registration
     if (game.id) {
-
+      setAddGameDialogText("Game has been successfully added")
+      setAddGame({} as ICreateGame)
+      setTimeout(() => {
+        handleAddGameDialogClose()
+        setAddGameDialogText("")
+      }, 500)
+    } else {
+      setAddGameErrorText("An error occured. Try again")
     }
-    
-    setAddGameDialogText("Game has been successfully added")
-    setAddGame({} as ICreateGame)
-    setTimeout(() => {
-      handleAddGameDialogClose()
-    }, 500)
   }
 
   //#endregion
@@ -273,100 +275,114 @@ const Landing = () => {
           </Backdrop>
           <Dialog open={addGameDialogOpen} onClose={handleAddGameDialogClose} fullWidth={matchesMd}>
             <DialogTitle sx={{textAlign: 'center'}}>Add new game</DialogTitle>
-              <DialogContent>
-                {addGameDialogText || 
-                  <Grid container direction="column" alignItems="center">
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!addGameValidation.name}
-                        helperText={addGameValidation.name}
-                        fullWidth
-                        label="Name"
-                        margin="normal"
-                        value={addGame?.name || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'name')}
-                      />
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!addGameValidation.developer}
-                        helperText={addGameValidation.developer}
-                        fullWidth
-                        label="Developer"
-                        margin="normal"
-                        value={addGame?.developer || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'developer')}
-                      />
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      {isTouchDevice()
-                      ? <MobileDatePicker
-                        label="Release date"
-                        inputFormat="yyyy-MM-DD"
-                        value={addGame?.releaseDate || null}
-                        onChange={(d) => {
-                          setAddGameValidation(v => ({...v, releaseDate: ""}));
-                          setAddGame(g => ({...g, releaseDate: d || ""}));
-                        }}
-                        renderInput={(params) => 
-                          <TextField {...params} 
-                            required 
-                            fullWidth
-                            error={!!addGameValidation.releaseDate}
-                            helperText={addGameValidation.releaseDate} 
-                        />}
-                      />
-                      : <DesktopDatePicker
-                        label="Release date"
-                        inputFormat="yyyy-MM-DD"
-                        value={addGame?.releaseDate || null}
-                        onChange={(d) => {
-                          setAddGameValidation(v => ({...v, releaseDate: ""}));
-                          setAddGame(g => ({...g, releaseDate: d || ""}));
-                        }}
-                        renderInput={(params) => 
-                          <TextField {...params} 
-                            required
-                            fullWidth
-                            error={!!addGameValidation.releaseDate}
-                            helperText={addGameValidation.releaseDate} 
-                        />}
-                      />
-                      }
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        fullWidth
-                        margin="normal"
-                        label="Genre"
-                        placeholder="rpg,action,adventure"
-                        value={addGame?.genre?.join(",") || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => setAddGame(g => ({
-                          ...g,
-                          genre: e.target.value?.split(",")
-                        }))}
-                      />
-                    </Grid>
-                    {addGameErrorText && 
-                      <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                        <Alert severity="error" icon={false}>
-                          <Typography>
-                            {addGameErrorText}
-                          </Typography>
-                        </Alert>
-                      </Grid>
+            <DialogContent>
+              {addGameDialogText || 
+                <Grid container direction="column" alignItems="center">
+                  <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                    <TextField
+                      required
+                      error={!!addGameValidation.name}
+                      helperText={addGameValidation.name}
+                      fullWidth
+                      label="Name"
+                      margin="normal"
+                      value={addGame?.name || ""}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'name')}
+                    />
+                  </Grid>
+                  <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                    <TextField
+                      required
+                      error={!!addGameValidation.developer}
+                      helperText={addGameValidation.developer}
+                      fullWidth
+                      label="Developer"
+                      margin="normal"
+                      value={addGame?.developer || ""}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'developer')}
+                    />
+                  </Grid>
+                  <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                    {isTouchDevice()
+                    ? <MobileDatePicker
+                      label="Release date"
+                      inputFormat="yyyy-MM-DD"
+                      value={addGame?.releaseDate || null}
+                      onChange={(d) => {
+                        setAddGameValidation(v => ({...v, releaseDate: ""}));
+                        setAddGame(g => ({...g, releaseDate: d || ""}));
+                      }}
+                      renderInput={(params) => 
+                        <TextField {...params} 
+                          required 
+                          fullWidth
+                          error={!!addGameValidation.releaseDate}
+                          helperText={addGameValidation.releaseDate} 
+                      />}
+                    />
+                    : <DesktopDatePicker
+                      label="Release date"
+                      inputFormat="yyyy-MM-DD"
+                      value={addGame?.releaseDate || null}
+                      onChange={(d) => {
+                        setAddGameValidation(v => ({...v, releaseDate: ""}));
+                        setAddGame(g => ({...g, releaseDate: d || ""}));
+                      }}
+                      renderInput={(params) => 
+                        <TextField {...params}
+                          fullWidth
+                          margin="normal"
+                          required
+                          error={!!addGameValidation.releaseDate}
+                          helperText={addGameValidation.releaseDate}
+                      />}
+                    />
                     }
                   </Grid>
-                }
-              </DialogContent>
-              {!addGameDialogText &&
-                <DialogActions>
-                  <Button size="large" variant="contained" onClick={handleAddGameDialogClose}>Cancel</Button>
-                  <Button size="large" variant="contained" color="success" onClick={handleAddGame}>Add game</Button>
-                </DialogActions>
+                  <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                    <TextField
+                      fullWidth
+                      margin="normal"
+                      label="Genre"
+                      placeholder="rpg,action,adventure"
+                      value={addGame?.genre?.join(",") || ""}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => setAddGame(g => ({
+                        ...g,
+                        genre: e.target.value?.split(",").map(g => g.trim())
+                      }))}
+                    />
+                  </Grid>
+                  <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                    <TextField
+                      required
+                      error={!!addGameValidation.price}
+                      helperText={addGameValidation.price}
+                        fullWidth
+                      margin="normal"
+                      label="Price"
+                      type="number"
+                      value={addGame?.price || 0}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'price')}
+                    />
+                  </Grid>
+                  {addGameErrorText && 
+                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                      <Alert severity="error" icon={false}>
+                        <Typography>
+                          {addGameErrorText}
+                        </Typography>
+                      </Alert>
+                    </Grid>
+                  }
+                </Grid>
               }
+            </DialogContent>
+            {!addGameDialogText &&
+              <DialogActions>
+                <Button size="large" variant="contained" onClick={handleAddGameDialogClose}>Cancel</Button>
+                <Button size="large" variant="contained" color="success" onClick={handleAddGame}>Add game</Button>
+              </DialogActions>
+            }
           </Dialog>
 
           <Snackbar 
@@ -386,7 +402,7 @@ const Landing = () => {
               </Grid>
               {hasRole([roles.publisher]) &&
                 <Grid item md={6} sx={{textAlign: "right"}}>
-                  <Button variant="outlined" onClick={() => handleAddGameDialogOpen()}>Add game</Button>
+                  <Button variant="contained" onClick={() => handleAddGameDialogOpen()}>Add game</Button>
                 </Grid>
               }
             </Grid>
