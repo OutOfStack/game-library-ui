@@ -14,6 +14,7 @@ import { ISignUp } from '../types/Auth/SignUp'
 import { IGetUser } from '../types/Auth/User'
 import { IValidationResponse } from '../types/Validation'
 import { stringAvatar } from '../utils/avatar'
+import Modal from '../components/Modal'
 
 
 const useStyles = makeStyles(() => ({
@@ -298,140 +299,121 @@ const Header = (props: IHeaderProps) => {
             </ButtonGroup>
           }
 
-          <Dialog open={registerDialogOpen} onClose={handleRegisterDialogClose} fullWidth={matchesMd}>
-            <DialogTitle sx={{textAlign: 'center'}}>Register</DialogTitle>
-              <DialogContent>
-                {registerDialogText || 
-                  <Grid container direction="column" alignItems="center">
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!registerValidation.username}
-                        helperText={registerValidation.username}
-                        fullWidth
-                        label="Username"
-                        margin="normal"
-                        value={signUpData?.username || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username', false)}
-                      />
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!registerValidation.name}
-                        helperText={registerValidation.name}
-                        fullWidth
-                        label="Name"
-                        margin="normal"
-                        value={signUpData?.name || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'name', false)}
-                      />
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!registerValidation.password}
-                        helperText={registerValidation.password}
-                        fullWidth
-                        margin="normal"
-                        label="Password"
-                        type="password"
-                        value={signUpData?.password || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password', false)}
-                      />
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!registerValidation.confirmPassword}
-                        helperText={registerValidation.confirmPassword}
-                        fullWidth
-                        margin="normal"
-                        label="Confirm password"
-                        type="password"
-                        value={signUpData?.confirmPassword || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'confirmPassword', false)}
-                      />
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <FormControlLabel
-                        control={
-                          <Checkbox 
-                            checked={signUpData.isPublisher || false} 
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => (setSignUpData(d => ({...d, isPublisher: e.target.checked})))}
-                          />}
-                        label="I am a publisher"
-                      />
-                    </Grid>
-                    {registerErrorText && 
-                      <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                        <Alert severity="error" icon={false}>
-                          <Typography>
-                            {registerErrorText}
-                          </Typography>
-                        </Alert>
-                      </Grid>
-                    }
-                  </Grid>
-                }
-              </DialogContent>
-              {!registerDialogText &&
-                <DialogActions>
-                  <Button size="large" variant="contained" onClick={handleRegisterDialogClose}>Cancel</Button>
-                  <Button size="large" variant="contained" color="success" onClick={handleRegister}>Register</Button>
-                </DialogActions>
-              }
-          </Dialog>
+          <Modal 
+            fullwidth={matchesMd}
+            matchesMd={matchesMd}
+            isOpen={registerDialogOpen} 
+            closeDialog={handleRegisterDialogClose} 
+            title='Register'
+            dialogText={registerDialogText} 
+            dialogErrorText={registerErrorText} 
+            submitActionName='Register' 
+            handleSubmit={handleRegister}
+          >
+            <>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <TextField
+                  required
+                  error={!!registerValidation.username}
+                  helperText={registerValidation.username}
+                  fullWidth
+                  label="Username"
+                  margin="normal"
+                  value={signUpData?.username || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username', false)}
+                />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <TextField
+                  required
+                  error={!!registerValidation.name}
+                  helperText={registerValidation.name}
+                  fullWidth
+                  label="Name"
+                  margin="normal"
+                  value={signUpData?.name || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'name', false)}
+                />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <TextField
+                  required
+                  error={!!registerValidation.password}
+                  helperText={registerValidation.password}
+                  fullWidth
+                  margin="normal"
+                  label="Password"
+                  type="password"
+                  value={signUpData?.password || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password', false)}
+                />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <TextField
+                  required
+                  error={!!registerValidation.confirmPassword}
+                  helperText={registerValidation.confirmPassword}
+                  fullWidth
+                  margin="normal"
+                  label="Confirm password"
+                  type="password"
+                  value={signUpData?.confirmPassword || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'confirmPassword', false)}
+                />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox 
+                      checked={signUpData.isPublisher || false} 
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => (setSignUpData(d => ({...d, isPublisher: e.target.checked})))}
+                    />}
+                  label="I am a publisher"
+                />
+              </Grid>
+            </>
+          </Modal>
 
-          <Dialog open={loginDialogOpen} onClose={handleLoginDialogClose} fullWidth={matchesMd}>
-            <DialogTitle sx={{textAlign: 'center'}}>Login</DialogTitle>
-              <DialogContent>
-                {loginDialogText || 
-                  <Grid container direction="column" alignItems="center">
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!loginValidation.username}
-                        helperText={loginValidation.username}
-                        fullWidth
-                        label="Username"
-                        margin="normal"
-                        value={signInData?.username || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username')}
-                      />
-                    </Grid>
-                    <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                      <TextField
-                        required
-                        error={!!loginValidation.password}
-                        helperText={loginValidation.password}
-                        fullWidth
-                        margin="normal"
-                        label="Password"
-                        type="password"
-                        value={signInData?.password || ""}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password')}
-                      />
-                    </Grid>
-                    {loginErrorText && 
-                      <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                        <Alert severity="error" icon={false}>
-                          <Typography>
-                            {loginErrorText}
-                          </Typography>
-                        </Alert>
-                      </Grid>
-                    }
-                  </Grid>
-                }
-              </DialogContent>
-              {!loginDialogText &&
-                <DialogActions>
-                  <Button size="large" variant="contained" onClick={handleLoginDialogClose}>Cancel</Button>
-                  <Button size="large" variant="contained" color="success" onClick={handleLogin}>Login</Button>
-                </DialogActions>
-              }
-          </Dialog>
+          <Modal
+            fullwidth={matchesMd}
+            matchesMd={matchesMd}
+            isOpen={loginDialogOpen} 
+            closeDialog={handleLoginDialogClose} 
+            title='Login'
+            dialogText={loginDialogText}
+            dialogErrorText={loginErrorText} 
+            submitActionName='Login' 
+            handleSubmit={handleLogin}
+          >
+            <>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <TextField
+                  required
+                  error={!!loginValidation.username}
+                  helperText={loginValidation.username}
+                  fullWidth
+                  label="Username"
+                  margin="normal"
+                  value={signInData?.username || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username')}
+                />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <TextField
+                  required
+                  error={!!loginValidation.password}
+                  helperText={loginValidation.password}
+                  fullWidth
+                  margin="normal"
+                  label="Password"
+                  type="password"
+                  value={signInData?.password || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password')}
+                />
+              </Grid>
+            </>
+          </Modal>
+          
         </Toolbar>
       </AppBar>
     </Box>

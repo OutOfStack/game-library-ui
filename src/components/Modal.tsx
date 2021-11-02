@@ -11,12 +11,12 @@ export interface IModalProps {
   dialogErrorText: string,
   submitActionName: string,
   handleSubmit: () => void,
-  gridItems: JSX.Element
+  children: JSX.Element
 }
 
 const Modal = (props: IModalProps) => {
   const { fullwidth, matchesMd, isOpen, closeDialog, title, dialogText, dialogErrorText,
-    submitActionName, handleSubmit, gridItems } = props
+    submitActionName, handleSubmit, children } = props
 
   return (
     <Dialog open={isOpen} onClose={closeDialog} fullWidth={fullwidth || true}>
@@ -24,7 +24,7 @@ const Modal = (props: IModalProps) => {
       <DialogContent>
         {dialogText ||
           <Grid container direction="column" alignItems="center">
-            {gridItems}
+            {children}
             {dialogErrorText && 
               <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <Alert severity="error" icon={false}>
