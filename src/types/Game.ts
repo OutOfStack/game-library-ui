@@ -10,7 +10,8 @@ interface IGame {
 	price: number,
 	currentPrice: number,
 	rating: number,
-	genre: string[]
+	genre: string[],
+	logoUrl?: string
 }
 
 /**
@@ -21,7 +22,8 @@ interface ICreateGame {
 	developer: string,
 	releaseDate: string,
 	price: number,
-	genre: string[]
+	genre: string[],
+	logoUrl?: string
 }
 
 /** 
@@ -32,7 +34,8 @@ interface IUpdateGame {
 	developer?: string,
 	releaseDate?: string,
 	price?: number,
-	genre?: string[]
+	genre?: string[],
+	logoUrl?: string
 }
 
 /**
@@ -45,7 +48,8 @@ interface IGameResponse {
 	publisher: string,
 	releaseDate: string,
 	price: number,
-	genre: string[]
+	genre: string[],
+	logoUrl?: string
 }
 
 export type { IGame, ICreateGame, IUpdateGame, IGameResponse }

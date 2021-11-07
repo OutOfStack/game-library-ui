@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, 
+import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, 
   Snackbar, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import DateAdapter from '@mui/lab/AdapterMoment'
 import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/lab'
 import moment from 'moment'
+import { FileInfo, Widget } from "@uploadcare/react-widget"
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
@@ -19,6 +20,7 @@ import { roles } from '../auth/roles'
 import { IGetUserRatingsResponse } from '../types/Rating'
 import { isTouchDevice } from '../utils/devices'
 import Modal from '../components/Modal'
+import '../styles/UploadWidget.css'
 
 
 const Landing = () => {
@@ -128,7 +130,7 @@ const Landing = () => {
 
     return valid
   }
-
+  
   const handleAddGame = async () => {
     setAddGameErrorText("")
     if (!validateRegisterForm()) {
@@ -163,6 +165,42 @@ const Landing = () => {
       setAddGameErrorText("An error occured. Try again")
     }
   }
+
+  //#endregion
+
+  //#region upload widget
+
+  const handleLogoChanged = (fileInfo: FileInfo) => {
+    if (fileInfo.isStored) {
+      setAddGame(g => ({...g, logoUrl: fileInfo.cdnUrl || undefined}))
+    }
+  }
+
+  const fileSizeLimit = (sizeInKb: number) => {
+    return function(fileInfo: FileInfo) {
+      if (fileInfo.name === null || fileInfo.size === null) {
+        return
+      }
+  
+      if (fileInfo.size > sizeInKb * 1024) {
+        throw new Error('size')
+      }
+    }
+  }
+
+  const hasExtension = () => {
+    return function(fileInfo: FileInfo) {
+      if (fileInfo.name === null) {
+        return
+      }
+  
+      if (!fileInfo.name.includes(".")) {
+        throw new Error('image')
+      }
+    }
+  }
+  
+  const uploadValidators = [fileSizeLimit(150), hasExtension()]
 
   //#endregion
 
@@ -324,10 +362,12 @@ const Landing = () => {
                     setAddGameValidation(v => ({...v, releaseDate: ""}));
                     setAddGame(g => ({...g, releaseDate: d || ""}));
                   }}
+                  mask="____-__-__"
                   renderInput={(params) => 
                     <TextField {...params} 
-                      required 
                       fullWidth
+                      margin="normal"
+                      required 
                       error={!!addGameValidation.releaseDate}
                       helperText={addGameValidation.releaseDate} 
                   />}
@@ -340,6 +380,7 @@ const Landing = () => {
                     setAddGameValidation(v => ({...v, releaseDate: ""}));
                     setAddGame(g => ({...g, releaseDate: d || ""}));
                   }}
+                  mask="____-__-__"
                   renderInput={(params) => 
                     <TextField {...params}
                       fullWidth
@@ -369,13 +410,27 @@ const Landing = () => {
                   required
                   error={!!addGameValidation.price}
                   helperText={addGameValidation.price}
-                    fullWidth
+                  fullWidth
                   margin="normal"
                   label="Price"
                   type="number"
                   value={addGame?.price || 0}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'price')}
                 />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <label style={{color: "rgba(0, 0, 0, 0.6)"}} htmlFor={'uploadWidget'}>Logo </label>
+                <Typography variant="caption" color={"rgba(0, 0, 0, 0.6)"}> (max size 150 kb)</Typography>
+                <div id={'uploadWidget'}>
+                  <Widget
+                    imagesOnly
+                    previewStep={true}
+                    tabs='file'
+                    publicKey='8869032692db5708aebb' 
+                    validators={uploadValidators}
+                    onChange={(fileInfo: FileInfo) => handleLogoChanged(fileInfo)}
+                  />
+                </div>
               </Grid>
             </>
           </Modal>
