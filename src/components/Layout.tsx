@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: 'flex'
   },
   paper: {
-    padding: theme.spacing(3),
+    padding: theme.spacing(1),
     marginTop: '2px',
     backgroundColor: grey[300],
     variant: 'outlined'

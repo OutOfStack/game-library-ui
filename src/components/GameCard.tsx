@@ -22,11 +22,11 @@ interface GameCardProps {
 const GameCard = (props: GameCardProps) => {
   const { game, userRating, showUserRating } = props
 
-  const logoWidth = 430
+  const logoWidth = 410
   const logoHeight = 200
   
   const theme = useTheme()
-  const matchesXs = useMediaQuery(theme.breakpoints.down('xs'))
+  const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
 
   const { rate } = useGames()
 
@@ -113,13 +113,20 @@ const GameCard = (props: GameCardProps) => {
         </Alert>
       </Snackbar>
       <Card variant="outlined">
-        <div style={{height: matchesXs ? logoHeight : 160, display: 'flex', alignItems: 'center', margin: 'auto', width: '100%'}}>
+        <div style={{
+          height: matchesXs ? logoHeight : 160, 
+          display: 'flex', 
+          alignItems: 'center', 
+          margin: 'auto'
+        }}>
           <CardMedia
             component="img"
             sx={{
               textAlign: 'center',
               maxHeight: matchesXs ? logoHeight : 160,
               maxWidth: matchesXs ? logoWidth : 330,
+              mr: 'auto',
+              ml: 'auto'
             }}
             image={getLogoUrl(game.logoUrl)}
             alt={game.name + " logo"}
