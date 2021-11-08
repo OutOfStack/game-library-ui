@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Alert, AlertColor, AppBar, Avatar, Box, Button, ButtonGroup, Checkbox, FormControlLabel, Grid, 
-  Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery,  } from '@mui/material'
+  Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'

@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Alert, AlertColor, Box, Card, CardContent, Grid, List, ListItem, ListItemText, Rating, Snackbar, Stack, Typography } from '@mui/material'
+import { Alert, AlertColor, Box, Card, CardContent, CardMedia, Grid, List, ListItem, ListItemText, Rating, Snackbar, Stack, Typography, useMediaQuery } from '@mui/material'
 import InfoIcon from '@mui/icons-material/Info'
 import StarIcon from '@mui/icons-material/Star'
 import { orange } from '@mui/material/colors'
+import { useTheme } from '@mui/material/styles'
 
 import { IGame } from '../types/Game'
 import { ToCurrency, To1Precision } from '../utils/format'
@@ -19,7 +20,13 @@ interface GameCardProps {
 
 const GameCard = (props: GameCardProps) => {
   const { game, userRating, showUserRating } = props
+
+  const logoWidth = 430
+  const logoHeight = 200
   
+  const theme = useTheme()
+  const matchesXs = useMediaQuery(theme.breakpoints.down('xs'))
+
   const { rate } = useGames()
 
   const [uRating, setURating] = useState<number | null>(null)
@@ -83,6 +90,15 @@ const GameCard = (props: GameCardProps) => {
 
   //#endregion
 
+  // https://uploadcare.com/docs/transformations/image/resize-crop/
+  const getLogoUrl = (url?: string): string | undefined => {
+    if (!url) {
+      return undefined
+    }
+    const suffix = `-/resize/${logoWidth}x${logoHeight}/`
+    return url.endsWith('/') ? `${url}${suffix}` : `${url}/${suffix}`
+  }
+
   return (
     <>
       <Snackbar 
@@ -96,6 +112,18 @@ const GameCard = (props: GameCardProps) => {
         </Alert>
       </Snackbar>
       <Card variant="outlined">
+        <div style={{height: matchesXs ? logoHeight : 160, display: 'flex', alignItems: 'center', margin: 'auto', width: '100%'}}>
+          <CardMedia
+            component="img"
+            sx={{
+              textAlign: 'center',
+              maxHeight: matchesXs ? logoHeight : 160,
+              maxWidth: matchesXs ? logoWidth : 330,
+            }}
+            image={getLogoUrl(game.logoUrl)}
+            alt={game.name + " logo"}
+          />
+        </div>
         <CardContent>
           <Typography variant="subtitle1" noWrap>
             {game.name}

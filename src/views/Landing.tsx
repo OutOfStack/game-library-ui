@@ -420,7 +420,7 @@ const Landing = () => {
               </Grid>
               <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <label style={{color: "rgba(0, 0, 0, 0.6)"}} htmlFor={'uploadWidget'}>Logo </label>
-                <Typography variant="caption" color={"rgba(0, 0, 0, 0.6)"}> (max size 150 kb)</Typography>
+                <Typography variant="caption" color={"rgba(0, 0, 0, 0.6)"}> (max size 150 kb, recommended ratio 2:1)</Typography>
                 <div id={'uploadWidget'}>
                   <Widget
                     imagesOnly
