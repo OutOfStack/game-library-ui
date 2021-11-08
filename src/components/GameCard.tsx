@@ -4,6 +4,7 @@ import InfoIcon from '@mui/icons-material/Info'
 import StarIcon from '@mui/icons-material/Star'
 import { orange } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
+import moment from 'moment'
 
 import { IGame } from '../types/Game'
 import { ToCurrency, To1Precision } from '../utils/format'
@@ -167,7 +168,7 @@ const GameCard = (props: GameCardProps) => {
           </Grid>
 
           <Stack direction="row" alignItems="center" justifyContent="space-between">
-            {showUserRating
+            {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment()
               ? <Rating
                 value={uRating || userRating || null}
                 max={4}

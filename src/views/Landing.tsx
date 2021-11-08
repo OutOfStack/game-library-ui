@@ -30,6 +30,7 @@ const Landing = () => {
   const { hasRole, isAuthenticated } = useAuth()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
+  const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
   
   const defaultPagination = {
     pageSize: 20,
@@ -469,9 +470,9 @@ const Landing = () => {
                 {pagination.lastId !== 0 &&
                   <Button 
                     disableElevation 
-                    size="large"
-                    startIcon={<NavigateBeforeIcon fontSize="large" />}
-                    sx={{fontSize: '28px'}}
+                    size={"large"}
+                    startIcon={<NavigateBeforeIcon fontSize={matchesXs ? "small" : "large"} />}
+                    sx={{fontSize: matchesXs ? '16px' : '28px'}}
                     onClick={() => handlePagination(false)}
                   >
                     PREVIOUS
@@ -482,9 +483,9 @@ const Landing = () => {
                 {pagination.pageSize === data.length &&
                   <Button
                     disableElevation 
-                    size="large"
-                    endIcon={<NavigateNextIcon fontSize="large" />}
-                    sx={{fontSize: '28px'}}
+                    size={"large"}
+                    endIcon={<NavigateNextIcon fontSize={matchesXs ? "small" : "large"} />}
+                    sx={{fontSize: matchesXs ? '16px' : '28px'}}
                     onClick={() => handlePagination(true)}
                   >
                     NEXT
