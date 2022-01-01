@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, 
-  Snackbar, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+  Snackbar, SnackbarCloseReason, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import DateAdapter from '@mui/lab/AdapterMoment'
@@ -54,7 +54,7 @@ const Landing = () => {
   }
   const [alert, setAlert] = useState(defaultAlert)
 
-  const handleCloseAlert = (event?: React.SyntheticEvent, reason?: string) => {
+  const handleCloseAlert = (event?: Event | React.SyntheticEvent<any, Event>, reason?: SnackbarCloseReason) => {
     if (reason === 'clickaway') {
       return
     }
@@ -311,7 +311,7 @@ const Landing = () => {
       <Layout searchFieldProps={searchFieldProps}>
         <Container maxWidth="xl">
           <Backdrop
-            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            sx={{ color: '#fff', zIndex: (theme: any) => theme.zIndex.drawer + 1 }}
             open={isLoading}
           >
             <CircularProgress color="inherit" />

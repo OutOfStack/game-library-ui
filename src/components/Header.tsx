@@ -58,7 +58,7 @@ const Header = (props: IHeaderProps) => {
   }
   const [alert, setAlert] = useState(defaultAlert)
 
-  const handleCloseAlert = (event?: React.SyntheticEvent, reason?: string) => {
+  const handleCloseAlert = (event: Event | React.SyntheticEvent<any, Event>, reason?: string) => {
     if (reason === 'clickaway') {
       return
     }

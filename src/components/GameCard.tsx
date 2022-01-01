@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Alert, AlertColor, Box, Card, CardContent, CardMedia, Grid, List, ListItem, ListItemText, Rating, Snackbar, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Alert, AlertColor, Box, Card, CardContent, CardMedia, Grid, List, ListItem, ListItemText, Rating, Snackbar, 
+  SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
 import InfoIcon from '@mui/icons-material/Info'
 import StarIcon from '@mui/icons-material/Star'
 import { orange } from '@mui/material/colors'
@@ -58,7 +59,7 @@ const GameCard = (props: GameCardProps) => {
   }
   const [alert, setAlert] = useState(defaultAlert)
 
-  const handleCloseAlert = (event?: React.SyntheticEvent, reason?: string) => {
+  const handleCloseAlert = (event?: Event | React.SyntheticEvent<any, Event>, reason?: SnackbarCloseReason) => {
     if (reason === 'clickaway') {
       return
     }
