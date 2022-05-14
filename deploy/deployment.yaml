@@ -19,7 +19,8 @@ spec:
               - name: game-library-ui
                 image: asctod/game-library-ui:latest
                 ports:
-                  - containerPort: 80
+                  - name: web
+                    containerPort: 80
                 envFrom:
                   - configMapRef:
                         name: game-library-ui-config

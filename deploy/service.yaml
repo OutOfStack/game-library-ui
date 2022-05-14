@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+    name: game-library-ui-service
+    namespace: game-library
+spec:
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: web
+    selector:
+        app: game-library-ui
