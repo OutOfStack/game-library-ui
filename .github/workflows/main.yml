@@ -32,7 +32,7 @@ jobs:
 
     - name: Replace deployment variables
       run: |
-        sed -i'' -e 's/_K8S_URL_/${{ secrets.K8S_URL }}/g' -e 's/_IMAGE_TAG_/${{ github.sha }}/g' deploy/*.yaml
+        sed -i'' -e 's/_K8S_URL_/${{ secrets.K8S_URL }}/g' -e 's/_IMAGE_TAG_/${{ github.sha }}/g' -e 's/_ACME_EMAIL_/${{ secrets.ACME_EMAIL }}/g' deploy/*.yaml
 
     - name: Kubernetes Apply configs
       run: | 

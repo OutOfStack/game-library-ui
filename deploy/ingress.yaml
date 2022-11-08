@@ -32,6 +32,7 @@ metadata:
     name: letsencrypt
 spec:
     acme:
+        email: _ACME_EMAIL_
         server: https://acme-v02.api.letsencrypt.org/directory
         # Secret resource that will be used to store the account's private key.
         privateKeySecretRef:
