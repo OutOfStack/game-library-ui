@@ -1,8 +1,6 @@
 # Game-library UI
 
-Is a user interface for game-library app. 
-
-Check out at https://vmi644117.contaboserver.net
+User interface for game-library app. 
 
 <sup><sub>This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).</sub></sup> 
 
@@ -12,9 +10,6 @@ Check out at https://vmi644117.contaboserver.net
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
 #### `npm test`
 

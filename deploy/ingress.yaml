@@ -12,10 +12,10 @@ metadata:
 spec:
     tls:
       - hosts:
-          - vmi644117.contaboserver.net
+          - _K8S_URL_
         secretName: tls-secret
     rules:
-      - host: vmi644117.contaboserver.net
+      - host: _K8S_URL_
         http:
             paths:
               - path: /
