@@ -3,7 +3,7 @@ name: "Build and push image, deploy"
 on:
   push:
     branches:
-      - "feature/replace-deploy-vars-in-cicd"
+      - "main"
 
 jobs:
   build_push_deploy:
