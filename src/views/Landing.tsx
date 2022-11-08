@@ -359,7 +359,7 @@ const Landing = () => {
                   label="Release date"
                   inputFormat="yyyy-MM-DD"
                   value={addGame?.releaseDate || null}
-                  onChange={(d) => {
+                  onChange={(d: string | null) => {
                     setAddGameValidation(v => ({...v, releaseDate: ""}));
                     setAddGame(g => ({...g, releaseDate: d || ""}));
                   }}
@@ -377,7 +377,7 @@ const Landing = () => {
                   label="Release date"
                   inputFormat="yyyy-MM-DD"
                   value={addGame?.releaseDate || null}
-                  onChange={(d) => {
+                  onChange={(d: string | null) => {
                     setAddGameValidation(v => ({...v, releaseDate: ""}));
                     setAddGame(g => ({...g, releaseDate: d || ""}));
                   }}
