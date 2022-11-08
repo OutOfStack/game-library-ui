@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, 
-  Snackbar, SnackbarCloseReason, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+  Snackbar, SnackbarCloseReason, TextField, TextFieldProps, Typography, useMediaQuery, useTheme } from '@mui/material'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import DateAdapter from '@mui/lab/AdapterMoment'
@@ -364,7 +364,7 @@ const Landing = () => {
                     setAddGame(g => ({...g, releaseDate: d || ""}));
                   }}
                   mask="____-__-__"
-                  renderInput={(params) => 
+                  renderInput={(params: TextFieldProps) => 
                     <TextField {...params} 
                       fullWidth
                       margin="normal"
@@ -382,7 +382,7 @@ const Landing = () => {
                     setAddGame(g => ({...g, releaseDate: d || ""}));
                   }}
                   mask="____-__-__"
-                  renderInput={(params) => 
+                  renderInput={(params: TextFieldProps) => 
                     <TextField {...params}
                       fullWidth
                       margin="normal"
