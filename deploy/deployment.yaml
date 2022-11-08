@@ -17,7 +17,7 @@ spec:
         spec:
             containers:
               - name: game-library-ui
-                image: asctod/game-library-ui:latest
+                image: asctod/game-library-ui:_IMAGE_TAG_
                 ports:
                   - name: web
                     containerPort: 80
