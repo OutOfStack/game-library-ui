@@ -4,7 +4,8 @@ import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container,
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import DateAdapter from '@mui/lab/AdapterMoment'
-import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/lab'
+import { MobileDatePicker, DesktopDatePicker } from '@mui/lab'
+import { LocalizationProvider } from '@mui/x-date-pickers'
 import moment from 'moment'
 import { FileInfo, Widget } from "@uploadcare/react-widget"
 
