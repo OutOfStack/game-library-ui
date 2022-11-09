@@ -11,6 +11,7 @@ const ThemeConfig = (props: ThemeProps) => {
 
   const theme = createTheme({
     palette: {
+      mode: 'light',
       primary: {
         light: '#a4a4a4',
         main: '#757575',

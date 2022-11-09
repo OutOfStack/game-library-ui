@@ -3,8 +3,8 @@ import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container,
   Snackbar, SnackbarCloseReason, TextField, TextFieldProps, Typography, useMediaQuery, useTheme } from '@mui/material'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
-import DateAdapter from '@mui/lab/AdapterMoment'
-import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/lab'
+import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment';
+import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import moment from 'moment'
 import { FileInfo, Widget } from "@uploadcare/react-widget"
 
