@@ -4,7 +4,7 @@ import { Alert, AlertColor, AppBar, Avatar, Box, Button, ButtonGroup, Checkbox, 
   Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import { useTheme } from '@mui/material/styles'
-import { makeStyles } from '@mui/styles'
+import { makeStyles } from 'tss-react/mui'
 
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchField'
 import { ISignIn, IToken } from '../types/Auth/SignIn'
@@ -16,7 +16,7 @@ import { stringAvatar } from '../utils/avatar'
 import Modal from '../components/Modal'
 
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   title: {
     cursor: 'pointer'
   }
@@ -42,7 +42,7 @@ const Header = (props: IHeaderProps) => {
   const { searchFieldProps } = props
 
   const { signIn, signUp, getClaims, isAuthenticated, setUserStorage, logout } = useAuth()
-  const classes = useStyles()
+  const { classes } = useStyles()
   const history = useHistory()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))

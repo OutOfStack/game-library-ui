@@ -1,12 +1,12 @@
 import { Container, Paper } from '@mui/material'
-import { makeStyles } from '@mui/styles'
+import { makeStyles } from 'tss-react/mui'
 import { Theme } from '@mui/material/styles'
 import { grey } from '@mui/material/colors'
 
 import Header, { ISearchFieldProps } from './Header'
 
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme: Theme) => ({
   root: {
     flexGrow: 2,
     display: 'flex'
@@ -30,7 +30,7 @@ interface LayoutProps {
 const Layout = (props: LayoutProps) => {
   const { children, searchFieldProps } = props
 
-  const classes = useStyles()
+  const { classes } = useStyles()
 
   return (
     <div>
