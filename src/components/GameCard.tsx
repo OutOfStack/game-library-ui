@@ -1,18 +1,17 @@
 import React, { useState } from 'react'
-import { Alert, AlertColor, Box, Card, CardContent, CardMedia, Grid, List, ListItem, ListItemText, Rating, Snackbar, 
+import { Alert, AlertColor, Box, Card, CardContent, CardMedia, List, ListItem, ListItemText, Rating, Snackbar, 
   SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
 import InfoIcon from '@mui/icons-material/Info'
-import StarIcon from '@mui/icons-material/Star'
+import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
 import { orange } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
 import moment from 'moment'
 
 import { IGame } from '../types/Game'
-import { ToCurrency, To1Precision } from '../utils/format'
+import { To1Precision } from '../utils/format'
 import MouseOverPopover from './MouseOverPopover'
 import useGames from '../hooks/useGames'
 import { IValidationResponse } from '../types/Validation'
-
 
 interface GameCardProps {
   game: IGame,
@@ -81,11 +80,11 @@ const GameCard = (props: GameCardProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+    setAnchorEl(event.currentTarget)
   }
 
   const handlePopoverClose = () => {
-    setAnchorEl(null);
+    setAnchorEl(null)
   }
 
   const openPopover = Boolean(anchorEl)
@@ -133,7 +132,7 @@ const GameCard = (props: GameCardProps) => {
             alt={game.name + " logo"}
           />
         </div>
-        <CardContent>
+        <CardContent sx={{ padding: 1, '&:last-child': { pb: 1 }}}>
           <Typography variant="subtitle1" noWrap>
             {game.name}
           </Typography>
@@ -141,56 +140,25 @@ const GameCard = (props: GameCardProps) => {
           <Typography variant="subtitle2" noWrap>
             {game.publisher}
           </Typography>
-    
-          <Grid container direction="row" alignItems="center" justifyContent="space-between">
-            <Grid item>
-              {game.rating >= 1 &&
-                <div style={{
+
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            {game.rating > 0
+              ?  <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   flexWrap: 'wrap'
                 }}>
-                  <StarIcon fontSize="small" sx={{ color: orange[500] }} />
+                  <RateIcon sx={{ color: orange[500] }} />
                   &nbsp;
                   <span>{To1Precision(game.rating)}</span>
                 </div>
-              }
-            </Grid>
-            
-            <Grid item>
-              <Typography variant="subtitle1">
-                <Typography
-                  component="span"
-                  variant="body1"
-                  sx={{
-                    color: 'text.disabled',
-                    textDecoration: 'line-through'
-                  }}
-                >
-                  {game.price !== game.currentPrice && ToCurrency(game.price)}
-                </Typography>
-                &nbsp;
-                {ToCurrency(game.currentPrice)}
-              </Typography>
-            </Grid>
-          </Grid>
-
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
-            {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment()
-              ? <Rating
-                value={uRating || userRating || null}
-                max={4}
-                defaultValue={0}
-                onChange={(_, newValue) => handleRateGame(newValue)}
-              />
               : <Box/>
             }
             <div
               onMouseEnter={handlePopoverOpen}
-              onMouseLeave={handlePopoverClose}
             >
               <InfoIcon
-                color="action" 
+                color={openPopover ? "inherit" : "action"}
                 sx={{cursor: 'pointer'}}
               />
               <MouseOverPopover
@@ -198,7 +166,7 @@ const GameCard = (props: GameCardProps) => {
                 anchorEl={anchorEl}
                 handlePopoverClose={handlePopoverClose}
               >
-                <List dense={true}>
+                <List dense={true} onMouseLeave={handlePopoverClose}>
                   <ListItem>
                     <ListItemText primary={game.name} />
                   </ListItem>
@@ -214,6 +182,22 @@ const GameCard = (props: GameCardProps) => {
                   <ListItem>
                     <ListItemText primary="Genre: " secondary={game.genre?.join(", ")} />
                   </ListItem>
+                  <ListItem>
+                    {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment()
+                      ? <>
+                        Rate&nbsp;
+                        <Rating
+                          value={uRating || userRating || null}
+                          max={5}
+                          defaultValue={0}
+                          icon={<RateIcon sx={{ color: orange[800] }} />}
+                          emptyIcon={<RateIcon />}
+                          onChange={(_, newValue) => handleRateGame(newValue)}
+                        />
+                      </>
+                      : <Box/>
+                    }
+                    </ListItem>
                 </List>
               </MouseOverPopover>
             </div>

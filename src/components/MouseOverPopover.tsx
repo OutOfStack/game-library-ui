@@ -1,6 +1,5 @@
 import Popover from '@mui/material/Popover'
 
-
 interface PopoverProps {
   open: boolean,
   anchorEl: HTMLElement | null,
@@ -12,27 +11,24 @@ const MouseOverPopover = (props: PopoverProps): JSX.Element => {
   const { open, anchorEl, children, handlePopoverClose } = props
 
   return (
-    <div>
-      <Popover
-        sx={{
-          pointerEvents: 'none',
-        }}
-        open={open}
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        onClose={handlePopoverClose}
-        disableRestoreFocus
-      >
-        {children}
-      </Popover>
-    </div>
+      <div>
+        <Popover
+          open={open}
+          anchorEl={anchorEl}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+          onClose={handlePopoverClose}
+          disableRestoreFocus
+        >
+          {children}
+        </Popover>
+      </div>
   )
 }
 

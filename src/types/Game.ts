@@ -7,8 +7,6 @@ interface IGame {
 	developer: string,
 	publisher: string,
 	releaseDate: string,
-	price: number,
-	currentPrice: number,
 	rating: number,
 	genre: string[],
 	logoUrl?: string
@@ -21,7 +19,6 @@ interface ICreateGame {
 	name: string,
 	developer: string,
 	releaseDate: string,
-	price: number,
 	genre: string[],
 	logoUrl?: string
 }
@@ -33,7 +30,6 @@ interface IUpdateGame {
 	name?: string,
 	developer?: string,
 	releaseDate?: string,
-	price?: number,
 	genre?: string[],
 	logoUrl?: string
 }
@@ -47,7 +43,6 @@ interface IGameResponse {
 	developer: string,
 	publisher: string,
 	releaseDate: string,
-	price: number,
 	genre: string[],
 	logoUrl?: string
 }
