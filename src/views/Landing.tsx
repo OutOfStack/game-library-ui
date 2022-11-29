@@ -77,7 +77,6 @@ const Landing = () => {
     name: string,
 	  developer: string,
 	  releaseDate: string,
-	  price: string,
     [index: string]: string
   }
 
@@ -89,7 +88,6 @@ const Landing = () => {
     name: "",
 	  developer: "",
 	  releaseDate: "",
-	  price: ""
   })
 
   const handleAddGameDialogOpen = () => setAddGameDialogOpen(true)
@@ -124,11 +122,6 @@ const Landing = () => {
       valid = false
     }
 
-    if (addGame.price < 0 || addGame.price > 10000) {
-      setAddGameValidation(v => ({...v, price: 'should be between 0 and 10000'}))
-      valid = false
-    }
-
     return valid
   }
   
@@ -140,9 +133,7 @@ const Landing = () => {
     
     const newGame: ICreateGame = {
       ...addGame,
-      releaseDate: moment(addGame.releaseDate).format("yyyy-MM-DD"),
-      // in fact price is stored in state as a string so we need to double convert it to number
-      price: parseInt(addGame.price?.toString() || "0")
+      releaseDate: moment(addGame.releaseDate).format("yyyy-MM-DD")
     }
     const [resp, err] = await postData(newGame)
     if (err) {
@@ -404,19 +395,6 @@ const Landing = () => {
                     ...g,
                     genre: e.target.value?.split(",").map(g => g.trim())
                   }))}
-                />
-              </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                <TextField
-                  required
-                  error={!!addGameValidation.price}
-                  helperText={addGameValidation.price}
-                  fullWidth
-                  margin="normal"
-                  label="Price"
-                  type="number"
-                  value={addGame?.price || 0}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'price')}
                 />
               </Grid>
               <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
