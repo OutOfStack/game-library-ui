@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, 
   Snackbar, SnackbarCloseReason, TextField, TextFieldProps, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import ToggleButton from '@mui/material/ToggleButton'
+import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
-import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment';
-import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import AbcRoundedIcon from '@mui/icons-material/AbcRounded'
+import WhatshotRoundedIcon from '@mui/icons-material/WhatshotRounded'
+import DateRangeRoundedIcon from '@mui/icons-material/DateRangeRounded'
 import moment from 'moment'
-import { FileInfo, Widget } from "@uploadcare/react-widget"
+import { FileInfo, Widget as UploadWidget } from "@uploadcare/react-widget"
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
 import { ISearchFieldProps } from '../components/Header'
-import { ICreateGame, IGame, IGameResponse } from '../types/Game'
+import { ICountResponse, ICreateGame, IGame, IGameResponse } from '../types/Game'
 import useGames from '../hooks/useGames'
 import useUser from '../hooks/useUser'
 import useAuth from '../hooks/useAuth'
@@ -25,19 +30,22 @@ import '../styles/UploadWidget.css'
 
 const Landing = () => {
 
-  const { fetchAllData, search: searchData, postData } = useGames()
+  const { fetchPage: fetchGames, search: searchGames, fetchCount: fetchGamesCount, create: createGame } = useGames()
   const { fetchRatings } = useUser()
   const { hasRole, isAuthenticated } = useAuth()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
+  const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
   const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
   
   const defaultPagination = {
-    pageSize: 20,
-    lastId: 0
+    pageSize: 24,
+    page: 1,
+    orderBy: "default"
   }
   
   const [data, setData] = useState<IGame[]>([])
+  const [count, setCount] = useState<number>(0)
   const [userRatings, setUserRatings] = useState<IGetUserRatingsResponse>({})
   const [isLoading, setIsLoading] = useState(false)
   const [pagination, setPagination] = useState(defaultPagination)
@@ -71,6 +79,19 @@ const Landing = () => {
 
   //#endregion
 
+
+  //#region sorting
+  const handleSorting = (event: React.MouseEvent<HTMLElement>, orderBy: string | null) => {
+    if (orderBy !== null) {
+      setPagination(p => ({
+        ...p,
+        orderBy: orderBy
+      }))
+    }
+  }
+
+  //#endregion
+
   //#region add game
 
   interface IAddGameValidation {
@@ -94,7 +115,7 @@ const Landing = () => {
   const handleAddGameDialogClose = () => setAddGameDialogOpen(false)
   
   const handleAddGameFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, field: string) => {
-    const value = e.target.value?.trimLeft()
+    const value = e.target.value?.trimStart()
     setAddGame(g => ({...g, [field]: value}))
     // remove error if there is a value now
     if (addGameValidation[field]?.length > 0 && value?.length > 0) {
@@ -135,7 +156,7 @@ const Landing = () => {
       ...addGame,
       releaseDate: moment(addGame.releaseDate).format("yyyy-MM-DD")
     }
-    const [resp, err] = await postData(newGame)
+    const [resp, err] = await createGame(newGame)
     if (err) {
       if (typeof err === 'string') {
         setAddGameErrorText(err)
@@ -208,13 +229,14 @@ const Landing = () => {
 
   const handlePagination = (forward: boolean = true) => {
     if (forward) {
-      setPagination(p => ({...p, lastId: Math.max(...data.map(d => d.id), 0) }))
+      setPagination(p => ({
+        ...p,
+        page: Math.min(p.page + 1, Math.ceil(count / p.pageSize))
+      }))
     } else {
       setPagination(p => ({
         ...p,
-        lastId: Math.max(
-          Math.min(...data.map(d => d.id)) - 1 - p.pageSize,
-          0)
+        page: Math.max(p.page - 1, defaultPagination.page)
       }))
     }
   }
@@ -250,7 +272,7 @@ const Landing = () => {
   useEffect(() => {
     const search = async () => {
       setIsLoading(true)
-      const [resp, err] = await searchData(searchText)
+      const [resp, err] = await searchGames(searchText)
       if (err) {
         if (typeof err === 'string') {
           showNotification(err, "error")
@@ -274,7 +296,7 @@ const Landing = () => {
   useEffect(() => {
     const getData = async () => {
       setIsLoading(true)
-      const [resp, err] = await fetchAllData(pagination.pageSize, pagination.lastId)
+      const [resp, err] = await fetchGames(pagination.pageSize, pagination.page, pagination.orderBy)
       if (err) {
         if (typeof err === 'string') {
           showNotification(err, "error")
@@ -286,11 +308,32 @@ const Landing = () => {
         return
       }
       const games = resp as IGame[]
-      setData(games)
+      if (games.length > 0) {
+        setData(games)
+      }
       setIsLoading(false)
     }
     getData()
-  }, [pagination.lastId, lastUpdated])
+  }, [pagination.page, pagination.orderBy, lastUpdated])
+
+    // fetch games count
+    useEffect(() => {
+      const getCount = async () => {
+        const [resp, err] = await fetchGamesCount()
+        if (err) {
+          if (typeof err === 'string') {
+            showNotification(err, "error")
+          } else {
+            const error = err as IValidationResponse
+            showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
+          }
+          return
+        }
+        const r = resp as ICountResponse
+        setCount(r.count)
+      }
+      getCount()
+    }, [])
 
   const searchFieldProps: ISearchFieldProps = {
     text: searchText,
@@ -300,7 +343,7 @@ const Landing = () => {
   return (
     <LocalizationProvider dateAdapter={DateAdapter}>
       <Layout searchFieldProps={searchFieldProps}>
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" disableGutters={true}>
           <Backdrop
             sx={{ color: '#fff', zIndex: (theme: any) => theme.zIndex.drawer + 1 }}
             open={isLoading}
@@ -317,9 +360,14 @@ const Landing = () => {
             dialogText={addGameDialogText} 
             dialogErrorText={addGameErrorText} 
             submitActionName='Add game' 
-            handleSubmit={handleAddGame}
+            // TODO: Uncomment
+            //handleSubmit={handleAddGame}
+            handleSubmit={() => {}}
           >
             <>
+              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <div style={{color: "red", textAlign: "center"}}>TEMPORARILY DISABLED</div>
+              </Grid>
               <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <TextField
                   required
@@ -401,7 +449,7 @@ const Landing = () => {
                 <label style={{color: "rgba(0, 0, 0, 0.6)"}} htmlFor={'uploadWidget'}>Logo </label>
                 <Typography variant="caption" color={"rgba(0, 0, 0, 0.6)"}> (max size 150 kb, recommended ratio 2:1)</Typography>
                 <div id={'uploadWidget'}>
-                  <Widget
+                  <UploadWidget
                     imagesOnly
                     previewStep={true}
                     tabs='file'
@@ -424,46 +472,69 @@ const Landing = () => {
               {alert.message}
             </Alert>
           </Snackbar>
+
           <Box sx={{ pb: 3 }}>
             <Grid container spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{pb: 3}}>
-              <Grid item md={6}>
-                <Typography variant="h4">Games</Typography>
+              <Grid item xs={3}>
+                <ToggleButtonGroup
+                  value={pagination.orderBy}
+                  size="small"
+                  exclusive
+                  onChange={handleSorting}
+                  aria-label="sorting"
+                >
+                  <ToggleButton value="default" aria-label="default" title="Ranking">
+                    <WhatshotRoundedIcon fontSize={matchesXs ? "small" : "medium"} />
+                  </ToggleButton>
+                  <ToggleButton value="name" aria-label="name" title="Name">
+                    <AbcRoundedIcon fontSize={matchesXs ? "small" : "medium"} />
+                  </ToggleButton>
+                  <ToggleButton value="releaseDate" aria-label="release date" title="Release date">
+                    <DateRangeRoundedIcon fontSize={matchesXs ? "small" : "medium"} />
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Grid>
-              {hasRole([roles.publisher]) &&
-                <Grid item md={6} sx={{textAlign: "right"}}>
-                  <Button variant="contained" onClick={() => handleAddGameDialogOpen()}>Add game</Button>
-                </Grid>
-              }
+              <Grid item sm={6} sx={{textAlign: "center"}}>
+                <Typography variant={matchesXs ? "h6" : "h5"}>Games</Typography>
+              </Grid>
+              <Grid item xs={3} sx={{textAlign: "right"}}>
+                {hasRole([roles.publisher]) 
+                  ? <Button variant="contained" onClick={() => handleAddGameDialogOpen()}>Add game</Button>
+                  : <Box sx={{width: "25w"}}/>
+                }
+              </Grid>
             </Grid>
             
-            <Grid container spacing={3}>
+            <Grid container spacing={2}>
               {data.map((game: IGame) => (
-                <Grid key={game.id} item xs={12} sm={6} md={4} lg={3}>
+                <Grid key={game.id} item xs={6} sm={4} md={3} lg={2}>
                   <GameCard game={game} showUserRating={isAuthenticated && hasRole([roles.user])} userRating={userRatings[game.id?.toString()]}/>
                 </Grid>
               ))}
             </Grid>
-            <Grid container direction="row" justifyContent="space-around" alignItems="flex-start" spacing={3}>
-              <Grid key='prev' item md={6} sx={{mt: 2}}>
-                {pagination.lastId !== 0 &&
+            <Grid container direction="row" justifyContent="space-between" alignItems="flex-start" spacing={3}>
+              <Grid key='prev' item sx={{mt: 2}}>
+                {pagination.page > 1 &&
                   <Button 
-                    disableElevation 
-                    size={"large"}
-                    startIcon={<NavigateBeforeIcon fontSize={matchesXs ? "small" : "large"} />}
-                    sx={{fontSize: matchesXs ? '16px' : '28px'}}
+                    disableElevation
+                    variant="outlined"
+                    size="medium"
+                    startIcon={<NavigateBeforeIcon fontSize={matchesXs ? "small" : matchesSm ? "medium" : "large"} />}
+                    sx={{fontSize: matchesXs ? '16px' : matchesSm ? '20px' : '24px'}}
                     onClick={() => handlePagination(false)}
                   >
                     PREVIOUS
                   </Button>
                 }
               </Grid>
-              <Grid key='next' item md={6} sx={{mt: 2, textAlign: 'right'}}>
-                {pagination.pageSize === data.length &&
+              <Grid key='next' item sx={{mt: 2, textAlign: 'right'}}>
+                {pagination.page < Math.ceil(count / pagination.pageSize) &&
                   <Button
-                    disableElevation 
-                    size={"large"}
-                    endIcon={<NavigateNextIcon fontSize={matchesXs ? "small" : "large"} />}
-                    sx={{fontSize: matchesXs ? '16px' : '28px'}}
+                    disableElevation
+                    variant="outlined"
+                    size="medium"
+                    endIcon={<NavigateNextIcon fontSize={matchesXs ? "small" : matchesSm ? "medium" : "large"} />}
+                    sx={{fontSize: matchesXs ? '16px' : matchesSm ? '20px' : '24px'}}
                     onClick={() => handlePagination(true)}
                   >
                     NEXT

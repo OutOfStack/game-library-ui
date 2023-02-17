@@ -1,7 +1,7 @@
 import config from '../api-clients/endpoints'
 import { authorizedRequestConfig, getRequestConfig, postRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
-import { ICreateGame, IGame, IGameResponse, IUpdateGame } from '../types/Game'
+import { ICountResponse, ICreateGame, IGame, IGameResponse, IUpdateGame } from '../types/Game'
 import { ICreateRating, IRatingResponse } from '../types/Rating'
 import useAuth from './useAuth'
 
@@ -10,8 +10,8 @@ const useGames = () => {
 
   const { getAccessToken } = useAuth()
 
-  const fetchAllData = async (pageSize: number = 20, lastId: number = 0) => {
-    const url = `${endpoint}?pageSize=${pageSize}&lastId=${lastId}`
+  const fetchPage = async (pageSize: number = 20, page: number = 1, orderBy: string = 'default') => {
+    const url = `${endpoint}?pageSize=${pageSize}&page=${page}&orderBy=${orderBy}`
     const response = await baseRequest<IGame[]>(url, getRequestConfig)
     return response
   }
@@ -22,13 +22,19 @@ const useGames = () => {
     return response
   }
 
+  const fetchCount = async () => {
+    const url = `${endpoint}/count`
+    const response = await baseRequest<ICountResponse>(url, getRequestConfig)
+    return response
+  }
+
   const search = async (name: string) => {
     const url = `${endpoint}/search?name=${name}`
     const response = await baseRequest<IGame[]>(url, getRequestConfig)
     return response
   }
 
-  const postData = async (data: ICreateGame) => {
+  const create = async (data: ICreateGame) => {
     const url = endpoint
     const token = getAccessToken()
     const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("POST", token, data))
@@ -49,10 +55,11 @@ const useGames = () => {
   }
 
   return {
-    fetchAllData,
+    fetchPage,
     fetchById,
+    fetchCount,
     search,
-    postData,
+    create,
     updateById,
     rate
   }
