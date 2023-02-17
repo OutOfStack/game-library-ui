@@ -4,12 +4,17 @@
 interface IGame {
 	id: number,
 	name: string,
-	developer: string,
-	publisher: string,
+	developers: ICompany[],
+	publishers: ICompany[],
 	releaseDate: string,
 	rating: number,
-	genre: string[],
-	logoUrl?: string
+	genres: IGenre[],
+	summary?: string,
+	slug?: string,
+	platforms: IPlatform[],
+	logoUrl?: string,
+	screenshots: string[],
+	websites: string[]
 }
 
 /**
@@ -47,4 +52,36 @@ interface IGameResponse {
 	logoUrl?: string
 }
 
-export type { IGame, ICreateGame, IUpdateGame, IGameResponse }
+/**
+ * ICompany represents company model
+ */
+interface ICompany {
+	id: number,
+	name: string
+}
+
+/**
+ * IGenre represents genre model
+ */
+interface IGenre {
+	id: number,
+	name: string
+}
+
+/**
+ * IPlatform represents platform model
+ */
+interface IPlatform {
+	id: number,
+	name: string,
+	abbreviation: string
+}
+
+/**
+ * ICountResponse represents count data
+ */
+interface ICountResponse {
+	count: number
+}
+
+export type { IGame, ICreateGame, IUpdateGame, IGameResponse, ICountResponse }

@@ -46,6 +46,8 @@ const Header = (props: IHeaderProps) => {
   const history = useHistory()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
+  const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
+  const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
 
   const { name, username } = getClaims()
 
@@ -256,7 +258,7 @@ const Header = (props: IHeaderProps) => {
       </Snackbar>
       <AppBar position="static" >
         <Toolbar>
-          <Typography variant={matchesMd ? "h5" : "h6"} sx={matchesMd ? {  mr: 2, ml: '5vw' } : {}}>
+          <Typography variant={matchesXs ? "subtitle2" : "h5"} sx={matchesMd ? {  mr: 2, ml: '5vw' } : {}}>
             <span
               onClick={() => { history.push("/"); history.go(0); }}
               className={classes.title}
@@ -267,7 +269,7 @@ const Header = (props: IHeaderProps) => {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Search sx={{ ml: 2 }}>
+          <Search sx={{ ml: 1 }}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -292,7 +294,7 @@ const Header = (props: IHeaderProps) => {
                 Logout
               </Button>
             </>
-            : <ButtonGroup variant="text" size={matchesMd ? "large" : "small"} sx={matchesMd ? { mr: '5vw', ml: 2 } : {}}>
+            : <ButtonGroup variant="text" size={matchesMd ? "large" : matchesSm ? "medium" : "small"} sx={matchesMd ? { mr: '5vw', ml: 2 } : {}}>
               <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>
               <Button color="inherit" onClick={() => handleLoginDialogOpen()}>Login</Button>
             </ButtonGroup>

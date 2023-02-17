@@ -22,8 +22,8 @@ interface GameCardProps {
 const GameCard = (props: GameCardProps) => {
   const { game, userRating, showUserRating } = props
 
-  const logoWidth = 410
-  const logoHeight = 200
+  const logoWidth = 528
+  const logoHeight = 748
   
   const theme = useTheme()
   const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
@@ -96,7 +96,7 @@ const GameCard = (props: GameCardProps) => {
     if (!url) {
       return undefined
     }
-    const suffix = `-/resize/${logoWidth}x${logoHeight}/`
+    const suffix = `-/crop/${logoWidth}x${Math.round(logoHeight*0.9)}/center/`
     return url.endsWith('/') ? `${url}${suffix}` : `${url}/${suffix}`
   }
 
@@ -114,7 +114,6 @@ const GameCard = (props: GameCardProps) => {
       </Snackbar>
       <Card variant="outlined">
         <div style={{
-          height: matchesXs ? logoHeight : 160, 
           display: 'flex', 
           alignItems: 'center', 
           margin: 'auto'
@@ -123,8 +122,8 @@ const GameCard = (props: GameCardProps) => {
             component="img"
             sx={{
               textAlign: 'center',
-              maxHeight: matchesXs ? logoHeight : 160,
-              maxWidth: matchesXs ? logoWidth : 330,
+              maxHeight: logoHeight,
+              maxWidth: logoWidth,
               mr: 'auto',
               ml: 'auto'
             }}
@@ -133,12 +132,12 @@ const GameCard = (props: GameCardProps) => {
           />
         </div>
         <CardContent sx={{ padding: 1, '&:last-child': { pb: 1 }}}>
-          <Typography variant="subtitle1" noWrap>
+          <Typography variant={matchesXs ? "body1" : "subtitle1"} noWrap>
             {game.name}
           </Typography>
 
-          <Typography variant="subtitle2" noWrap>
-            {game.publisher}
+          <Typography variant={matchesXs ? "body2" : "subtitle2" } noWrap>
+            {game.publishers?.length > 0 ? game.publishers[0].name : ""}
           </Typography>
 
           <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -171,16 +170,19 @@ const GameCard = (props: GameCardProps) => {
                     <ListItemText primary={game.name} />
                   </ListItem>
                   <ListItem>
-                    <ListItemText primary="Publisher: " secondary={game.publisher} />
+                    <ListItemText primary="Publisher: " secondary={game.publishers?.map(p => p.name).join(" | ")} />
                   </ListItem>
                   <ListItem>
-                    <ListItemText primary="Developer: " secondary={game.developer} />
+                    <ListItemText primary="Developer: " secondary={game.developers?.map(d => d.name).join(" | ")} />
                   </ListItem>
                   <ListItem>
                     <ListItemText primary="Release date: " secondary={game.releaseDate} />
                   </ListItem>
                   <ListItem>
-                    <ListItemText primary="Genre: " secondary={game.genre?.join(", ")} />
+                    <ListItemText primary="Genres: " secondary={game.genres?.map(g => g.name).join(", ")} />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Platforms: " secondary={game.platforms?.map(p => p.abbreviation).join(" | ")} />
                   </ListItem>
                   <ListItem>
                     {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment()

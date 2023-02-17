@@ -36,7 +36,7 @@ const Layout = (props: LayoutProps) => {
     <div>
       <Header searchFieldProps={searchFieldProps} />
       <Paper className={classes.paper}>
-        <Container className={classes.container}>
+        <Container className={classes.container} disableGutters={true}>
           {children}
         </Container>
       </Paper>
