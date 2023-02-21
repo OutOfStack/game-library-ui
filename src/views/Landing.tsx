@@ -4,9 +4,9 @@ import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container,
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
+import Stack from '@mui/material/Stack'
+import Pagination from '@mui/material/Pagination'
 import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
-import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import AbcRoundedIcon from '@mui/icons-material/AbcRounded'
 import WhatshotRoundedIcon from '@mui/icons-material/WhatshotRounded'
 import DateRangeRoundedIcon from '@mui/icons-material/DateRangeRounded'
@@ -30,7 +30,7 @@ import '../styles/UploadWidget.css'
 
 const Landing = () => {
 
-  const { fetchPage: fetchGames, search: searchGames, fetchCount: fetchGamesCount, create: createGame } = useGames()
+  const { fetchPage: fetchGames, fetchCount: fetchGamesCount, create: createGame } = useGames()
   const { fetchRatings } = useUser()
   const { hasRole, isAuthenticated } = useAuth()
   const theme = useTheme()
@@ -41,7 +41,8 @@ const Landing = () => {
   const defaultPagination = {
     pageSize: 24,
     page: 1,
-    orderBy: "default"
+    orderBy: "default",
+    searchText: ""
   }
   
   const [data, setData] = useState<IGame[]>([])
@@ -49,9 +50,6 @@ const Landing = () => {
   const [userRatings, setUserRatings] = useState<IGetUserRatingsResponse>({})
   const [isLoading, setIsLoading] = useState(false)
   const [pagination, setPagination] = useState(defaultPagination)
-  const [searchText, setSearchText] = useState<string>("")
-  const [prevSearchTextLen, setPrevSearchTextLen] = useState(0)
-  const [lastUpdated, setLastUpdated] = useState(Date.now())
 
   //#region notification
 
@@ -82,9 +80,10 @@ const Landing = () => {
 
   //#region sorting
   const handleSorting = (event: React.MouseEvent<HTMLElement>, orderBy: string | null) => {
-    if (orderBy !== null) {
+    if (orderBy) {
       setPagination(p => ({
         ...p,
+        page: defaultPagination.page,
         orderBy: orderBy
       }))
     }
@@ -218,27 +217,18 @@ const Landing = () => {
   //#endregion
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setSearchText(e.target.value)
-    // if removing text and length of search text less than 2
-    if (e.target.value?.length < 2 && e.target.value?.length < prevSearchTextLen) {
-      // force fetch all with pagination
-      setLastUpdated(Date.now())
-    }
-    setPrevSearchTextLen(e.target.value?.length ?? 0)
+    setPagination(p => ({
+      ...p,
+      page: defaultPagination.page,
+      searchText: e.target.value,
+    }))
   }
 
-  const handlePagination = (forward: boolean = true) => {
-    if (forward) {
-      setPagination(p => ({
-        ...p,
-        page: Math.min(p.page + 1, Math.ceil(count / p.pageSize))
-      }))
-    } else {
-      setPagination(p => ({
-        ...p,
-        page: Math.max(p.page - 1, defaultPagination.page)
-      }))
-    }
+  const handlePagination = (page: number = defaultPagination.page) => {
+    setPagination(p => ({
+      ...p,
+      page: page
+    }))
   }
 
   // get user ratings
@@ -268,35 +258,11 @@ const Landing = () => {
     }
   }, [data])
 
-  // search by searchText when searchText changes
-  useEffect(() => {
-    const search = async () => {
-      setIsLoading(true)
-      const [resp, err] = await searchGames(searchText)
-      if (err) {
-        if (typeof err === 'string') {
-          showNotification(err, "error")
-        } else {
-          const error = err as IValidationResponse
-          showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
-        }
-        setIsLoading(false)
-        return
-      }
-      const games = resp as IGame[]
-      setData(games)
-      setIsLoading(false)
-    }
-    if (searchText?.length > 1) {
-      search()
-    }
-  }, [searchText])
-
-  // fetch with pagination when page (lastId) or lastUpdate changes
+  // fetch games with pagination when page, order by or search text changes
   useEffect(() => {
     const getData = async () => {
       setIsLoading(true)
-      const [resp, err] = await fetchGames(pagination.pageSize, pagination.page, pagination.orderBy)
+      const [resp, err] = await fetchGames(pagination.pageSize, pagination.page, pagination.orderBy, pagination.searchText)
       if (err) {
         if (typeof err === 'string') {
           showNotification(err, "error")
@@ -314,12 +280,12 @@ const Landing = () => {
       setIsLoading(false)
     }
     getData()
-  }, [pagination.page, pagination.orderBy, lastUpdated])
+  }, [pagination.page, pagination.orderBy, pagination.searchText])
 
     // fetch games count
     useEffect(() => {
       const getCount = async () => {
-        const [resp, err] = await fetchGamesCount()
+        const [resp, err] = await fetchGamesCount(pagination.searchText)
         if (err) {
           if (typeof err === 'string') {
             showNotification(err, "error")
@@ -333,10 +299,10 @@ const Landing = () => {
         setCount(r.count)
       }
       getCount()
-    }, [])
+    }, [pagination.searchText])
 
   const searchFieldProps: ISearchFieldProps = {
-    text: searchText,
+    text: pagination.searchText,
     changeText: handleSearchTextChange
   }
 
@@ -475,7 +441,7 @@ const Landing = () => {
 
           <Box sx={{ pb: 3 }}>
             <Grid container spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{pb: 3}}>
-              <Grid item xs={3}>
+              <Grid item xs={3} sx={{pt: 0}}>
                 <ToggleButtonGroup
                   value={pagination.orderBy}
                   size="small"
@@ -512,36 +478,20 @@ const Landing = () => {
                 </Grid>
               ))}
             </Grid>
-            <Grid container direction="row" justifyContent="space-between" alignItems="flex-start" spacing={3}>
-              <Grid key='prev' item sx={{mt: 2}}>
-                {pagination.page > 1 &&
-                  <Button 
-                    disableElevation
-                    variant="outlined"
-                    size="medium"
-                    startIcon={<NavigateBeforeIcon fontSize={matchesXs ? "small" : matchesSm ? "medium" : "large"} />}
-                    sx={{fontSize: matchesXs ? '16px' : matchesSm ? '20px' : '24px'}}
-                    onClick={() => handlePagination(false)}
-                  >
-                    PREVIOUS
-                  </Button>
-                }
-              </Grid>
-              <Grid key='next' item sx={{mt: 2, textAlign: 'right'}}>
-                {pagination.page < Math.ceil(count / pagination.pageSize) &&
-                  <Button
-                    disableElevation
-                    variant="outlined"
-                    size="medium"
-                    endIcon={<NavigateNextIcon fontSize={matchesXs ? "small" : matchesSm ? "medium" : "large"} />}
-                    sx={{fontSize: matchesXs ? '16px' : matchesSm ? '20px' : '24px'}}
-                    onClick={() => handlePagination(true)}
-                  >
-                    NEXT
-                  </Button>
-                }
-              </Grid>
-            </Grid>
+            <Stack sx={{alignItems: 'center', pt: 3}}>
+              <Pagination
+                defaultPage={defaultPagination.page}
+                hidePrevButton={pagination.page === defaultPagination.page} 
+                hideNextButton={pagination.page === Math.ceil(count / pagination.pageSize)}
+                siblingCount={0}
+                count={Math.ceil(count/pagination.pageSize)}
+                page={pagination.page}
+                variant="outlined" 
+                shape="rounded"
+                size="large"
+                onChange={(_, page) => handlePagination(page)}
+              />
+            </Stack>
           </Box>
         </Container>
       </Layout>

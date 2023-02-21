@@ -245,7 +245,7 @@ const Header = (props: IHeaderProps) => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 0 }}>
       <Snackbar 
         anchorOrigin={{ vertical: 'top', horizontal: 'right'}} 
         open={alert.open}

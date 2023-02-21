@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Alert, AlertColor, Box, Card, CardContent, CardMedia, List, ListItem, ListItemText, Rating, Snackbar, 
   SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
-import InfoIcon from '@mui/icons-material/Info'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
 import { orange } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
@@ -137,7 +137,7 @@ const GameCard = (props: GameCardProps) => {
           </Typography>
 
           <Typography variant={matchesXs ? "body2" : "subtitle2" } noWrap>
-            {game.publishers?.length > 0 ? game.publishers[0].name : ""}
+            {game.publishers?.length > 0 ? game.publishers[0].name : <div>&nbsp;</div>}
           </Typography>
 
           <Stack direction="row" alignItems="center" justifyContent="space-between">
@@ -156,7 +156,7 @@ const GameCard = (props: GameCardProps) => {
             <div
               onMouseEnter={handlePopoverOpen}
             >
-              <InfoIcon
+              <InfoOutlinedIcon
                 color={openPopover ? "inherit" : "action"}
                 sx={{cursor: 'pointer'}}
               />
