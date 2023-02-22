@@ -5,6 +5,9 @@ import { Alert, AlertColor, AppBar, Avatar, Box, Button, ButtonGroup, Checkbox, 
 import SearchIcon from '@mui/icons-material/Search'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from 'tss-react/mui'
+import LoginRoundedIcon from '@mui/icons-material/LoginRounded'
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded'
+import HowToRegRoundedIcon from '@mui/icons-material/HowToRegRounded'
 
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchField'
 import { ISignIn, IToken } from '../types/Auth/SignIn'
@@ -283,21 +286,23 @@ const Header = (props: IHeaderProps) => {
           {isAuthenticated
             ? <>
               <Tooltip title={name || ''}>
-                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: '2px' }} {...stringAvatar(name || '')}/>
+                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || '')}/>
               </Tooltip>
-              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: '2px' }}>{username}</Typography>
-              <Button 
-                sx={matchesMd ? { mr: '5vw', ml: 3 } : { ml: '2px'}} 
-                color="inherit" 
-                onClick={() => logout()}
-              >
-                Logout
-              </Button>
+              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username || "username"}</Typography>
+              { matchesXs 
+                ? <LogoutRoundedIcon color="action" fontSize="large" onClick={() => logout()} sx={{pl: theme.spacing(1)}} />
+                : <Button color="inherit" sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : { ml: theme.spacing(0.5)}} onClick={() => logout()}>Logout</Button>
+              }
             </>
-            : <ButtonGroup variant="text" size={matchesMd ? "large" : matchesSm ? "medium" : "small"} sx={matchesMd ? { mr: '5vw', ml: 2 } : {}}>
-              <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>
-              <Button color="inherit" onClick={() => handleLoginDialogOpen()}>Login</Button>
-            </ButtonGroup>
+            : matchesXs
+              ? <>
+                <HowToRegRoundedIcon fontSize="large" onClick={() => handleRegisterDialogOpen()} sx={{pl: theme.spacing(1)}}/>
+                <LoginRoundedIcon fontSize="large" onClick={() => handleLoginDialogOpen()} sx={{pl: theme.spacing(1)}} />
+              </>
+              : <ButtonGroup variant="text" size={matchesMd ? "large" : "medium" } sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : {}}>
+                <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>
+                <Button color="inherit" onClick={() => handleLoginDialogOpen()}>Login</Button>
+              </ButtonGroup>
           }
 
           <Modal 

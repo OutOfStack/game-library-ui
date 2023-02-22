@@ -5,6 +5,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
 import { orange } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
+import { grey } from '@mui/material/colors'
 import moment from 'moment'
 
 import { IGame } from '../types/Game'
@@ -112,7 +113,7 @@ const GameCard = (props: GameCardProps) => {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Card variant="outlined">
+      <Card variant="elevation" sx={{boxShadow: '0 8px 16px 0 #9F9F9F'}}>
         <div style={{
           display: 'flex', 
           alignItems: 'center', 
@@ -131,7 +132,7 @@ const GameCard = (props: GameCardProps) => {
             alt={game.name + " logo"}
           />
         </div>
-        <CardContent sx={{ padding: 1, '&:last-child': { pb: 1 }}}>
+        <CardContent sx={{ padding: 1, '&:last-child': { pb: 1 }, backgroundColor: grey[50]}}>
           <Typography variant={matchesXs ? "body1" : "subtitle1"} noWrap>
             {game.name}
           </Typography>
