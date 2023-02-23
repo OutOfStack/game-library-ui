@@ -288,7 +288,7 @@ const Header = (props: IHeaderProps) => {
               <Tooltip title={name || ''}>
                 <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || '')}/>
               </Tooltip>
-              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username || "username"}</Typography>
+              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username}</Typography>
               { matchesXs 
                 ? <LogoutRoundedIcon color="action" fontSize="large" onClick={() => logout()} sx={{pl: theme.spacing(1)}} />
                 : <Button color="inherit" sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : { ml: theme.spacing(0.5)}} onClick={() => logout()}>Logout</Button>
