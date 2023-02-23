@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { Alert, AlertColor, Box, Card, CardContent, CardMedia, List, ListItem, ListItemText, Rating, Snackbar, 
   SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import InfoIcon from '@mui/icons-material/InfoOutlined'
 import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
-import { orange } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
-import { grey } from '@mui/material/colors'
+import { grey, orange } from '@mui/material/colors'
 import moment from 'moment'
 
 import { IGame } from '../types/Game'
@@ -14,14 +13,16 @@ import MouseOverPopover from './MouseOverPopover'
 import useGames from '../hooks/useGames'
 import { IValidationResponse } from '../types/Validation'
 
-interface GameCardProps {
+
+interface IGameCardProps {
   game: IGame,
   userRating?: number,
-  showUserRating: boolean
+  showUserRating: boolean,
+  darkMode: boolean
 }
 
-const GameCard = (props: GameCardProps) => {
-  const { game, userRating, showUserRating } = props
+const GameCard = (props: IGameCardProps) => {
+  const { game, userRating, showUserRating, darkMode} = props
 
   const logoWidth = 528
   const logoHeight = 748
@@ -113,7 +114,7 @@ const GameCard = (props: GameCardProps) => {
           {alert.message}
         </Alert>
       </Snackbar>
-      <Card variant="elevation" sx={{boxShadow: '0 8px 16px 0 #9F9F9F'}}>
+      <Card variant="elevation" sx={{boxShadow: darkMode ? '0 5px 10px 0 #303030' : '0 8px 16px 0 #9F9F9F'}}>
         <div style={{
           display: 'flex', 
           alignItems: 'center', 
@@ -132,7 +133,7 @@ const GameCard = (props: GameCardProps) => {
             alt={game.name + " logo"}
           />
         </div>
-        <CardContent sx={{ padding: 1, '&:last-child': { pb: 1 }, backgroundColor: grey[50]}}>
+        <CardContent sx={{ padding: 1, '&:last-child': { pb: 1 }, backgroundColor: darkMode ? grey[700] :  grey[50]}}>
           <Typography variant={matchesXs ? "body1" : "subtitle1"} noWrap>
             {game.name}
           </Typography>
@@ -157,7 +158,7 @@ const GameCard = (props: GameCardProps) => {
             <div
               onMouseEnter={handlePopoverOpen}
             >
-              <InfoOutlinedIcon
+              <InfoIcon
                 color={openPopover ? "inherit" : "action"}
                 sx={{cursor: 'pointer'}}
               />

@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Alert, AlertColor, AppBar, Avatar, Box, Button, ButtonGroup, Checkbox, FormControlLabel, Grid, 
   Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
-import SearchIcon from '@mui/icons-material/Search'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from 'tss-react/mui'
-import LoginRoundedIcon from '@mui/icons-material/LoginRounded'
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded'
-import HowToRegRoundedIcon from '@mui/icons-material/HowToRegRounded'
+import LoginIcon from '@mui/icons-material/LoginRounded'
+import LogoutIcon from '@mui/icons-material/LogoutRounded'
+import HowToRegIcon from '@mui/icons-material/HowToRegRounded'
+import DarkModeIcon from '@mui/icons-material/DarkModeRounded'
+import SearchIcon from '@mui/icons-material/SearchRounded'
 
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchField'
 import { ISignIn, IToken } from '../types/Auth/SignIn'
@@ -30,8 +31,14 @@ export interface ISearchFieldProps {
   changeText: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void
 }
 
+export interface IDarkModeProps {
+  darkMode: boolean,
+  changeMode: () => void
+}
+
 export interface IHeaderProps {
-  searchFieldProps: ISearchFieldProps
+  searchFieldProps: ISearchFieldProps,
+  darkModeProps: IDarkModeProps
 }
 
 interface IValidation {
@@ -42,7 +49,7 @@ interface IValidation {
 
 const Header = (props: IHeaderProps) => {
 
-  const { searchFieldProps } = props
+  const { searchFieldProps, darkModeProps } = props
 
   const { signIn, signUp, getClaims, isAuthenticated, setUserStorage, logout } = useAuth()
   const { classes } = useStyles()
@@ -259,7 +266,7 @@ const Header = (props: IHeaderProps) => {
           {alert.message}
         </Alert>
       </Snackbar>
-      <AppBar position="static" >
+      <AppBar position="static">
         <Toolbar>
           <Typography variant={matchesXs ? "subtitle2" : "h5"} sx={matchesMd ? {  mr: 2, ml: '5vw' } : {}}>
             <span
@@ -289,20 +296,33 @@ const Header = (props: IHeaderProps) => {
                 <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || '')}/>
               </Tooltip>
               <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username}</Typography>
-              { matchesXs 
-                ? <LogoutRoundedIcon color="action" fontSize="large" onClick={() => logout()} sx={{pl: theme.spacing(1)}} />
+              <Tooltip title="Dark mode">
+                <DarkModeIcon fontSize="large" onClick={() => darkModeProps.changeMode()} sx={{pl: theme.spacing(1), cursor: 'pointer'}} />
+              </Tooltip>
+              { matchesXs
+                ? <LogoutIcon color="action" fontSize="large" onClick={() => logout()} sx={{pl: theme.spacing(1)}} />
                 : <Button color="inherit" sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : { ml: theme.spacing(0.5)}} onClick={() => logout()}>Logout</Button>
               }
             </>
-            : matchesXs
-              ? <>
-                <HowToRegRoundedIcon fontSize="large" onClick={() => handleRegisterDialogOpen()} sx={{pl: theme.spacing(1)}}/>
-                <LoginRoundedIcon fontSize="large" onClick={() => handleLoginDialogOpen()} sx={{pl: theme.spacing(1)}} />
-              </>
-              : <ButtonGroup variant="text" size={matchesMd ? "large" : "medium" } sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : {}}>
-                <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>
-                <Button color="inherit" onClick={() => handleLoginDialogOpen()}>Login</Button>
-              </ButtonGroup>
+            : <>
+              <Tooltip title="Dark mode">
+                <DarkModeIcon fontSize="large" onClick={() => darkModeProps.changeMode()} sx={{pl: theme.spacing(1), cursor: 'pointer'}} />
+              </Tooltip>
+              { matchesXs
+                ? <>
+                  <Tooltip title="Register">
+                    <HowToRegIcon fontSize="large" onClick={() => handleRegisterDialogOpen()} sx={{pl: theme.spacing(1)}}/>
+                  </Tooltip>
+                  <Tooltip title="Login">
+                    <LoginIcon fontSize="large" onClick={() => handleLoginDialogOpen()} sx={{pl: theme.spacing(1)}} />
+                  </Tooltip>
+                </>
+                : <ButtonGroup variant="text" size={matchesMd ? "large" : "medium" } sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : {}}>
+                  <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>
+                  <Button color="inherit" onClick={() => handleLoginDialogOpen()}>Login</Button>
+                </ButtonGroup>
+              }
+            </>
           }
 
           <Modal 
