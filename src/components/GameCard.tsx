@@ -115,7 +115,7 @@ const GameCard = (props: IGameCardProps) => {
         </Alert>
       </Snackbar>
       <Card variant="elevation" sx={{boxShadow: darkMode ? '0 5px 10px 0 #303030' : '0 8px 16px 0 #9F9F9F'}}>
-        <div style={{
+        <Box sx={{
           display: 'flex', 
           alignItems: 'center', 
           margin: 'auto'
@@ -132,7 +132,7 @@ const GameCard = (props: IGameCardProps) => {
             image={getLogoUrl(game.logoUrl)}
             alt={game.name + " logo"}
           />
-        </div>
+        </Box>
         <CardContent sx={{ padding: 1, '&:last-child': { pb: 1 }, backgroundColor: darkMode ? grey[700] :  grey[50]}}>
           <Typography variant={matchesXs ? "body1" : "subtitle1"} noWrap>
             {game.name}
@@ -144,23 +144,23 @@ const GameCard = (props: IGameCardProps) => {
 
           <Stack direction="row" alignItems="center" justifyContent="space-between">
             {game.rating > 0
-              ?  <div style={{
+              ?  <Box sx={{
                   display: 'flex',
                   alignItems: 'center',
                   flexWrap: 'wrap'
                 }}>
                   <RateIcon sx={{ color: orange[500] }} />
-                  &nbsp;
                   <span>{To1Precision(game.rating)}</span>
-                </div>
+                </Box>
               : <Box/>
             }
-            <div
-              onMouseEnter={handlePopoverOpen}
-            >
+            <Box>
+              <span>{game.releaseDate?.split("-")[0] || ""}</span>
+            </Box>
+            <Box onMouseEnter={handlePopoverOpen}>
               <InfoIcon
                 color={openPopover ? "inherit" : "action"}
-                sx={{cursor: 'pointer'}}
+                sx={{cursor: 'pointer', display: 'block'}}
               />
               <MouseOverPopover
                 open={openPopover}
@@ -204,7 +204,7 @@ const GameCard = (props: IGameCardProps) => {
                     </ListItem>
                 </List>
               </MouseOverPopover>
-            </div>
+            </Box>
           </Stack>
         </CardContent>
       </Card>
