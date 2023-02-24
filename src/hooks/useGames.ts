@@ -10,8 +10,8 @@ const useGames = () => {
 
   const { getAccessToken } = useAuth()
 
-  const fetchPage = async (pageSize: number = 20, page: number = 1, orderBy: string = 'default') => {
-    const url = `${endpoint}?pageSize=${pageSize}&page=${page}&orderBy=${orderBy}`
+  const fetchPage = async (pageSize: number = 20, page: number = 1, orderBy: string = 'default', name: string = '') => {
+    const url = `${endpoint}?pageSize=${pageSize}&page=${page}&orderBy=${orderBy}&name=${name}`
     const response = await baseRequest<IGame[]>(url, getRequestConfig)
     return response
   }
@@ -22,15 +22,9 @@ const useGames = () => {
     return response
   }
 
-  const fetchCount = async () => {
-    const url = `${endpoint}/count`
+  const fetchCount = async (nameFilter: string) => {
+    const url = `${endpoint}/count?name=${nameFilter}`
     const response = await baseRequest<ICountResponse>(url, getRequestConfig)
-    return response
-  }
-
-  const search = async (name: string) => {
-    const url = `${endpoint}/search?name=${name}`
-    const response = await baseRequest<IGame[]>(url, getRequestConfig)
     return response
   }
 
@@ -58,7 +52,6 @@ const useGames = () => {
     fetchPage,
     fetchById,
     fetchCount,
-    search,
     create,
     updateById,
     rate

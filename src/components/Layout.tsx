@@ -7,18 +7,15 @@ import Header, { ISearchFieldProps } from './Header'
 
 
 const useStyles = makeStyles()((theme: Theme) => ({
-  root: {
-    flexGrow: 2,
-    display: 'flex'
-  },
   paper: {
-    padding: theme.spacing(1),
-    marginTop: '2px',
-    backgroundColor: grey[300],
-    variant: 'outlined'
+    backgroundColor: grey[200],
+    minHeight: '100vh',
+    elevation: 0
   },
   container: {
-    maxWidth: '1500px'
+    paddingTop: theme.spacing(2),
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1)
   }
 }));
 
@@ -34,8 +31,8 @@ const Layout = (props: LayoutProps) => {
 
   return (
     <div>
-      <Header searchFieldProps={searchFieldProps} />
       <Paper className={classes.paper}>
+        <Header searchFieldProps={searchFieldProps} />
         <Container className={classes.container} disableGutters={true}>
           {children}
         </Container>
