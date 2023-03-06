@@ -5,6 +5,7 @@ import { grey } from '@mui/material/colors'
 
 import Header, { ISearchFieldProps, IDarkModeProps } from './Header'
 
+
 interface ILayoutProps {
   children: JSX.Element,
   searchFieldProps: ISearchFieldProps,

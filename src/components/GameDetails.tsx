@@ -1,0 +1,294 @@
+import React, { Fragment, useEffect, useState } from 'react'
+import { Alert, AlertColor, Box, Card, CardMedia, Chip, Container, Dialog, DialogContent, IconButton, Link, Rating, Skeleton, Snackbar, 
+  SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
+import Grid from '@mui/material/Unstable_Grid2'
+import { useTheme } from '@mui/material/styles'
+import { orange } from '@mui/material/colors'
+import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
+import CloseIcon from '@mui/icons-material/CloseRounded'
+import Carousel from 'react-material-ui-carousel'
+import moment from 'moment'
+
+import { IGame, ICompany, IGenre, IPlatform } from '../types/Game'
+import useGames from '../hooks/useGames'
+import { To1Precision, ToHostname } from '../utils/format'
+import { IValidationResponse } from '../types/Validation'
+
+
+interface IGameDetailsProps {
+  open: boolean,
+  handleClose: () => void,
+  game: IGame | null,
+  userRating?: number,
+  showUserRating?: boolean,
+  darkMode?: boolean
+}
+
+const maxWidth = "lg"
+const maxScreenshotWidth = 889
+const maxScreenshotHeight = 500
+
+const GameDetails = (props: IGameDetailsProps) => {
+  const { open, handleClose, game, userRating, showUserRating, darkMode } = props
+
+  const theme = useTheme()
+  const fullscreen = useMediaQuery(theme.breakpoints.down('md'))
+  const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
+  const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
+  const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
+
+  const { rate } = useGames()
+
+  const [newUserRating, setNewUserRating] = useState<number | null>(null)
+
+  const handleRateGame = async (rating: number | null) => {
+    if (!rating || !game) {
+      return
+    }
+    const [, err] = await rate({ rating: rating }, game.id)
+    if (err) {
+      if (typeof err === 'string') {
+        showNotification(err, "error")
+      } else {
+        const error = err as IValidationResponse
+        showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
+      }
+      return
+    }
+    setNewUserRating(rating)
+  }
+
+  const [logoLoaded, setLogoLoaded] = useState<boolean>(false)
+  const [scrDimensions, setScrDimensions] = useState<{width: number, height: number}>({width: maxScreenshotWidth, height: maxScreenshotHeight})
+
+  useEffect(() => {  
+    setScrDimensions({
+      height: matchesXs ? maxScreenshotHeight * 0.45 : matchesSm ? maxScreenshotHeight * 0.7 : maxScreenshotHeight,
+      width: matchesXs ? maxScreenshotWidth * 0.45 : matchesSm ? maxScreenshotWidth * 0.7 : maxScreenshotWidth
+    })
+  }, [matchesXs, matchesSm, matchesMd])
+
+  //#region notification
+
+  const defaultAlert = {
+    open: false,
+    message: "",
+    severity: "success" as AlertColor
+  }
+  const [alert, setAlert] = useState(defaultAlert)
+
+  const handleCloseAlert = (event?: Event | React.SyntheticEvent<any, Event>, reason?: SnackbarCloseReason) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setAlert(a => ({...defaultAlert, severity: a.severity}))
+  }
+
+  const showNotification = (message: string, severity: AlertColor = "success") => {
+    setAlert({
+      message: message,
+      severity: severity,
+      open: true
+    })
+  }
+
+  //#endregion
+
+  const gridRowSx = {
+    paddingTop: matchesXs ? '1px' : theme.spacing(1),
+    paddingBottom: matchesXs ? '1px' : theme.spacing(1),
+    lineHeight: matchesXs ? 1 : 'normal'
+  }
+
+  const chipSx = {
+    fontSize: matchesXs ? 11 : 'default',
+    mr: theme.spacing(1)
+  }
+
+  const handleCloseDialog = () => {
+    handleClose()
+    setLogoLoaded(false)
+    setNewUserRating(null)
+  }
+
+  const getLogoUrl = (url?: string): string | undefined => {
+    if (!url) {
+      return undefined
+    }
+    return url.endsWith('/') ? url : `${url}/`
+  }
+
+  if (!game) {
+    return <Fragment />
+  }
+  
+  return (
+    <Fragment>
+      <Snackbar 
+        anchorOrigin={{ vertical: 'top', horizontal: 'right'}} 
+        open={alert.open}
+        autoHideDuration={5000}
+        onClose={handleCloseAlert}
+      >
+        <Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }} >
+          {alert.message}
+        </Alert>
+      </Snackbar>
+      <Dialog
+        fullWidth={true}
+        maxWidth={maxWidth}
+        fullScreen={fullscreen}
+        open={open}
+        onClose={handleCloseDialog}
+        scroll="body"
+      >
+        <Container maxWidth={maxWidth} disableGutters={true}>
+          <DialogContent sx={{padding: matchesXs ? theme.spacing(1) : theme.spacing(2)}}>
+            <Grid container direction="row" justifyContent="space-between" spacing={matchesXs ? 1 : 2} disableEqualOverflow>
+              {/* Logo */}
+              <Grid xs={6} sm={6} md={4.5}>
+                <Box sx={{
+                  textAlign: 'center',
+                  maxWidth: '100%'
+                }}>
+                  <img
+                    src={getLogoUrl(game?.logoUrl) || ""}
+                    alt={game?.name + " logo"}
+                    style={{maxWidth: '100%', display: logoLoaded ? 'inline' : 'none'}}
+                    onLoad={() => setLogoLoaded(true)}
+                  />
+                  {!logoLoaded &&
+                    <Skeleton height={matchesXs ? "30vh" : "50vh"} variant="rounded" animation="wave" />
+                  }
+                </Box>
+              </Grid>
+
+              {/* Close button, release date, publishers, developers ,genres, platforms, rating */}
+              <Grid container xs={6} sm={6} md={7.5} direction="column" spacing={matchesXs ? 1 : 2}>
+                <Grid sx={{textAlign: 'right', pt: matchesXs ? 0 : theme.spacing(1), pb: 0}}>
+                  <IconButton onClick={handleCloseDialog} color="secondary" size={matchesXs ? "small" : "medium"} sx={{padding: 0}}>
+                    <CloseIcon />
+                  </IconButton>
+                </Grid>
+                <Grid sx={{...gridRowSx, pt: 0}}>
+                  <Typography variant={matchesXs ? 'h6' : matchesSm ? 'h4' : 'h3'} sx={{fontWeight: matchesXs ? 'normal' : 'bold'}}>{game?.name}</Typography>
+                </Grid>
+                <Grid sx={gridRowSx}>
+                  <Typography variant={matchesXs ? "body2" : "subtitle1"} color="primary">Released {moment(game?.releaseDate).format('DD MMM, YYYY')}</Typography>
+                </Grid>
+                <Grid xs={12} sx={gridRowSx}>
+                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Publishers</Typography>
+                  {[...game?.publishers].sort((a, b) => a.name.length - b.name.length).map((p: ICompany) => (
+                    <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{p.name}</Typography>
+                  ))}
+                </Grid>
+                <Grid xs={12} sx={gridRowSx}>
+                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Developers</Typography>
+                  {[...game?.developers].sort((a, b) => a.name.length - b.name.length).map((d: ICompany) => (
+                    <Typography key={d.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{d.name}</Typography>
+                  ))}
+                </Grid>
+                <Grid xs={12} sx={gridRowSx}>
+                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Genres</Typography>
+                  {[...game?.genres].sort((a, b) => a.name.length - b.name.length).map((g: IGenre) => (
+                    <Typography key={g.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{g.name}</Typography>
+                  ))}
+                </Grid>
+                <Grid xs={12} sx={gridRowSx}>
+                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Platforms</Typography>
+                  {[...game?.platforms].sort((a, b) => a.name.localeCompare(b.name)).map((p: IPlatform) => (
+                    <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{p.abbreviation}</Typography>
+                  ))}
+                </Grid>
+                {game.rating > 0 &&
+                  <Grid xs={12} sx={gridRowSx}>
+                    <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Rating</Typography>
+                    <Chip 
+                      label={<Typography variant={matchesXs ? "h6" : "h4"}>{To1Precision(game.rating)}</Typography>}
+                      variant="outlined"
+                      color={game.rating >= 4 ? "success" : game.rating === 3 ? "warning" : "error"}
+                    />
+                  </Grid>
+                }
+                {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment() &&
+                  <Grid xs={12} sx={gridRowSx}>
+                    <Stack direction="row" alignContent="center">
+                      <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" >Your rating</Typography>
+                      <Rating
+                        value={newUserRating || userRating || null}
+                        max={5}
+                        defaultValue={0}
+                        size={matchesXs ? "small" : "medium"}
+                        icon={<RateIcon fontSize={matchesXs ? "small" : "medium"} sx={{ color: orange[800] }} />}
+                        emptyIcon={<RateIcon fontSize={matchesXs ? "small" : "medium"} />}
+                        onChange={(_, newValue) => handleRateGame(newValue)}
+                      />
+                    </Stack>
+                  </Grid>
+                }
+              </Grid>
+
+              {/* Summary */} 
+              <Grid xs={12}>
+                <Typography 
+                  variant={matchesXs ? "body2" : "body1"} 
+                  sx={{
+                    letterSpacing: matchesXs ? 0 : 'normal', 
+                    fontStyle: 'italic', 
+                    mr: matchesXs ? theme.spacing(1) : theme.spacing(5),
+                    ml: matchesXs ? theme.spacing(1) : theme.spacing(5)
+                  }}
+                >
+                  {game?.summary}
+                </Typography>
+              </Grid>
+
+              {/* Screenshots */}
+              <Grid xs={12}>
+                <Carousel
+                  autoPlay={false}
+                  swipe={true}
+                  cycleNavigation={true}
+                  height={scrDimensions.height}
+                  sx={{
+                    maxWidth: scrDimensions.width,
+                    mr: 'auto', 
+                    ml: 'auto' 
+                  }}
+                >
+                  {game.screenshots.map((s, i) =>
+                    <Card key={i} variant="outlined">
+                      <CardMedia
+                        sx={{
+                          textAlign: 'center',
+                          height: scrDimensions.height,
+                          width: scrDimensions.width,
+                          maxHeight: maxScreenshotHeight,
+                          maxWidth: maxScreenshotWidth,
+                        }}
+                        component="img"
+                        image={s}
+                      />
+                    </Card>
+                  )}
+                </Carousel>
+              </Grid>
+
+              {/* websites */}
+              <Grid xs={12} >
+                <Box sx={{ml: matchesXs ? theme.spacing(1) : theme.spacing(5)}}>
+                  <Typography variant={matchesXs ? "body1" : "h6"} color="primary">Links</Typography>
+                  {game?.websites.map((url, i) => (
+                    <Link key={i} underline="hover" display="block" target="_blank" rel="noopener" color="secondary" href={url}>{ToHostname(url)}</Link>
+                  ))}
+                </Box>
+              </Grid>
+            </Grid>
+          </DialogContent>
+        </Container>
+      </Dialog>
+    </Fragment>
+  )
+}
+
+export default GameDetails

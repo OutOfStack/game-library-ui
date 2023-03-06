@@ -8,6 +8,7 @@ import LoginIcon from '@mui/icons-material/LoginRounded'
 import LogoutIcon from '@mui/icons-material/LogoutRounded'
 import HowToRegIcon from '@mui/icons-material/HowToRegRounded'
 import DarkModeIcon from '@mui/icons-material/DarkModeRounded'
+import LightModeIcon from '@mui/icons-material/LightModeRounded'
 import SearchIcon from '@mui/icons-material/SearchRounded'
 
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchField'
@@ -238,7 +239,7 @@ const Header = (props: IHeaderProps) => {
 
 
   const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, field: string, isLogin = true) => {
-    const value = e.target.value?.trimLeft()
+    const value = e.target.value?.trimStart()
     if (isLogin) {
       setSignInData(s => ({...s, [field]: value}))
       // remove error if there is a value now
@@ -254,6 +255,17 @@ const Header = (props: IHeaderProps) => {
     }
   }
 
+  const DarkThemeIcon = (): JSX.Element => {
+    return (
+      <Tooltip title={darkModeProps.darkMode ? "Light mode" : "Dark mode"}>
+        {darkModeProps.darkMode
+          ? <LightModeIcon fontSize="large" onClick={() => darkModeProps.changeMode()} sx={{pl: theme.spacing(1), cursor: 'pointer'}} />
+          : <DarkModeIcon fontSize="large" onClick={() => darkModeProps.changeMode()} sx={{pl: theme.spacing(1), cursor: 'pointer'}} />
+        }
+      </Tooltip>
+    )
+  }
+ 
   return (
     <Box sx={{ flexGrow: 0 }}>
       <Snackbar 
@@ -295,19 +307,17 @@ const Header = (props: IHeaderProps) => {
               <Tooltip title={name || ''}>
                 <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || '')}/>
               </Tooltip>
-              <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username}</Typography>
-              <Tooltip title="Dark mode">
-                <DarkModeIcon fontSize="large" onClick={() => darkModeProps.changeMode()} sx={{pl: theme.spacing(1), cursor: 'pointer'}} />
-              </Tooltip>
+              {!matchesXs && 
+                <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username}</Typography>
+              }
+              <DarkThemeIcon/>
               { matchesXs
                 ? <LogoutIcon color="action" fontSize="large" onClick={() => logout()} sx={{pl: theme.spacing(1)}} />
                 : <Button color="inherit" sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : { ml: theme.spacing(0.5)}} onClick={() => logout()}>Logout</Button>
               }
             </>
             : <>
-              <Tooltip title="Dark mode">
-                <DarkModeIcon fontSize="large" onClick={() => darkModeProps.changeMode()} sx={{pl: theme.spacing(1), cursor: 'pointer'}} />
-              </Tooltip>
+              <DarkThemeIcon/>
               { matchesXs
                 ? <>
                   <Tooltip title="Register">

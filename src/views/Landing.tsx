@@ -12,6 +12,7 @@ import { FileInfo, Widget as UploadWidget } from "@uploadcare/react-widget"
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
+import GameDetails from '../components/GameDetails'
 import { IDarkModeProps, ISearchFieldProps } from '../components/Header'
 import { ICountResponse, ICreateGame, IGame, IGameResponse } from '../types/Game'
 import useGames from '../hooks/useGames'
@@ -52,6 +53,23 @@ const Landing = (props: ILandingProps) => {
   const [userRatings, setUserRatings] = useState<IGetUserRatingsResponse>({})
   const [isLoading, setIsLoading] = useState(false)
   const [pagination, setPagination] = useState(defaultPagination)
+  
+
+  //#region game details modal
+  const [selectedGame, setSelectedGame] = useState<IGame | null>(null)
+  const [gameDetailsOpen, setGameDetailsOpen] = useState<boolean>(false)
+
+  const handleCloseGameDetails = () => {
+    setGameDetailsOpen(false)
+    setSelectedGame(null)
+  }
+
+  const handleOpenGameDetails = (game: IGame) => {
+    setSelectedGame(game)
+    setGameDetailsOpen(true)
+  }
+
+  //#endregion
 
   //#region notification
 
@@ -124,7 +142,7 @@ const Landing = (props: ILandingProps) => {
     }
   }
 
-  const validateRegisterForm = (): boolean => {
+  const validateAddGameForm = (): boolean => {
     let valid = true
     if (!addGame.name) {
       setAddGameValidation(v => ({...v, name: 'field is required'}))
@@ -149,7 +167,7 @@ const Landing = (props: ILandingProps) => {
   
   const handleAddGame = async () => {
     setAddGameErrorText("")
-    if (!validateRegisterForm()) {
+    if (!validateAddGameForm()) {
       return
     }
     
@@ -473,13 +491,20 @@ const Landing = (props: ILandingProps) => {
               </Grid>
             </Grid>
             
+            <GameDetails 
+              game={selectedGame}
+              showUserRating={isAuthenticated && hasRole([roles.user])} 
+              userRating={userRatings[selectedGame?.id?.toString() || ""]} 
+              open={gameDetailsOpen}
+              handleClose={handleCloseGameDetails}
+            />
+
             <Grid container spacing={2}>
               {data.map((game: IGame) => (
                 <Grid key={game.id} item xs={6} sm={4} md={3} lg={2}>
-                  <GameCard 
-                    game={game} 
-                    showUserRating={isAuthenticated && hasRole([roles.user])} 
-                    userRating={userRatings[game.id?.toString()]} 
+                  <GameCard
+                    game={game}
+                    handleOpenDetails={handleOpenGameDetails}
                     darkMode={darkModeProps.darkMode}
                   />
                 </Grid>
