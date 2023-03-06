@@ -84,4 +84,4 @@ interface ICountResponse {
 	count: number
 }
 
-export type { IGame, ICreateGame, IUpdateGame, IGameResponse, ICountResponse }
+export type { IGame, ICreateGame, IUpdateGame, IGameResponse, ICountResponse, ICompany, IGenre, IPlatform }

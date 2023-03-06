@@ -1,15 +1,30 @@
 import { useMemo, useState } from 'react'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { CssBaseline } from '@mui/material'
+import { CssBaseline, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
+import { grey, blueGrey, blue } from '@mui/material/colors'
 import { BrowserRouter, Route } from 'react-router-dom'
 
 import Landing from './views/Landing'
-import { IDarkModeProps } from './components/Header'
 
+
+const dmKey = 'gl_dark_mode'
 
 const App = () => {
-  const [darkMode, setDarkMode] = useState(useMediaQuery('(prefers-color-scheme: dark)'))
+
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+
+  const getIsDarkMode = (): boolean => {
+    const dmValue = localStorage.getItem(dmKey)
+    if (!dmValue) {
+      return prefersDarkMode
+    }
+    if (dmValue === "true") {
+      return true
+    }
+    return false
+  }
+
+  const [darkMode, setDarkMode] = useState(getIsDarkMode())
 
   const theme = useMemo(
     () =>
@@ -17,25 +32,24 @@ const App = () => {
         palette: {
           mode: darkMode ? 'dark' : 'light',
           primary: {
-            light: '#a4a4a4',
-            main: '#757575',
-            dark: '#494949',
-            contrastText: '#ffffff'
+            main: darkMode ? grey[300] : grey[700],
           },
           secondary: {
-            light: '#e2f1f8',
-            main: '#b0bec5',
-            dark: '#808e95',
-            contrastText: '#fafafa'
-          }
+            main: darkMode ? blueGrey[300] : blue[900],
+          },
+          tonalOffset: 0.3
         }
       }),
     [darkMode]
   )
 
-  const darkModeProps: IDarkModeProps = {
-    darkMode: darkMode,
-    changeMode: () => {setDarkMode(dm => (!dm))}
+  const handleChangeMode = () => {
+    setDarkMode(dm => {
+      dm = !dm
+      const dmValue = dm.toString()
+      localStorage.setItem(dmKey, dmValue)
+      return dm
+    })
   }
 
   return (
@@ -44,7 +58,7 @@ const App = () => {
         <CssBaseline />
         <BrowserRouter>
           <Route path='/'>
-            <Landing darkModeProps={darkModeProps} />
+            <Landing darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} />
           </Route>
         </BrowserRouter>
       </ThemeProvider>
