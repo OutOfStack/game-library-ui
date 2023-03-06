@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, 
-  Snackbar, SnackbarCloseReason, TextField, TextFieldProps, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, Pagination,
+  Snackbar, SnackbarCloseReason, Stack, TextField, TextFieldProps, Typography, ToggleButton, ToggleButtonGroup,
+  useMediaQuery, useTheme } from '@mui/material'
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import ToggleButton from '@mui/material/ToggleButton'
-import Stack from '@mui/material/Stack'
-import Pagination from '@mui/material/Pagination'
 import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers'
-import AbcRoundedIcon from '@mui/icons-material/AbcRounded'
-import WhatshotRoundedIcon from '@mui/icons-material/WhatshotRounded'
-import DateRangeRoundedIcon from '@mui/icons-material/DateRangeRounded'
+import AbcIcon from '@mui/icons-material/AbcRounded'
+import WhatshotIcon from '@mui/icons-material/WhatshotRounded'
+import DateRangeIcon from '@mui/icons-material/DateRangeRounded'
 import moment from 'moment'
 import { FileInfo, Widget as UploadWidget } from "@uploadcare/react-widget"
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
-import { ISearchFieldProps } from '../components/Header'
+import GameDetails from '../components/GameDetails'
+import { IDarkModeProps, ISearchFieldProps } from '../components/Header'
 import { ICountResponse, ICreateGame, IGame, IGameResponse } from '../types/Game'
 import useGames from '../hooks/useGames'
 import useUser from '../hooks/useUser'
@@ -28,7 +26,12 @@ import Modal from '../components/Modal'
 import '../styles/UploadWidget.css'
 
 
-const Landing = () => {
+interface ILandingProps {
+  darkModeProps: IDarkModeProps
+}
+
+const Landing = (props: ILandingProps) => {
+  const { darkModeProps } = props
 
   const { fetchPage: fetchGames, fetchCount: fetchGamesCount, create: createGame } = useGames()
   const { fetchRatings } = useUser()
@@ -50,6 +53,23 @@ const Landing = () => {
   const [userRatings, setUserRatings] = useState<IGetUserRatingsResponse>({})
   const [isLoading, setIsLoading] = useState(false)
   const [pagination, setPagination] = useState(defaultPagination)
+  
+
+  //#region game details modal
+  const [selectedGame, setSelectedGame] = useState<IGame | null>(null)
+  const [gameDetailsOpen, setGameDetailsOpen] = useState<boolean>(false)
+
+  const handleCloseGameDetails = () => {
+    setGameDetailsOpen(false)
+    setSelectedGame(null)
+  }
+
+  const handleOpenGameDetails = (game: IGame) => {
+    setSelectedGame(game)
+    setGameDetailsOpen(true)
+  }
+
+  //#endregion
 
   //#region notification
 
@@ -122,7 +142,7 @@ const Landing = () => {
     }
   }
 
-  const validateRegisterForm = (): boolean => {
+  const validateAddGameForm = (): boolean => {
     let valid = true
     if (!addGame.name) {
       setAddGameValidation(v => ({...v, name: 'field is required'}))
@@ -147,7 +167,7 @@ const Landing = () => {
   
   const handleAddGame = async () => {
     setAddGameErrorText("")
-    if (!validateRegisterForm()) {
+    if (!validateAddGameForm()) {
       return
     }
     
@@ -174,7 +194,7 @@ const Landing = () => {
         setAddGameDialogText("")
       }, 500)
     } else {
-      setAddGameErrorText("An error occured. Try again")
+      setAddGameErrorText("An error occured. Try again later")
     }
   }
 
@@ -308,7 +328,7 @@ const Landing = () => {
 
   return (
     <LocalizationProvider dateAdapter={DateAdapter}>
-      <Layout searchFieldProps={searchFieldProps}>
+      <Layout searchFieldProps={searchFieldProps} darkModeProps={darkModeProps}>
         <Container maxWidth="xl" disableGutters={true}>
           <Backdrop
             sx={{ color: '#fff', zIndex: (theme: any) => theme.zIndex.drawer + 1 }}
@@ -450,13 +470,13 @@ const Landing = () => {
                   aria-label="sorting"
                 >
                   <ToggleButton value="default" aria-label="default" title="Ranking">
-                    <WhatshotRoundedIcon fontSize={matchesXs ? "small" : "medium"} />
+                    <WhatshotIcon fontSize={matchesXs ? "small" : "medium"} />
                   </ToggleButton>
                   <ToggleButton value="name" aria-label="name" title="Name">
-                    <AbcRoundedIcon fontSize={matchesXs ? "small" : "medium"} />
+                    <AbcIcon fontSize={matchesXs ? "small" : "medium"} />
                   </ToggleButton>
                   <ToggleButton value="releaseDate" aria-label="release date" title="Release date">
-                    <DateRangeRoundedIcon fontSize={matchesXs ? "small" : "medium"} />
+                    <DateRangeIcon fontSize={matchesXs ? "small" : "medium"} />
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
@@ -471,10 +491,22 @@ const Landing = () => {
               </Grid>
             </Grid>
             
+            <GameDetails 
+              game={selectedGame}
+              showUserRating={isAuthenticated && hasRole([roles.user])} 
+              userRating={userRatings[selectedGame?.id?.toString() || ""]} 
+              open={gameDetailsOpen}
+              handleClose={handleCloseGameDetails}
+            />
+
             <Grid container spacing={2}>
               {data.map((game: IGame) => (
                 <Grid key={game.id} item xs={6} sm={4} md={3} lg={2}>
-                  <GameCard game={game} showUserRating={isAuthenticated && hasRole([roles.user])} userRating={userRatings[game.id?.toString()]}/>
+                  <GameCard
+                    game={game}
+                    handleOpenDetails={handleOpenGameDetails}
+                    darkMode={darkModeProps.darkMode}
+                  />
                 </Grid>
               ))}
             </Grid>

@@ -13,7 +13,6 @@ const baseRequest = async<T> (url: string, initConfig: RequestInit): Promise<[T 
           return [resp.status, resp.statusText || 'An error occured while fetching data']
         }
       } else {
-        console.log(resp)
         return [await resp.json(), null]
       }
     }

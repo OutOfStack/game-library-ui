@@ -13,15 +13,20 @@ const stringToColor = (string: string) => {
 
   for (i = 0; i < 3; i += 1) {
     const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.substr(-2)
+    color += `00${value.toString(16)}`.substring(-2)
   }
   /* eslint-enable no-bitwise */
+  
   return color
 }
 
 export const stringAvatar = (name: string) => {
   name = name.trim()
-  const splitted = name.split(' ')
+  let splitted = name.split(' ')
+  if (splitted.length === 1) {
+    let [first, ...rest] = name.split(/(?=\d)/g)
+    splitted = [first, rest.join("")]
+  }
   const shortName = `${splitted[0] ? splitted[0][0] : ''}${splitted[1] ? splitted[1][0] : ''}`
   return {
     sx: {
