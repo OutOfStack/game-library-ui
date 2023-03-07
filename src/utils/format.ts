@@ -15,7 +15,6 @@ export const ToHostname = (url: string): string => {
   url = url.replace("www.", "")
   try {
     const u = new URL(url)
-    console.log(u)
     return u.hostname
   } catch (error) {
     console.log(error)
