@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { CssBaseline, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
 import { grey, blueGrey, blue } from '@mui/material/colors'
-import { BrowserRouter, Route } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import Landing from './views/Landing'
 
@@ -52,15 +52,18 @@ const App = () => {
     })
   }
 
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Landing darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} />
+    }
+  ])
+
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <BrowserRouter>
-          <Route path='/'>
-            <Landing darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} />
-          </Route>
-        </BrowserRouter>
+        <RouterProvider router={router} />
       </ThemeProvider>
     </StyledEngineProvider>
   )

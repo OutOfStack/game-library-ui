@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Alert, AlertColor, AppBar, Avatar, Box, Button, ButtonGroup, Checkbox, FormControlLabel, Grid, 
   Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from 'tss-react/mui'
 import LoginIcon from '@mui/icons-material/LoginRounded'
 import LogoutIcon from '@mui/icons-material/LogoutRounded'
-import HowToRegIcon from '@mui/icons-material/HowToRegRounded'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import DarkModeIcon from '@mui/icons-material/DarkModeRounded'
 import LightModeIcon from '@mui/icons-material/LightModeRounded'
 import SearchIcon from '@mui/icons-material/SearchRounded'
@@ -54,7 +54,7 @@ const Header = (props: IHeaderProps) => {
 
   const { signIn, signUp, getClaims, isAuthenticated, setUserStorage, logout } = useAuth()
   const { classes } = useStyles()
-  const history = useHistory()
+  const navigate = useNavigate()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
   const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
@@ -282,7 +282,7 @@ const Header = (props: IHeaderProps) => {
         <Toolbar>
           <Typography variant={matchesXs ? "subtitle2" : "h5"} sx={matchesMd ? {  mr: 2, ml: '5vw' } : {}}>
             <span
-              onClick={() => { history.push("/"); history.go(0); }}
+              onClick={() => {navigate("/"); navigate(0)}}
               className={classes.title}
             >
               Game Library
@@ -321,7 +321,7 @@ const Header = (props: IHeaderProps) => {
               { matchesXs
                 ? <>
                   <Tooltip title="Register">
-                    <HowToRegIcon fontSize="large" onClick={() => handleRegisterDialogOpen()} sx={{pl: theme.spacing(1)}}/>
+                    <PersonAddIcon fontSize="large" onClick={() => handleRegisterDialogOpen()} sx={{pl: theme.spacing(1)}}/>
                   </Tooltip>
                   <Tooltip title="Login">
                     <LoginIcon fontSize="large" onClick={() => handleLoginDialogOpen()} sx={{pl: theme.spacing(1)}} />

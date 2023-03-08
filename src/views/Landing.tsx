@@ -8,7 +8,8 @@ import AbcIcon from '@mui/icons-material/AbcRounded'
 import WhatshotIcon from '@mui/icons-material/WhatshotRounded'
 import DateRangeIcon from '@mui/icons-material/DateRangeRounded'
 import moment from 'moment'
-import { FileInfo, Widget as UploadWidget } from "@uploadcare/react-widget"
+import { FileInfo, Widget as UploadWidget } from '@uploadcare/react-widget'
+import { useSearchParams } from 'react-router-dom'
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
@@ -41,19 +42,52 @@ const Landing = (props: ILandingProps) => {
   const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
   const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
   
-  const defaultPagination = {
-    pageSize: 24,
-    page: 1,
-    orderBy: "default",
-    searchText: ""
-  }
-  
   const [data, setData] = useState<IGame[]>([])
   const [count, setCount] = useState<number>(0)
   const [userRatings, setUserRatings] = useState<IGetUserRatingsResponse>({})
   const [isLoading, setIsLoading] = useState(false)
-  const [pagination, setPagination] = useState(defaultPagination)
+
+  //#region navigation
+
+  const minSearchTextLength = 2
+  const defaultOrderBy = "default"
+  const pageParam = "page"
+  const orderByParam = "orderBy"
+  const searchTextParam = "search"
+  const defaultNavigation = {
+    pageSize: 24,
+    page: 1,
+    orderBy: defaultOrderBy,
+    searchText: ""
+  }
+
+  let [searchParams, setSearchParams] = useSearchParams()
+  const [navigation, setNavigation] = useState(() => {
+    const pageSize = defaultNavigation.pageSize
+    const pageP = parseInt(searchParams.get(pageParam) || "")
+    const page = pageP >= defaultNavigation.page
+      ? pageP
+      : defaultNavigation.page
+    const orderByP = searchParams.get(orderByParam) || ""
+    const orderBy = orderByP && orderByP !== defaultOrderBy
+      ? orderByP
+      : defaultNavigation.orderBy
+    const searchTextP = searchParams.get(searchTextParam) || ""
+     const searchText = searchTextP.length >= minSearchTextLength
+      ? searchTextP
+      : defaultNavigation.searchText
+    
+      return {
+      pageSize: pageSize,
+      page: page,
+      orderBy: orderBy,
+      searchText: searchText,
+    }
+  })
   
+  const pagesCount = (count: number) => Math.ceil(count/navigation.pageSize)
+
+  //#endregion
 
   //#region game details modal
   const [selectedGame, setSelectedGame] = useState<IGame | null>(null)
@@ -101,11 +135,20 @@ const Landing = (props: ILandingProps) => {
   //#region sorting
   const handleSorting = (event: React.MouseEvent<HTMLElement>, orderBy: string | null) => {
     if (orderBy) {
-      setPagination(p => ({
+      setNavigation(p => ({
         ...p,
-        page: defaultPagination.page,
+        page: defaultNavigation.page,
         orderBy: orderBy
       }))
+      setSearchParams(p => {
+        p.delete(pageParam)
+        if (orderBy === defaultOrderBy) {
+          p.delete(orderByParam)
+        } else {
+          p.set(orderByParam, orderBy)
+        }
+        return p
+      })
     }
   }
 
@@ -237,18 +280,32 @@ const Landing = (props: ILandingProps) => {
   //#endregion
 
   const handleSearchTextChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setPagination(p => ({
+    const text = e.target.value
+    setNavigation(p => ({
       ...p,
-      page: defaultPagination.page,
-      searchText: e.target.value,
+      page: text.length >= minSearchTextLength ? defaultNavigation.page : p.page,
+      searchText: text
     }))
+    setSearchParams(p => {
+      p.delete(pageParam)
+      if (text.length >= minSearchTextLength) {
+        p.set(searchTextParam, text)
+      } else {
+        p.delete(searchTextParam)
+      }
+      return p
+    })
   }
 
-  const handlePagination = (page: number = defaultPagination.page) => {
-    setPagination(p => ({
+  const handleNavigation = (page: number = defaultNavigation.page) => {
+    setNavigation(p => ({
       ...p,
       page: page
     }))
+    setSearchParams(p => {
+      p.set(pageParam, page.toString())
+      return p
+    })
   }
 
   // get user ratings
@@ -282,7 +339,7 @@ const Landing = (props: ILandingProps) => {
   useEffect(() => {
     const getData = async () => {
       setIsLoading(true)
-      const [resp, err] = await fetchGames(pagination.pageSize, pagination.page, pagination.orderBy, pagination.searchText)
+      const [resp, err] = await fetchGames(navigation.pageSize, navigation.page, navigation.orderBy, navigation.searchText)
       if (err) {
         if (typeof err === 'string') {
           showNotification(err, "error")
@@ -294,18 +351,16 @@ const Landing = (props: ILandingProps) => {
         return
       }
       const games = resp as IGame[]
-      if (games.length > 0) {
-        setData(games)
-      }
+      setData(games)
       setIsLoading(false)
     }
     getData()
-  }, [pagination.page, pagination.orderBy, pagination.searchText])
+  }, [navigation.page, navigation.orderBy, navigation.searchText])
 
     // fetch games count
     useEffect(() => {
       const getCount = async () => {
-        const [resp, err] = await fetchGamesCount(pagination.searchText)
+        const [resp, err] = await fetchGamesCount(navigation.searchText)
         if (err) {
           if (typeof err === 'string') {
             showNotification(err, "error")
@@ -317,12 +372,23 @@ const Landing = (props: ILandingProps) => {
         }
         const r = resp as ICountResponse
         setCount(r.count)
+
+        if (navigation.searchText.length >= minSearchTextLength && navigation.page > pagesCount(r.count)) {
+          setNavigation(p => ({
+            ...p,
+            page: defaultNavigation.page
+          }))
+          setSearchParams(p => {
+            p.delete(pageParam)
+            return p
+          })
+        }
       }
       getCount()
-    }, [pagination.searchText])
+    }, [navigation.searchText])
 
   const searchFieldProps: ISearchFieldProps = {
-    text: pagination.searchText,
+    text: navigation.searchText,
     changeText: handleSearchTextChange
   }
 
@@ -463,7 +529,7 @@ const Landing = (props: ILandingProps) => {
             <Grid container spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{pb: 3}}>
               <Grid item xs={3} sx={{pt: 0}}>
                 <ToggleButtonGroup
-                  value={pagination.orderBy}
+                  value={navigation.orderBy}
                   size="small"
                   exclusive
                   onChange={handleSorting}
@@ -472,16 +538,18 @@ const Landing = (props: ILandingProps) => {
                   <ToggleButton value="default" aria-label="default" title="Ranking">
                     <WhatshotIcon fontSize={matchesXs ? "small" : "medium"} />
                   </ToggleButton>
-                  <ToggleButton value="name" aria-label="name" title="Name">
-                    <AbcIcon fontSize={matchesXs ? "small" : "medium"} />
-                  </ToggleButton>
                   <ToggleButton value="releaseDate" aria-label="release date" title="Release date">
                     <DateRangeIcon fontSize={matchesXs ? "small" : "medium"} />
+                  </ToggleButton>
+                  <ToggleButton value="name" aria-label="name" title="Name">
+                    <AbcIcon fontSize={matchesXs ? "small" : "medium"} />
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
               <Grid item sm={6} sx={{textAlign: "center"}}>
-                <Typography variant={matchesXs ? "h6" : "h5"}>Games</Typography>
+                <Typography variant={matchesXs ? "h6" : "h5"}>
+                  Games <sup style={{fontSize: matchesXs ? 9 : 11, color: ""}}> {count}</sup>
+                </Typography>
               </Grid>
               <Grid item xs={3} sx={{textAlign: "right"}}>
                 {hasRole([roles.publisher]) 
@@ -512,16 +580,16 @@ const Landing = (props: ILandingProps) => {
             </Grid>
             <Stack sx={{alignItems: 'center', pt: 3}}>
               <Pagination
-                defaultPage={defaultPagination.page}
-                hidePrevButton={pagination.page === defaultPagination.page} 
-                hideNextButton={pagination.page === Math.ceil(count / pagination.pageSize)}
+                defaultPage={defaultNavigation.page}
+                hidePrevButton={navigation.page === defaultNavigation.page}
+                hideNextButton={navigation.page >= pagesCount(count)}
                 siblingCount={0}
-                count={Math.ceil(count/pagination.pageSize)}
-                page={pagination.page}
+                count={pagesCount(count)}
+                page={navigation.page}
                 variant="outlined" 
                 shape="rounded"
                 size="large"
-                onChange={(_, page) => handlePagination(page)}
+                onChange={(_, page) => handleNavigation(page)}
               />
             </Stack>
           </Box>

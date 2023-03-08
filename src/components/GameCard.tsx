@@ -54,10 +54,12 @@ const GameCard = (props: IGameCardProps) => {
     <>
       <Card variant="elevation" sx={{boxShadow: darkMode ? '0 5px 10px 0 #303030' : '0 8px 16px 0 #9F9F9F'}}>
         <Box sx={{
-          display: 'flex', 
-          alignItems: 'center', 
-          margin: 'auto'
-        }}>
+            display: 'flex', 
+            alignItems: 'center', 
+            margin: 'auto'
+          }}
+          onClick={() => matchesXs && handleOpenDetails(game)}
+        >
           <CardMedia
             component="img"
             sx={{
