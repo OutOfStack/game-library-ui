@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, AlertColor, Backdrop, Box,  Button, CircularProgress, Container, Grid, Pagination,
-  Snackbar, SnackbarCloseReason, Stack, TextField, TextFieldProps, Typography, ToggleButton, ToggleButtonGroup,
-  useMediaQuery, useTheme } from '@mui/material'
+import {
+  Alert, AlertColor, Autocomplete, AutocompleteChangeReason, AutocompleteChangeDetails, Backdrop, Box, Button, 
+  CircularProgress, Container, Grid, Pagination, Snackbar, SnackbarCloseReason, Stack, TextField, TextFieldProps, 
+  Typography, ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme
+} from '@mui/material'
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
 import { MobileDatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import AbcIcon from '@mui/icons-material/AbcRounded'
 import WhatshotIcon from '@mui/icons-material/WhatshotRounded'
 import DateRangeIcon from '@mui/icons-material/DateRangeRounded'
 import moment from 'moment'
-import { FileInfo, Widget as UploadWidget } from '@uploadcare/react-widget'
+import { FileInfo, FileUpload, FilesUpload, Widget as UploadWidget } from '@uploadcare/react-widget'
 import { useSearchParams } from 'react-router-dom'
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
 import GameDetails from '../components/GameDetails'
 import { IDarkModeProps, ISearchFieldProps } from '../components/Header'
-import { ICountResponse, ICreateGame, IGame, IGameResponse } from '../types/Game'
+import { ICountResponse, ICreateGame, IGame, IGameResponse, IPlatform, IGenre } from '../types/Game'
 import useGames from '../hooks/useGames'
+import useGenres from '../hooks/useGenres'
+import usePlatforms from '../hooks/usePlatforms'
 import useUser from '../hooks/useUser'
 import useAuth from '../hooks/useAuth'
 import { IValidationResponse } from '../types/Validation'
@@ -26,6 +30,8 @@ import { isTouchDevice } from '../utils/devices'
 import Modal from '../components/Modal'
 import '../styles/UploadWidget.css'
 
+const fieldWidthLarge = '400px'
+const fieldWidthSmall = '210px'
 
 interface ILandingProps {
   darkModeProps: IDarkModeProps
@@ -36,15 +42,19 @@ const Landing = (props: ILandingProps) => {
 
   const { fetchPage: fetchGames, fetchCount: fetchGamesCount, create: createGame } = useGames()
   const { fetchRatings } = useUser()
+  const { fetchGenres } = useGenres()
+  const { fetchPlatforms } = usePlatforms()
   const { hasRole, isAuthenticated } = useAuth()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
   const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
   const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
-  
+
   const [data, setData] = useState<IGame[]>([])
   const [count, setCount] = useState<number>(0)
   const [userRatings, setUserRatings] = useState<IGetUserRatingsResponse>({})
+  const [genres, setGenres] = useState<IGenre[]>([])
+  const [platforms, setPlatforms] = useState<IPlatform[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   //#region navigation
@@ -73,19 +83,19 @@ const Landing = (props: ILandingProps) => {
       ? orderByP
       : defaultNavigation.orderBy
     const searchTextP = searchParams.get(searchTextParam) || ""
-     const searchText = searchTextP.length >= minSearchTextLength
+    const searchText = searchTextP.length >= minSearchTextLength
       ? searchTextP
       : defaultNavigation.searchText
-    
-      return {
+
+    return {
       pageSize: pageSize,
       page: page,
       orderBy: orderBy,
       searchText: searchText,
     }
   })
-  
-  const pagesCount = (count: number) => Math.ceil(count/navigation.pageSize)
+
+  const pagesCount = (count: number) => Math.ceil(count / navigation.pageSize)
 
   //#endregion
 
@@ -118,7 +128,7 @@ const Landing = (props: ILandingProps) => {
     if (reason === 'clickaway') {
       return
     }
-    setAlert(a => ({...defaultAlert, severity: a.severity}))
+    setAlert(a => ({ ...defaultAlert, severity: a.severity }))
   }
 
   const showNotification = (message: string, severity: AlertColor = "success") => {
@@ -158,8 +168,13 @@ const Landing = (props: ILandingProps) => {
 
   interface IAddGameValidation {
     name: string,
-	  developer: string,
-	  releaseDate: string,
+    developer: string,
+    releaseDate: string,
+    summary: string,
+    genres: string,
+    platforms: string,
+    logo: string,
+    screenshots: string,
     [index: string]: string
   }
 
@@ -169,55 +184,86 @@ const Landing = (props: ILandingProps) => {
   const [addGameErrorText, setAddGameErrorText] = useState("")
   const [addGameValidation, setAddGameValidation] = useState<IAddGameValidation>({
     name: "",
-	  developer: "",
-	  releaseDate: "",
+    developer: "",
+    releaseDate: "",
+    summary: "",
+    genres: "",
+    platforms: "",
+    logo: "",
+    screenshots: "",
   })
 
   const handleAddGameDialogOpen = () => setAddGameDialogOpen(true)
   const handleAddGameDialogClose = () => setAddGameDialogOpen(false)
-  
+
   const handleAddGameFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, field: string) => {
     const value = e.target.value?.trimStart()
-    setAddGame(g => ({...g, [field]: value}))
+    setAddGame(g => ({ ...g, [field]: value }))
     // remove error if there is a value now
     if (addGameValidation[field]?.length > 0 && value?.length > 0) {
-      setAddGameValidation(v => ({...v, [field]: ''}))
+      setAddGameValidation(v => ({ ...v, [field]: '' }))
     }
   }
 
   const validateAddGameForm = (): boolean => {
     let valid = true
     if (!addGame.name) {
-      setAddGameValidation(v => ({...v, name: 'field is required'}))
+      setAddGameValidation(v => ({ ...v, name: 'Name is required' }))
       valid = false
     }
 
     if (!addGame.developer) {
-      setAddGameValidation(v => ({...v, developer: 'field is required'}))
+      setAddGameValidation(v => ({ ...v, developer: 'Developer is required' }))
       valid = false
     }
 
     if (!addGame.releaseDate) {
-      setAddGameValidation(v => ({...v, releaseDate: 'field is required'}))
+      setAddGameValidation(v => ({ ...v, releaseDate: 'Release date is required' }))
       valid = false
     } else if (!moment(addGame.releaseDate).isValid()) {
-      setAddGameValidation(v => ({...v, releaseDate: 'invalid date or format. should be YYYY-MM-DD'}))
+      setAddGameValidation(v => ({ ...v, releaseDate: 'Invalid date or format. Should be YYYY-MM-DD' }))
+      valid = false
+    }
+
+    if (!addGame.summary) {
+      setAddGameValidation(v => ({ ...v, summary: 'Summary is required' }))
+      valid = false
+    }
+
+    if (!addGame.genresIds?.length) {
+      setAddGameValidation(v => ({ ...v, genres: 'At least one genre is required' }))
+      valid = false
+    }
+
+    if (!addGame.platformsIds?.length) {
+      setAddGameValidation(v => ({ ...v, platforms: 'At least one platform is required' }))
+      valid = false
+    }
+
+    if (!addGame.logoUrl) {
+      setAddGameValidation(v => ({ ...v, logo: 'Cover is required' }))
+      valid = false
+    }
+
+    if (!addGame.screenshots?.length) {
+      setAddGameValidation(v => ({ ...v, screenshots: 'Screenshots are required' }))
       valid = false
     }
 
     return valid
   }
-  
+
   const handleAddGame = async () => {
     setAddGameErrorText("")
     if (!validateAddGameForm()) {
       return
     }
-    
+
     const newGame: ICreateGame = {
       ...addGame,
       releaseDate: moment(addGame.releaseDate).format("yyyy-MM-DD")
     }
+
     const [resp, err] = await createGame(newGame)
     if (err) {
       if (typeof err === 'string') {
@@ -247,16 +293,35 @@ const Landing = (props: ILandingProps) => {
 
   const handleLogoChanged = (fileInfo: FileInfo) => {
     if (fileInfo.isStored) {
-      setAddGame(g => ({...g, logoUrl: fileInfo.cdnUrl || undefined}))
+      setAddGame(g => ({ ...g, logoUrl: fileInfo.cdnUrl || undefined }))
+    }
+
+    if (addGameValidation.logo.length > 0 && fileInfo.cdnUrl) {
+      setAddGameValidation(v => ({ ...v, logo: '' }))
+    }
+  }
+
+  const handleScreenshotsChanged = async (fileInfo: FileUpload | FilesUpload | null) => {
+    if (!fileInfo) {
+      return
+    }
+    let group = fileInfo as FilesUpload
+    const files = await Promise.all(group.files())
+    const urls = files.map((file) => file?.cdnUrl || '')
+    
+    setAddGame(g => ({ ...g, screenshots: urls }))
+
+    if (addGameValidation.screenshots.length > 0 && urls?.length > 0) {
+      setAddGameValidation(v => ({ ...v, screenshots: '' }))
     }
   }
 
   const fileSizeLimit = (sizeInKb: number) => {
-    return function(fileInfo: FileInfo) {
+    return (fileInfo: FileInfo) => {
       if (fileInfo.name === null || fileInfo.size === null) {
         return
       }
-  
+
       if (fileInfo.size > sizeInKb * 1024) {
         throw new Error('size')
       }
@@ -264,17 +329,17 @@ const Landing = (props: ILandingProps) => {
   }
 
   const hasExtension = () => {
-    return function(fileInfo: FileInfo) {
+    return (fileInfo: FileInfo) => {
       if (fileInfo.name === null) {
         return
       }
-  
+
       if (!fileInfo.name.includes(".")) {
         throw new Error('image')
       }
     }
   }
-  
+
   const uploadValidators = [fileSizeLimit(150), hasExtension()]
 
   //#endregion
@@ -308,6 +373,15 @@ const Landing = (props: ILandingProps) => {
     })
   }
 
+  const notifyError = (err: string | IValidationResponse | null) => {
+    if (typeof err === 'string') {
+      showNotification(err, "error")
+    } else {
+      const error = err as IValidationResponse
+      showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
+    }
+  }
+
   // get user ratings
   useEffect(() => {
     const getRatings = async () => {
@@ -317,12 +391,7 @@ const Landing = (props: ILandingProps) => {
         gameIds: gameIds
       })
       if (err) {
-        if (typeof err === 'string') {
-          showNotification(err, "error")
-        } else {
-          const error = err as IValidationResponse
-          showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
-        }
+        notifyError(err)
         setIsLoading(false)
         return
       }
@@ -341,12 +410,7 @@ const Landing = (props: ILandingProps) => {
       setIsLoading(true)
       const [resp, err] = await fetchGames(navigation.pageSize, navigation.page, navigation.orderBy, navigation.searchText)
       if (err) {
-        if (typeof err === 'string') {
-          showNotification(err, "error")
-        } else {
-          const error = err as IValidationResponse
-          showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
-        }
+        notifyError(err)
         setIsLoading(false)
         return
       }
@@ -357,40 +421,67 @@ const Landing = (props: ILandingProps) => {
     getData()
   }, [navigation.page, navigation.orderBy, navigation.searchText])
 
-    // fetch games count
-    useEffect(() => {
-      const getCount = async () => {
-        const [resp, err] = await fetchGamesCount(navigation.searchText)
-        if (err) {
-          if (typeof err === 'string') {
-            showNotification(err, "error")
-          } else {
-            const error = err as IValidationResponse
-            showNotification(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error, "error")
-          }
-          return
-        }
-        const r = resp as ICountResponse
-        setCount(r.count)
-
-        if (navigation.searchText.length >= minSearchTextLength && navigation.page > pagesCount(r.count)) {
-          setNavigation(p => ({
-            ...p,
-            page: defaultNavigation.page
-          }))
-          setSearchParams(p => {
-            p.delete(pageParam)
-            return p
-          })
-        }
+  // fetch games count
+  useEffect(() => {
+    const getCount = async () => {
+      const [resp, err] = await fetchGamesCount(navigation.searchText)
+      if (err) {
+        notifyError(err)
+        return
       }
-      getCount()
-    }, [navigation.searchText])
+      const r = resp as ICountResponse
+      setCount(r.count)
+
+      if (navigation.searchText.length >= minSearchTextLength && navigation.page > pagesCount(r.count)) {
+        setNavigation(p => ({
+          ...p,
+          page: defaultNavigation.page
+        }))
+        setSearchParams(p => {
+          p.delete(pageParam)
+          return p
+        })
+      }
+    }
+    getCount()
+  }, [navigation.searchText])
+
+  // fetch genres
+  useEffect(() => {
+    const getGenres = async () => {
+      const [resp, err] = await fetchGenres()
+      if (err) {
+        notifyError(err)
+        return
+      }
+      const genres = resp as IGenre[]
+      console.log(genres)
+      setGenres(genres)
+    }
+    getGenres()
+  }, [])
+
+  // fetch platforms
+  useEffect(() => {
+    const getPlatforms = async () => {
+      const [resp, err] = await fetchPlatforms()
+      if (err) {
+        notifyError(err)
+        return
+      }
+      const platforms = resp as IPlatform[]
+      console.log(platforms)
+      setPlatforms(platforms)
+    }
+    getPlatforms()
+  }, [])
 
   const searchFieldProps: ISearchFieldProps = {
     text: navigation.searchText,
     changeText: handleSearchTextChange
   }
+
+  const uwpk = '8869032692db5708aebb'
 
   return (
     <LocalizationProvider dateAdapter={DateAdapter}>
@@ -403,24 +494,19 @@ const Landing = (props: ILandingProps) => {
             <CircularProgress color="inherit" />
           </Backdrop>
 
-          <Modal 
+          <Modal
             fullwidth={matchesMd}
             matchesMd={matchesMd}
-            isOpen={addGameDialogOpen} 
-            closeDialog={handleAddGameDialogClose} 
-            title='Add new game' 
-            dialogText={addGameDialogText} 
-            dialogErrorText={addGameErrorText} 
-            submitActionName='Add game' 
-            // TODO: Uncomment
-            //handleSubmit={handleAddGame}
-            handleSubmit={() => {}}
+            isOpen={addGameDialogOpen}
+            closeDialog={handleAddGameDialogClose}
+            title='Add new game'
+            dialogText={addGameDialogText}
+            dialogErrorText={addGameErrorText}
+            submitActionName='Add game'
+            handleSubmit={handleAddGame}
           >
             <>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                <div style={{color: "red", textAlign: "center"}}>TEMPORARILY DISABLED</div>
-              </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
                 <TextField
                   required
                   error={!!addGameValidation.name}
@@ -432,7 +518,7 @@ const Landing = (props: ILandingProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'name')}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
                 <TextField
                   required
                   error={!!addGameValidation.developer}
@@ -444,78 +530,173 @@ const Landing = (props: ILandingProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'developer')}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
                 {isTouchDevice()
-                ? <MobileDatePicker
-                  label="Release date"
-                  inputFormat="yyyy-MM-DD"
-                  value={addGame?.releaseDate || null}
-                  onChange={(d: string | null) => {
-                    setAddGameValidation(v => ({...v, releaseDate: ""}));
-                    setAddGame(g => ({...g, releaseDate: d || ""}));
-                  }}
-                  mask="____-__-__"
-                  renderInput={(params: TextFieldProps) => 
-                    <TextField {...params} 
-                      fullWidth
-                      margin="normal"
-                      required 
-                      error={!!addGameValidation.releaseDate}
-                      helperText={addGameValidation.releaseDate} 
-                  />}
-                />
-                : <DesktopDatePicker
-                  label="Release date"
-                  inputFormat="yyyy-MM-DD"
-                  value={addGame?.releaseDate || null}
-                  onChange={(d: string | null) => {
-                    setAddGameValidation(v => ({...v, releaseDate: ""}));
-                    setAddGame(g => ({...g, releaseDate: d || ""}));
-                  }}
-                  mask="____-__-__"
-                  renderInput={(params: TextFieldProps) => 
-                    <TextField {...params}
-                      fullWidth
-                      margin="normal"
-                      required
-                      error={!!addGameValidation.releaseDate}
-                      helperText={addGameValidation.releaseDate}
-                  />}
-                />
+                  ? <MobileDatePicker
+                    label="Release date"
+                    inputFormat="yyyy-MM-DD"
+                    value={addGame?.releaseDate || null}
+                    onChange={(d: string | null) => {
+                      setAddGameValidation(v => ({ ...v, releaseDate: "" }))
+                      setAddGame(g => ({ ...g, releaseDate: d || "" }))
+                    }}
+                    mask="____-__-__"
+                    renderInput={(params: TextFieldProps) =>
+                      <TextField {...params}
+                        fullWidth
+                        margin="normal"
+                        required
+                        error={!!addGameValidation.releaseDate}
+                        helperText={addGameValidation.releaseDate}
+                      />}
+                  />
+                  : <DesktopDatePicker
+                    label="Release date"
+                    inputFormat="yyyy-MM-DD"
+                    value={addGame?.releaseDate || null}
+                    onChange={(d: string | null) => {
+                      setAddGameValidation(v => ({ ...v, releaseDate: "" }))
+                      setAddGame(g => ({ ...g, releaseDate: d || "" }))
+                    }}
+                    mask="____-__-__"
+                    renderInput={(params: TextFieldProps) =>
+                      <TextField {...params}
+                        fullWidth
+                        margin="normal"
+                        required
+                        error={!!addGameValidation.releaseDate}
+                        helperText={addGameValidation.releaseDate}
+                      />}
+                  />
                 }
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+                <TextField
+                  required
+                  error={!!addGameValidation.summary}
+                  helperText={addGameValidation.summary}
+                  fullWidth
+                  multiline
+                  margin="normal"
+                  label="Summary"
+                  value={addGame?.summary || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, "summary")}
+                />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
                 <TextField
                   fullWidth
                   margin="normal"
-                  label="Genre"
-                  placeholder="rpg,action,adventure"
-                  value={addGame?.genre?.join(",") || ""}
+                  label="Websites"
+                  placeholder="mygame.com,twitch.com/mygame"
+                  value={addGame?.websites?.join(",") || ""}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => setAddGame(g => ({
                     ...g,
-                    genre: e.target.value?.split(",").map(g => g.trim())
+                    websites: e.target.value?.split(",").map(g => g.trim())
                   }))}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
-                <label style={{color: "rgba(0, 0, 0, 0.6)"}} htmlFor={'uploadWidget'}>Logo </label>
-                <Typography variant="caption" color={"rgba(0, 0, 0, 0.6)"}> (max size 150 kb, recommended ratio 2:1)</Typography>
-                <div id={'uploadWidget'}>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+              <Autocomplete
+                multiple
+                disableCloseOnSelect
+                filterSelectedOptions
+                id="genres"
+                options={genres}
+                getOptionLabel={(option: IGenre) => option.name}
+                onChange={(e: React.SyntheticEvent, value: IGenre[], reason: AutocompleteChangeReason, details?: AutocompleteChangeDetails<IGenre> | undefined) => {
+                  setAddGame(g => ({
+                    ...g,
+                    genresIds: value?.map(g => g.id)
+                  }))
+
+                  if (addGameValidation.genres?.length !== 0 && value?.length > 0) {
+                    setAddGameValidation(v => ({ ...v, genres: '' }))
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    required
+                    fullWidth
+                    error={!!addGameValidation.genres}
+                    helperText={addGameValidation.genres}
+                    margin="normal"
+                    label="Genres"
+                  />
+                )}
+              />
+              <Autocomplete
+                multiple
+                disableCloseOnSelect
+                filterSelectedOptions
+                id="platforms"
+                options={platforms}
+                getOptionLabel={(option: IPlatform) => option.name}
+                onChange={(e: React.SyntheticEvent, value: IPlatform[], reason: AutocompleteChangeReason, details?: AutocompleteChangeDetails<IPlatform> | undefined) => {
+                  setAddGame(g => ({
+                    ...g,
+                    platformsIds: value?.map(p => p.id)
+                  }))
+
+                  if (addGameValidation.platforms?.length !== 0 && value?.length > 0) {
+                    setAddGameValidation(v => ({ ...v, platforms: '' }))
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    required
+                    fullWidth
+                    error={!!addGameValidation.platforms}
+                    helperText={addGameValidation.platforms}
+                    margin="normal"
+                    label="Platforms"
+                  />
+                )}
+              />
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+                <label htmlFor={'coverUploadWidget'}>Cover </label>
+                <Typography variant="caption" color={"rgba(200, 150, 100, 0.8)"}> (max size 150 kb, ratio 3:4)</Typography>
+                <div id={'coverUploadWidget'}>
                   <UploadWidget
                     imagesOnly
-                    previewStep={true}
+                    previewStep
+                    clearable
+                    crop='3:4'
                     tabs='file'
-                    publicKey='8869032692db5708aebb' 
+                    publicKey={uwpk}
                     validators={uploadValidators}
                     onChange={(fileInfo: FileInfo) => handleLogoChanged(fileInfo)}
                   />
                 </div>
+                <Typography variant="caption" color="#f44336">  {addGameValidation.logo}</Typography>
+              </Grid>
+              <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+                <label htmlFor={'screenshotsUploadWidget'}>Screenshots </label>
+                <Typography variant="caption" color={"rgba(200, 150, 100, 0.8)"}> (max size 150 kb, ratio 9:5, max 7 images)</Typography>
+                <div id={'screenshotsUploadWidget'}>
+                  <UploadWidget
+                    imagesOnly
+                    multiple
+                    previewStep
+                    clearable
+                    crop='9:5'
+                    multipleMax={7}
+                    tabs='file'
+                    publicKey={uwpk}
+                    validators={uploadValidators}
+                    onFileSelect={(fileInfo: FileUpload | FilesUpload | null) => handleScreenshotsChanged(fileInfo)}
+                  />
+                </div>
+                <Typography variant="caption" color="#f44336">  {addGameValidation.screenshots}</Typography>
               </Grid>
             </>
           </Modal>
 
-          <Snackbar 
-            anchorOrigin={{ vertical: 'top', horizontal: 'right'}} 
+          <Snackbar
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             open={alert.open}
             autoHideDuration={5000}
             onClose={handleCloseAlert}
@@ -526,8 +707,8 @@ const Landing = (props: ILandingProps) => {
           </Snackbar>
 
           <Box sx={{ pb: 3 }}>
-            <Grid container spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{pb: 3}}>
-              <Grid item xs={3} sx={{pt: 0}}>
+            <Grid container spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ pb: 3 }}>
+              <Grid item xs={3} sx={{ pt: 0 }}>
                 <ToggleButtonGroup
                   value={navigation.orderBy}
                   size="small"
@@ -546,23 +727,23 @@ const Landing = (props: ILandingProps) => {
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
-              <Grid item sm={6} sx={{textAlign: "center"}}>
+              <Grid item sm={6} sx={{ textAlign: "center" }}>
                 <Typography variant={matchesXs ? "h6" : "h5"}>
-                  Games <sup style={{fontSize: matchesXs ? 9 : 11, color: ""}}> {count}</sup>
+                  Games <sup style={{ fontSize: matchesXs ? 9 : 11, color: "" }}> {count}</sup>
                 </Typography>
               </Grid>
-              <Grid item xs={3} sx={{textAlign: "right"}}>
-                {hasRole([roles.publisher]) 
+              <Grid item xs={3} sx={{ textAlign: "right" }}>
+                {hasRole([roles.publisher])
                   ? <Button variant="contained" onClick={() => handleAddGameDialogOpen()}>Add game</Button>
-                  : <Box sx={{width: "25w"}}/>
+                  : <Box sx={{ width: "25w" }} />
                 }
               </Grid>
             </Grid>
-            
-            <GameDetails 
+
+            <GameDetails
               game={selectedGame}
-              showUserRating={isAuthenticated && hasRole([roles.user])} 
-              userRating={userRatings[selectedGame?.id?.toString() || ""]} 
+              showUserRating={isAuthenticated && hasRole([roles.user])}
+              userRating={userRatings[selectedGame?.id?.toString() || ""]}
               open={gameDetailsOpen}
               handleClose={handleCloseGameDetails}
             />
@@ -578,7 +759,7 @@ const Landing = (props: ILandingProps) => {
                 </Grid>
               ))}
             </Grid>
-            <Stack sx={{alignItems: 'center', pt: 3}}>
+            <Stack sx={{ alignItems: 'center', pt: 3 }}>
               <Pagination
                 defaultPage={defaultNavigation.page}
                 hidePrevButton={navigation.page === defaultNavigation.page}
@@ -586,7 +767,7 @@ const Landing = (props: ILandingProps) => {
                 siblingCount={0}
                 count={pagesCount(count)}
                 page={navigation.page}
-                variant="outlined" 
+                variant="outlined"
                 shape="rounded"
                 size="large"
                 onChange={(_, page) => handleNavigation(page)}

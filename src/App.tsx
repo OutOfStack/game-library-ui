@@ -32,12 +32,12 @@ const App = () => {
         palette: {
           mode: darkMode ? 'dark' : 'light',
           primary: {
-            main: darkMode ? grey[300] : grey[700],
+            main: darkMode ? grey[300] : grey[700]
           },
           secondary: {
-            main: darkMode ? blueGrey[300] : blue[900],
+            main: darkMode ? blueGrey[300] : blue[900]
           },
-          tonalOffset: 0.3
+          tonalOffset: 0.4
         }
       }),
     [darkMode]
