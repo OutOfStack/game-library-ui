@@ -455,7 +455,6 @@ const Landing = (props: ILandingProps) => {
         return
       }
       const genres = resp as IGenre[]
-      console.log(genres)
       setGenres(genres)
     }
     getGenres()
@@ -470,7 +469,6 @@ const Landing = (props: ILandingProps) => {
         return
       }
       const platforms = resp as IPlatform[]
-      console.log(platforms)
       setPlatforms(platforms)
     }
     getPlatforms()

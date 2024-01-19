@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-import { Box, Card, CardContent, CardMedia, Chip, Skeleton, Stack, Typography, useMediaQuery }
-  from '@mui/material'
+import { useState } from 'react'
+import { Box, Card, CardContent, CardMedia, Chip, Skeleton, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { grey } from '@mui/material/colors'
 
