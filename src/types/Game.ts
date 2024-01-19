@@ -18,14 +18,18 @@ interface IGame {
 }
 
 /**
- * ICreateGame represents game data we receive from user
+ * ICreateGame represents game data receive from publisher
  */
 interface ICreateGame {
 	name: string,
 	developer: string,
 	releaseDate: string,
-	genre: string[],
-	logoUrl?: string
+	genresIds: number[],
+	logoUrl?: string,
+	summary: string,
+	platformsIds: number[],
+	screenshots: string[],
+	websites: string[]
 }
 
 /** 
@@ -35,8 +39,12 @@ interface IUpdateGame {
 	name?: string,
 	developer?: string,
 	releaseDate?: string,
-	genre?: string[],
-	logoUrl?: string
+	logoUrl?: string,
+	genresIds: number[],
+	summary: string,
+	platformsIds: number[],
+	screenshots: string[],
+	websites: string[]
 }
 
 /**

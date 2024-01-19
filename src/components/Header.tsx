@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Alert, AlertColor, AppBar, Avatar, Box, Button, ButtonGroup, Checkbox, FormControlLabel, Grid, 
+import { Alert, AlertColor, AppBar, Avatar, Box, Button, Checkbox, FormControlLabel, Grid, 
   Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from 'tss-react/mui'
@@ -327,10 +327,10 @@ const Header = (props: IHeaderProps) => {
                     <LoginIcon fontSize="large" onClick={() => handleLoginDialogOpen()} sx={{pl: theme.spacing(1)}} />
                   </Tooltip>
                 </>
-                : <ButtonGroup variant="text" size={matchesMd ? "large" : "medium" } sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : {}}>
+                : <Box sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : {}} >
                   <Button color="inherit" onClick={() => handleRegisterDialogOpen()}>Register</Button>
                   <Button color="inherit" onClick={() => handleLoginDialogOpen()}>Login</Button>
-                </ButtonGroup>
+                </Box>
               }
             </>
           }

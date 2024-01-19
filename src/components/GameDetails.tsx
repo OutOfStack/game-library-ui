@@ -275,14 +275,16 @@ const GameDetails = (props: IGameDetailsProps) => {
               </Grid>
 
               {/* websites */}
-              <Grid xs={12} >
-                <Box sx={{ml: matchesXs ? theme.spacing(1) : theme.spacing(5)}}>
-                  <Typography variant={matchesXs ? "body1" : "h6"} color="primary">Links</Typography>
-                  {game?.websites.map((url, i) => (
-                    <Link key={i} underline="hover" display="block" target="_blank" rel="noopener" color="secondary" href={url}>{ToHostname(url)}</Link>
-                  ))}
-                </Box>
-              </Grid>
+              {game?.websites?.length &&
+                <Grid xs={12} >
+                  <Box sx={{ml: matchesXs ? theme.spacing(1) : theme.spacing(5)}}>
+                    <Typography variant={matchesXs ? "body1" : "h6"} color="primary">Links</Typography>
+                    {game.websites.map((url, i) => (
+                      <Link key={i} underline="hover" display="block" target="_blank" rel="noopener" color="secondary" href={url}>{ToHostname(url)}</Link>
+                    ))}
+                  </Box>
+                </Grid>
+              }
             </Grid>
           </DialogContent>
         </Container>
