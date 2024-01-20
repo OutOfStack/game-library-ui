@@ -39,10 +39,14 @@ const GameDetails = (props: IGameDetailsProps) => {
 
   const { rate } = useGames()
 
-  const [newUserRating, setNewUserRating] = useState<number | null>(null)
+  const [newUserRating, setNewUserRating] = useState<number | null>(userRating || null)
+
+  const mediaQueryToSize = (): "small" | "medium" | "large" => {
+    return matchesXs ? "small" : matchesSm ? "medium" : "large"
+  }
 
   const handleRateGame = async (rating: number | null) => {
-    if (!rating || !game) {
+    if (rating == null || !game) {
       return
     }
     const [, err] = await rate({ rating: rating }, game.id)
@@ -61,7 +65,7 @@ const GameDetails = (props: IGameDetailsProps) => {
   const [logoLoaded, setLogoLoaded] = useState<boolean>(false)
   const [scrDimensions, setScrDimensions] = useState<{width: number, height: number}>({width: maxScreenshotWidth, height: maxScreenshotHeight})
 
-  useEffect(() => {  
+  useEffect(() => {
     setScrDimensions({
       height: matchesXs ? maxScreenshotHeight * 0.45 : matchesSm ? maxScreenshotHeight * 0.7 : maxScreenshotHeight,
       width: matchesXs ? maxScreenshotWidth * 0.45 : matchesSm ? maxScreenshotWidth * 0.7 : maxScreenshotWidth
@@ -121,6 +125,10 @@ const GameDetails = (props: IGameDetailsProps) => {
   if (!game) {
     return <Fragment />
   }
+
+  const yourRating = newUserRating !== null 
+    ? newUserRating
+    : (userRating || null)
   
   return (
     <Fragment>
@@ -174,54 +182,64 @@ const GameDetails = (props: IGameDetailsProps) => {
                   <Typography variant={matchesXs ? 'h6' : matchesSm ? 'h4' : 'h3'} sx={{fontWeight: matchesXs ? 'normal' : 'bold'}}>{game?.name}</Typography>
                 </Grid>
                 <Grid sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "body2" : "subtitle1"} color="primary">Released {moment(game?.releaseDate).format('DD MMM, YYYY')}</Typography>
+                  <Typography variant={matchesXs ? "body2" : "h6"} color="primary">Released {moment(game?.releaseDate).format('DD MMM, YYYY')}</Typography>
                 </Grid>
                 <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Publishers</Typography>
+                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Publishers</Typography>
                   {[...game?.publishers].sort((a, b) => a.name.length - b.name.length).map((p: ICompany) => (
                     <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{p.name}</Typography>
                   ))}
                 </Grid>
                 <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Developers</Typography>
+                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Developers</Typography>
                   {[...game?.developers].sort((a, b) => a.name.length - b.name.length).map((d: ICompany) => (
                     <Typography key={d.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{d.name}</Typography>
                   ))}
                 </Grid>
                 <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Genres</Typography>
+                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Genres</Typography>
                   {[...game?.genres].sort((a, b) => a.name.length - b.name.length).map((g: IGenre) => (
                     <Typography key={g.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{g.name}</Typography>
                   ))}
                 </Grid>
                 <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Platforms</Typography>
+                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Platforms</Typography>
                   {[...game?.platforms].sort((a, b) => a.name.localeCompare(b.name)).map((p: IPlatform) => (
                     <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{p.abbreviation}</Typography>
                   ))}
                 </Grid>
                 {game.rating > 0 &&
                   <Grid xs={12} sx={gridRowSx}>
-                    <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" sx={chipSx}>Rating</Typography>
-                    <Chip 
-                      label={<Typography variant={matchesXs ? "h6" : "h4"}>{To1Precision(game.rating)}</Typography>}
-                      variant="outlined"
-                      color={game.rating >= 4 ? "success" : game.rating === 3 ? "warning" : "error"}
-                    />
+                    <Stack direction="row" alignItems="center">
+                      <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Rating</Typography>
+                      <Chip 
+                        label={<Typography variant={matchesXs ? "h6" : "h5"}>{To1Precision(game.rating)}</Typography>}
+                        variant="outlined"
+                        color={game.rating >= 4 ? "success" : game.rating === 3 ? "warning" : "error"}
+                        size={matchesXs || matchesSm ? "small" : "medium"}
+                      />
+                    </Stack>
                   </Grid>
                 }
                 {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment() &&
                   <Grid xs={12} sx={gridRowSx}>
-                    <Stack direction="row" alignContent="center">
-                      <Typography variant={matchesXs ? "caption" : "subtitle2"} color="primary" >Your rating</Typography>
-                      <Rating
-                        value={newUserRating || userRating || null}
-                        max={5}
-                        defaultValue={0}
-                        size={matchesXs ? "small" : "medium"}
-                        icon={<RateIcon fontSize={matchesXs ? "small" : "medium"} sx={{ color: orange[800] }} />}
-                        emptyIcon={<RateIcon fontSize={matchesXs ? "small" : "medium"} />}
-                        onChange={(_, newValue) => handleRateGame(newValue)}
+                    <Stack direction="row" alignItems="center">
+                      <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Your rating </Typography>
+                      <Chip
+                        label={
+                          <Rating
+                            value={yourRating}
+                            max={5}
+                            defaultValue={0}
+                            size={mediaQueryToSize()}
+                            icon={<RateIcon fontSize={mediaQueryToSize()} sx={{ color: orange[800] }} />}
+                            emptyIcon={<RateIcon fontSize={mediaQueryToSize()} />}
+                            onChange={(_, newValue) => handleRateGame(newValue)}
+                          />
+                        }
+                        variant="outlined"
+                        onDelete={yourRating? () => {handleRateGame(0)} : undefined }
+                        size={matchesXs || matchesSm ? "small" : "medium"}
                       />
                     </Stack>
                   </Grid>
