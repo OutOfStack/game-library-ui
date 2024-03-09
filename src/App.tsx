@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { CssBaseline, useMediaQuery } from '@mui/material'
+import { Container, CssBaseline, Typography, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
 import { grey, blueGrey, blue } from '@mui/material/colors'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import Landing from './views/Landing'
+import Header from './components/Header'
 
 
 const dmKey = 'gl_dark_mode'
@@ -56,6 +57,16 @@ const App = () => {
     {
       path: "/",
       element: <Landing darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} />
+    },
+    {
+      path: "*",
+      element: 
+        <>
+          <Header darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} searchFieldProps={{text: "", disabled: true} }/>
+          <Container sx={{ paddingTop: theme.spacing(2) }} disableGutters={true}>
+            <Typography variant="h5" style={{textAlign: "center"}}>Page Not Found</Typography>
+          </Container>
+        </>
     }
   ])
 

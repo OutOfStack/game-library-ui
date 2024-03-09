@@ -18,6 +18,25 @@ interface IGame {
 }
 
 /**
+ * IGames represents games get model
+ */
+interface IGames {
+	games: IGame[],
+	count: number
+}
+
+/**
+ * IGamesFilter represents games filter
+ */
+interface IGamesFilter {
+	orderBy: "default" | "name" | "releaseDate",
+	name: string,
+	genre: number,
+	developer: number, 
+	publisher: number 
+}
+
+/**
  * ICreateGame represents game data receive from publisher
  */
 interface ICreateGame {
@@ -92,4 +111,4 @@ interface ICountResponse {
 	count: number
 }
 
-export type { IGame, ICreateGame, IUpdateGame, IGameResponse, ICountResponse, ICompany, IGenre, IPlatform }
+export type { IGame, IGames, IGamesFilter, ICreateGame, IUpdateGame, IGameResponse, ICountResponse, ICompany, IGenre, IPlatform }

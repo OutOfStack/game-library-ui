@@ -17,7 +17,7 @@ import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
 import GameDetails from '../components/GameDetails'
 import { IDarkModeProps, ISearchFieldProps } from '../components/Header'
-import { ICountResponse, ICreateGame, IGame, IGameResponse, IPlatform, IGenre } from '../types/Game'
+import { ICreateGame, IGame, IGames, IGamesFilter, IGameResponse, IPlatform, IGenre } from '../types/Game'
 import useGames from '../hooks/useGames'
 import useGenres from '../hooks/useGenres'
 import usePlatforms from '../hooks/usePlatforms'
@@ -40,7 +40,7 @@ interface ILandingProps {
 const Landing = (props: ILandingProps) => {
   const { darkModeProps } = props
 
-  const { fetchPage: fetchGames, fetchCount: fetchGamesCount, create: createGame } = useGames()
+  const { fetchPage: fetchGames, create: createGame } = useGames()
   const { fetchRatings } = useUser()
   const { fetchGenres } = useGenres()
   const { fetchPlatforms } = usePlatforms()
@@ -64,11 +64,17 @@ const Landing = (props: ILandingProps) => {
   const pageParam = "page"
   const orderByParam = "orderBy"
   const searchTextParam = "search"
+  const genreParam = "genre"
+  const developerParam = "developer"
+  const publisherParam = "publisher"
   const defaultNavigation = {
     pageSize: 24,
     page: 1,
     orderBy: defaultOrderBy,
-    searchText: ""
+    searchText: "",
+    genre: 0,
+    developer: 0,
+    publisher: 0 
   }
 
   let [searchParams, setSearchParams] = useSearchParams()
@@ -86,12 +92,21 @@ const Landing = (props: ILandingProps) => {
     const searchText = searchTextP.length >= minSearchTextLength
       ? searchTextP
       : defaultNavigation.searchText
+    const genreP = parseInt(searchParams.get(genreParam) || "")
+    const genre = genreP || defaultNavigation.genre
+    const developerP = parseInt(searchParams.get(developerParam) || "")
+    const developer = developerP || defaultNavigation.developer
+    const publisherP = parseInt(searchParams.get(publisherParam) || "")
+    const publisher = publisherP || defaultNavigation.publisher
 
     return {
       pageSize: pageSize,
       page: page,
       orderBy: orderBy,
       searchText: searchText,
+      genre: genre,
+      developer: developer,
+      publisher: publisher,
     }
   })
 
@@ -408,31 +423,24 @@ const Landing = (props: ILandingProps) => {
   useEffect(() => {
     const getData = async () => {
       setIsLoading(true)
-      const [resp, err] = await fetchGames(navigation.pageSize, navigation.page, navigation.orderBy, navigation.searchText)
+      let filter = {
+        orderBy: navigation.orderBy, 
+        name: navigation.searchText,
+        genre: navigation.genre,
+        developer: navigation.developer,
+        publisher: navigation.publisher
+      } as IGamesFilter
+      const [resp, err] = await fetchGames(filter, navigation.pageSize, navigation.page)
       if (err) {
         notifyError(err)
         setIsLoading(false)
         return
       }
-      const games = resp as IGame[]
-      setData(games)
-      setIsLoading(false)
-    }
-    getData()
-  }, [navigation.page, navigation.orderBy, navigation.searchText])
+      const gamesResp = resp as IGames
+      setData(gamesResp.games)               
 
-  // fetch games count
-  useEffect(() => {
-    const getCount = async () => {
-      const [resp, err] = await fetchGamesCount(navigation.searchText)
-      if (err) {
-        notifyError(err)
-        return
-      }
-      const r = resp as ICountResponse
-      setCount(r.count)
-
-      if (navigation.searchText.length >= minSearchTextLength && navigation.page > pagesCount(r.count)) {
+      setCount(gamesResp.count)
+      if (navigation.page > pagesCount(gamesResp.count)) {
         setNavigation(p => ({
           ...p,
           page: defaultNavigation.page
@@ -442,9 +450,11 @@ const Landing = (props: ILandingProps) => {
           return p
         })
       }
+
+      setIsLoading(false)
     }
-    getCount()
-  }, [navigation.searchText])
+    getData()
+  }, [navigation.page, navigation.orderBy, navigation.searchText, navigation.genre, navigation.developer, navigation.publisher])
 
   // fetch genres
   useEffect(() => {

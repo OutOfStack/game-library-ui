@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 
 import config from '../api-clients/endpoints'
 import { postRequestConfig } from './request/requestConfig'
@@ -43,9 +43,9 @@ const useAuth = () => {
     }
 
     try {
-      const { exp, nbf } = decode<IJWToken>(token)
+      const { exp, nbf } = jwtDecode<IJWToken>(token)
       const now = (new Date().getTime() / 1000) + 1
-      if (exp < now || nbf > now) {
+      if (exp! < now || nbf! > now) {
         // TODO: use refresh_token
         logout()
         return false
@@ -92,7 +92,7 @@ const useAuth = () => {
   const getClaims = (): IJWToken => {
     if (isAuthenticated) {
       const token = getAccessToken()
-      return decode<IJWToken>(token)
+      return jwtDecode<IJWToken>(token)
     }
     return {} as IJWToken
   }
