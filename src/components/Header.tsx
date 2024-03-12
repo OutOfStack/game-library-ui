@@ -29,7 +29,8 @@ const useStyles = makeStyles()(() => ({
 
 export interface ISearchFieldProps {
   text: string,
-  changeText: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void
+  changeText?: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void,
+  disabled?: boolean
 }
 
 export interface IDarkModeProps {
@@ -39,7 +40,7 @@ export interface IDarkModeProps {
 
 export interface IHeaderProps {
   searchFieldProps: ISearchFieldProps,
-  darkModeProps: IDarkModeProps
+  darkModeProps: IDarkModeProps,
 }
 
 interface IValidation {
@@ -299,6 +300,7 @@ const Header = (props: IHeaderProps) => {
               placeholder="Enter game name"
               value={searchFieldProps.text}
               onChange={searchFieldProps.changeText}
+              disabled={searchFieldProps.disabled}
             />
           </Search>
 

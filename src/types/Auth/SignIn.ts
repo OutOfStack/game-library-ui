@@ -1,3 +1,5 @@
+import { JwtPayload } from "jwt-decode"
+
 /** 
  * ISignIn represents data for user sign in
  */ 
@@ -16,21 +18,7 @@ interface ISignIn {
 /**
  * IJWToken represents data of access token
  */
-interface IJWToken {
-	/** Issuer */
-	iss: string,
-	/** Subject */
-	sub: string,
-	/** Audience */
-	aud: string,
-	/** Expiration Time */
-	exp: number,
-	/** Not Before */
-	nbf: number,
-	/** Issued At */
-	iat: number,
-	/** JWT ID */
-	jti: string,
+interface IJWToken extends JwtPayload {
 	/** User role */
 	user_role: string,
 	/** Username */

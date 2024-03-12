@@ -1,7 +1,7 @@
 import config from '../api-clients/endpoints'
 import { authorizedRequestConfig, getRequestConfig, postRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
-import { ICountResponse, ICreateGame, IGame, IGameResponse, IUpdateGame } from '../types/Game'
+import { IGamesFilter, ICreateGame, IGame, IGameResponse, IGames, IUpdateGame } from '../types/Game'
 import { ICreateRating, IRatingResponse } from '../types/Rating'
 import useAuth from './useAuth'
 
@@ -10,21 +10,24 @@ const useGames = () => {
 
   const { getAccessToken } = useAuth()
 
-  const fetchPage = async (pageSize: number = 20, page: number = 1, orderBy: string = 'default', name: string = '') => {
-    const url = `${endpoint}?pageSize=${pageSize}&page=${page}&orderBy=${orderBy}&name=${name}`
-    const response = await baseRequest<IGame[]>(url, getRequestConfig)
+  const fetchPage = async (filter: IGamesFilter, pageSize: number = 20, page: number = 1) => {
+    let url = `${endpoint}?pageSize=${pageSize}&page=${page}&orderBy=${filter.orderBy}&name=${filter.name}`
+    if (filter.genre !== 0) {
+      url += `&genre=${filter.genre}`
+    }
+    if (filter.developer != 0) {
+      url += `&developer=${filter.developer}`
+    }
+    if (filter.publisher != 0) {
+      url += `&publisher=${filter.publisher}`
+    }
+    const response = await baseRequest<IGames>(url, getRequestConfig)
     return response
   }
 
   const fetchById = async (id: number) => {
     const url = `${endpoint}/${id}`
     const response = await baseRequest<IGame>(url, getRequestConfig)
-    return response
-  }
-
-  const fetchCount = async (nameFilter: string) => {
-    const url = `${endpoint}/count?name=${nameFilter}`
-    const response = await baseRequest<ICountResponse>(url, getRequestConfig)
     return response
   }
 
@@ -51,7 +54,6 @@ const useGames = () => {
   return {
     fetchPage,
     fetchById,
-    fetchCount,
     create,
     updateById,
     rate
