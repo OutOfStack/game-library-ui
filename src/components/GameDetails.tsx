@@ -9,10 +9,13 @@ import CloseIcon from '@mui/icons-material/CloseRounded'
 import Carousel from 'react-material-ui-carousel'
 import moment from 'moment'
 
-import { IGame, ICompany, IGenre, IPlatform } from '../types/Game'
 import useGames from '../hooks/useGames'
 import { To1Precision, ToHostname } from '../utils/format'
+import { IGame } from '../types/Game'
 import { IValidationResponse } from '../types/Validation'
+import { ICompany } from '../types/Company'
+import { IGenre } from '../types/Genre'
+import { IPlatform } from '../types/Platform'
 
 
 interface IGameDetailsProps {
@@ -186,6 +189,16 @@ const GameDetails = (props: IGameDetailsProps) => {
                 <Grid sx={{...gridRowSx, pt: 0}}>
                   <Typography variant={matchesXs ? 'h6' : matchesSm ? 'h4' : 'h3'} sx={{fontWeight: matchesXs ? 'normal' : 'bold'}}>{game?.name}</Typography>
                 </Grid>
+                {game.rating > 0 &&
+                  <Grid xs={12} sx={gridRowSx}>
+                    <Chip 
+                      label={<Typography variant={matchesXs ? "h6" : "h5"}>{To1Precision(game.rating)}</Typography>}
+                      variant="outlined"
+                      color={game.rating >= 4 ? "success" : game.rating === 3 ? "warning" : "error"}
+                      size={matchesXs || matchesSm ? "small" : "medium"}
+                    />
+                  </Grid>
+                }
                 <Grid sx={gridRowSx}>
                   <Typography variant={matchesXs ? "body2" : "h6"} color="primary">Released {moment(game?.releaseDate).format('DD MMM, YYYY')}</Typography>
                 </Grid>
@@ -213,19 +226,6 @@ const GameDetails = (props: IGameDetailsProps) => {
                     <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{p.abbreviation}</Typography>
                   ))}
                 </Grid>
-                {game.rating > 0 &&
-                  <Grid xs={12} sx={gridRowSx}>
-                    <Stack direction="row" alignItems="center">
-                      <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Rating</Typography>
-                      <Chip 
-                        label={<Typography variant={matchesXs ? "h6" : "h5"}>{To1Precision(game.rating)}</Typography>}
-                        variant="outlined"
-                        color={game.rating >= 4 ? "success" : game.rating === 3 ? "warning" : "error"}
-                        size={matchesXs || matchesSm ? "small" : "medium"}
-                      />
-                    </Stack>
-                  </Grid>
-                }
                 {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment() &&
                   <Grid xs={12} sx={gridRowSx}>
                     <Stack direction="row" alignItems="center">

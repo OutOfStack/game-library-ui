@@ -74,7 +74,7 @@ const GameCard = (props: IGameCardProps) => {
             onLoad={() => setImageLoaded(true)}
           />
           {!imageLoaded &&
-            <Skeleton width="100%" height={250} variant="rounded" animation="wave" />
+            <Skeleton width="100%" height={235} variant="rounded" animation="wave" />
           }
         </Box>
         <CardContent 
