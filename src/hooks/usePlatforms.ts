@@ -1,7 +1,7 @@
 import config from '../api-clients/endpoints'
 import { getRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
-import { IPlatform } from '../types/Game'
+import { IPlatform } from '../types/Platform'
 
 const usePlatforms = () => {
   const endpoint = `${config.gamesSvc.domain}${config.gamesSvc.platforms}`

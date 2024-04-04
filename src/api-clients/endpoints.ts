@@ -4,7 +4,8 @@ const endpoints = {
     games: "/api/games",
     user: "/api/user",
     genres: "/api/genres",
-    platforms: "/api/platforms"
+    platforms: "/api/platforms",
+    companies: "/api/companies",
   },
   authSvc: {
     domain: (window as any)._env_?.AUTH_URL || "http://localhost:8001",

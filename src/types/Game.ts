@@ -1,3 +1,7 @@
+import { ICompany } from "./Company"
+import { IGenre } from "./Genre"
+import { IPlatform } from "./Platform"
+
 /**
  * IGame represents game get model
  */
@@ -80,35 +84,10 @@ interface IGameResponse {
 }
 
 /**
- * ICompany represents company model
- */
-interface ICompany {
-	id: number,
-	name: string
-}
-
-/**
- * IGenre represents genre model
- */
-interface IGenre {
-	id: number,
-	name: string
-}
-
-/**
- * IPlatform represents platform model
- */
-interface IPlatform {
-	id: number,
-	name: string,
-	abbreviation: string
-}
-
-/**
  * ICountResponse represents count data
  */
 interface ICountResponse {
 	count: number
 }
 
-export type { IGame, IGames, IGamesFilter, ICreateGame, IUpdateGame, IGameResponse, ICountResponse, ICompany, IGenre, IPlatform }
+export type { IGame, IGames, IGamesFilter, ICreateGame, IUpdateGame, IGameResponse, ICountResponse }
