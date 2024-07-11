@@ -7,5 +7,8 @@ build:
 	npm install
 	npm run build
 
+intallyarn:
+	npm install -g yarn
+
 test:
 	npm test

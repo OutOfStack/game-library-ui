@@ -32,7 +32,7 @@ const maxScreenshotWidth = 889
 const maxScreenshotHeight = 500
 
 const GameDetails = (props: IGameDetailsProps) => {
-  const { open, handleClose, game, userRating, showUserRating, darkMode } = props
+  const { open, handleClose, game, userRating, showUserRating } = props
 
   const theme = useTheme()
   const fullscreen = useMediaQuery(theme.breakpoints.down('md'))
@@ -174,7 +174,7 @@ const GameDetails = (props: IGameDetailsProps) => {
                 </Box>
               </Grid>
 
-              {/* Close button, release date, publishers, developers ,genres, platforms, rating */}
+              {/* Close button, release date, publishers, developers, genres, platforms, rating */}
               <Grid container xs={6} sm={6} md={7.5} direction="column" spacing={matchesXs ? 1 : 2}>
                 <Grid sx={{textAlign: 'right', pt: matchesXs ? 0 : theme.spacing(1), pb: 0}}>
                   <IconButton
