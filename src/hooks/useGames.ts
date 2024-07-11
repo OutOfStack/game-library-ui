@@ -15,10 +15,10 @@ const useGames = () => {
     if (filter.genre !== 0) {
       url += `&genre=${filter.genre}`
     }
-    if (filter.developer != 0) {
+    if (filter.developer !== 0) {
       url += `&developer=${filter.developer}`
     }
-    if (filter.publisher != 0) {
+    if (filter.publisher !== 0) {
       url += `&publisher=${filter.publisher}`
     }
     const response = await baseRequest<IGames>(url, getRequestConfig)

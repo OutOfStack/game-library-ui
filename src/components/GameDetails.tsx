@@ -32,7 +32,7 @@ const maxScreenshotWidth = 889
 const maxScreenshotHeight = 500
 
 const GameDetails = (props: IGameDetailsProps) => {
-  const { open, handleClose, game, userRating, showUserRating, darkMode } = props
+  const { open, handleClose, game, userRating, showUserRating } = props
 
   const theme = useTheme()
   const fullscreen = useMediaQuery(theme.breakpoints.down('md'))
