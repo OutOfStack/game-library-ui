@@ -358,8 +358,8 @@ const Landing = (props: ILandingProps) => {
           />
 
           <Box sx={{ pb: 3 }}>
-            <Grid container spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ pb: topCategoriesOpen ? 0.5 : 3 }}>
-              <Grid item xs={matchesXs ? 4 : 3} sx={{ pt: 0 }}>
+            <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" justifyContent="space-between" alignItems="center" sx={{ pb: topCategoriesOpen ? 0.5 : 3 }}>
+              <Grid item xs={4} sx={{ pt: 0 }}>
                 <ToggleButtonGroup
                   value={navigation.orderBy}
                   size="small"
@@ -383,13 +383,13 @@ const Landing = (props: ILandingProps) => {
                   Games <sup style={{ fontSize: matchesXs ? 9 : 11, color: "" }}> {count}</sup>
                 </Typography>
               </Grid>
-              <Grid item xs={3} sx={{ textAlign: "left" }}>
+              <Grid item xs={2.5} sx={{ textAlign: "left" }}>
                 {hasRole([roles.publisher])
-                  ? <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>Add game</Button>
+                  ? <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>+ GAME</Button>
                   : <Box sx={{ width: "25w" }} />
                 }
               </Grid>
-              <Grid item xs={2} sx={{ textAlign: "right" }}>
+              <Grid item xs={2.5} sx={{ textAlign: "right" }}>
                 <ToggleButton
                   value="check"
                   selected={topCategoriesOpen}
@@ -397,10 +397,10 @@ const Landing = (props: ILandingProps) => {
                   size="small"
                   title="Categories"
                 >
-                  <CategoryOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() && selectedCategoryColor || "" }} />
+                  <CategoryOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
                   {topCategoriesOpen 
-                  ?  <KeyboardArrowUpOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() && selectedCategoryColor || "" }} />
-                  : <KeyboardArrowDownOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() && selectedCategoryColor || "" }} />
+                  ?  <KeyboardArrowUpOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
+                  : <KeyboardArrowDownOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
                   }
                 </ToggleButton>
               </Grid>

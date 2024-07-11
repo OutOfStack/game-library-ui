@@ -174,7 +174,7 @@ const GameDetails = (props: IGameDetailsProps) => {
                 </Box>
               </Grid>
 
-              {/* Close button, release date, publishers, developers ,genres, platforms, rating */}
+              {/* Close button, release date, publishers, developers, genres, platforms, rating */}
               <Grid container xs={6} sm={6} md={7.5} direction="column" spacing={matchesXs ? 1 : 2}>
                 <Grid sx={{textAlign: 'right', pt: matchesXs ? 0 : theme.spacing(1), pb: 0}}>
                   <IconButton
