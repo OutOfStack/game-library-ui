@@ -1,12 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Alert, AlertColor, Box, Card, CardMedia, Chip, Container, Dialog, DialogContent, IconButton, Link, Rating, Skeleton, Snackbar, 
+import { Alert, AlertColor, Box, Chip, Container, Dialog, DialogContent, IconButton, Link, Rating, Skeleton, Snackbar, 
   SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
 import Grid from '@mui/material/Unstable_Grid2'
 import { useTheme } from '@mui/material/styles'
 import { orange } from '@mui/material/colors'
 import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
 import CloseIcon from '@mui/icons-material/CloseRounded'
-import Carousel from 'react-material-ui-carousel'
 import moment from 'moment'
 
 import useGames from '../hooks/useGames'
@@ -16,6 +15,7 @@ import { IValidationResponse } from '../types/Validation'
 import { ICompany } from '../types/Company'
 import { IGenre } from '../types/Genre'
 import { IPlatform } from '../types/Platform'
+import Carousel from './Carousel'
 
 
 interface IGameDetailsProps {
@@ -30,6 +30,9 @@ interface IGameDetailsProps {
 const maxWidth = "lg"
 const maxScreenshotWidth = 889
 const maxScreenshotHeight = 500
+const maxLogoHeightMd = 571
+const maxLogoHeightSm = 471
+const maxLogoHeightXs = 271
 
 const GameDetails = (props: IGameDetailsProps) => {
   const { open, handleClose, game, userRating, showUserRating } = props
@@ -169,7 +172,11 @@ const GameDetails = (props: IGameDetailsProps) => {
                     onLoad={() => setLogoLoaded(true)}
                   />
                   {!logoLoaded &&
-                    <Skeleton height={matchesXs ? "30vh" : "50vh"} variant="rounded" animation="wave" />
+                    <Skeleton
+                      height={ matchesXs ? maxLogoHeightXs : matchesSm ? maxLogoHeightSm : maxLogoHeightMd }
+                      variant="rounded" 
+                      animation="wave" 
+                    />
                   }
                 </Box>
               </Grid>
@@ -268,33 +275,12 @@ const GameDetails = (props: IGameDetailsProps) => {
 
               {/* Screenshots */}
               <Grid xs={12}>
-                <Carousel
-                  autoPlay={false}
-                  swipe={true}
-                  cycleNavigation={true}
-                  height={scrDimensions.height}
-                  sx={{
-                    maxWidth: scrDimensions.width,
-                    mr: 'auto', 
-                    ml: 'auto' 
-                  }}
-                >
-                  {game.screenshots.map((s, i) =>
-                    <Card key={i} variant="outlined">
-                      <CardMedia
-                        sx={{
-                          textAlign: 'center',
-                          height: scrDimensions.height,
-                          width: scrDimensions.width,
-                          maxHeight: maxScreenshotHeight,
-                          maxWidth: maxScreenshotWidth,
-                        }}
-                        component="img"
-                        image={s}
-                      />
-                    </Card>
-                  )}
-                </Carousel>
+                <Carousel 
+                  imgUrls={game.screenshots} 
+                  scrDimensions={{height: scrDimensions.height, width: scrDimensions.width}} 
+                  maxImgHeight={maxScreenshotHeight}
+                  maxImgWidth={maxScreenshotWidth}
+                />
               </Grid>
 
               {/* websites */}
