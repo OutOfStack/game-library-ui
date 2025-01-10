@@ -7,7 +7,7 @@ build:
 	npm install
 	npm run build
 
-intallyarn:
+installyarn:
 	npm install -g yarn
 
 test:

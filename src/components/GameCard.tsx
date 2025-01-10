@@ -24,22 +24,6 @@ const GameCard = (props: IGameCardProps) => {
 
   const [imageLoaded, setImageLoaded] = useState<boolean>(false)
 
-  //#region popover
-
-  /*const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-
-  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null)
-  }
-
-  const openPopover = Boolean(anchorEl)*/
-
-  //#endregion
-
   // https://uploadcare.com/docs/transformations/image/resize-crop/
   const getLogoUrl = (url?: string): string | undefined => {
     if (!url) {
@@ -102,54 +86,6 @@ const GameCard = (props: IGameCardProps) => {
             <Box>
               <span>{game.releaseDate?.split("-")[0] || ""}</span>
             </Box>
-            {/* <Box onMouseEnter={handlePopoverOpen}>
-              <InfoIcon
-                color={openPopover ? "inherit" : "action"}
-                sx={{cursor: 'pointer', display: 'block'}}
-              />
-              <MouseOverPopover
-                open={openPopover}
-                anchorEl={anchorEl}
-                handlePopoverClose={handlePopoverClose}
-              >
-                <List dense={true} onMouseLeave={handlePopoverClose}>
-                  <ListItem>
-                    <ListItemText primary={game.name} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Publisher: " secondary={game.publishers?.map(p => p.name).join(" | ")} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Developer: " secondary={game.developers?.map(d => d.name).join(" | ")} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Release date: " secondary={game.releaseDate} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Genres: " secondary={game.genres?.map(g => g.name).join(", ")} />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemText primary="Platforms: " secondary={game.platforms?.map(p => p.abbreviation).join(" | ")} />
-                  </ListItem>
-                  <ListItem>
-                    {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment()
-                      ? <>
-                        Rate&nbsp;
-                        <Rating
-                          value={newUserRating || userRating || null}
-                          max={5}
-                          defaultValue={0}
-                          icon={<RateIcon sx={{ color: orange[800] }} />}
-                          emptyIcon={<RateIcon />}
-                          onChange={(_, newValue) => handleRateGame(newValue)}
-                        />
-                      </>
-                      : <Box/>
-                    }
-                    </ListItem>
-                </List>
-              </MouseOverPopover>
-            </Box>*/}
           </Stack>
         </CardContent>
       </Card>
