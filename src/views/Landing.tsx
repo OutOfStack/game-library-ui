@@ -11,7 +11,7 @@ import DateRangeIcon from '@mui/icons-material/DateRangeRounded'
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined'
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'

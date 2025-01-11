@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Container, CssBaseline, Typography, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
 import { grey, blueGrey, blue } from '@mui/material/colors'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 
 import Landing from './views/Landing'
 import Header from './components/Header'
@@ -68,7 +68,16 @@ const App = () => {
           </Container>
         </>
     }
-  ])
+  ],
+  {
+    future: {
+      v7_relativeSplatPath: true,
+      v7_fetcherPersist: true,
+      v7_normalizeFormMethod: true,
+      v7_partialHydration: true,
+      v7_skipActionErrorRevalidation: true,
+    },
+  })
 
   return (
     <StyledEngineProvider injectFirst>
