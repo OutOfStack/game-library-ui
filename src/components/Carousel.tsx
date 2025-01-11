@@ -5,8 +5,6 @@ import BlurOnIcon from '@mui/icons-material/BlurOn'
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined'
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined'
 import Slider, { CustomArrowProps } from 'react-slick'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
 
 interface ICarousel {
   imgUrls: string[],
@@ -53,9 +51,9 @@ function PrevArrow(props: CustomArrowProps) {
 
   return (
     <IconButton 
-      color="secondary" 
+      color="secondary"
       size="medium"
-      className="slick-arrow" 
+      className="slick-arrow"
       onClick={onClick}
       style={{
         position: "absolute",
@@ -102,7 +100,7 @@ const Carousel = (props: ICarousel) => {
     <Box
       sx={{
         maxWidth: scrDimensions.width,
-        margin: 'auto',
+        margin: "auto",
       }}
     >
       <Slider {...settings}
