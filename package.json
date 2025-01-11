@@ -1,39 +1,38 @@
 {
   "name": "game-library-ui",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "private": true,
   "dependencies": {
-    "@date-io/moment": "^2.17.0",
+    "@date-io/moment": "^3.2.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@fontsource/roboto": "^5.0.13",
-    "@mui/icons-material": "^5.16.0",
-    "@mui/lab": "^5.0.0-alpha.171",
-    "@mui/material": "^5.14.13",
-    "@mui/x-date-pickers": "^5.0.20",
-    "@testing-library/jest-dom": "^6.4.0",
-    "@testing-library/react": "^14.2.0",
+    "@fontsource/roboto": "^5.1.1",
+    "@mui/icons-material": "^5.16.14",
+    "@mui/lab": "^5.0.0-alpha.175",
+    "@mui/material": "^5.16.14",
+    "@mui/x-date-pickers": "^7.23.6",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
-    "@types/jest": "^29.5.12",
-    "@types/node": "^20.11.25",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.5",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@types/react-slick": "^0.23.13",
-    "@uploadcare/react-widget": "^2.4.5",
+    "@uploadcare/react-widget": "^2.4.7",
     "jwt-decode": "^4.0.0",
-    "moment": "^2.29.4",
+    "moment": "^2.30.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router": "^6.22.3",
-    "react-router-dom": "^6.22.3",
+    "react-router": "^7.1.1",
     "react-scripts": "^5.0.1",
     "react-slick": "^0.30.3",
     "slick-carousel": "^1.8.1",
-    "tss-react": "^4.9.10",
+    "tss-react": "^4.9.14",
     "typescript": "^4.9.5",
-    "uploadcare-widget": "^3.21.2",
+    "uploadcare-widget": "^3.21.8",
     "uploadcare-widget-tab-effects": "^1.7.2",
-    "web-vitals": "^3.5.0"
+    "web-vitals": "^3.5.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -63,6 +62,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "util": "^0.12.5"
   }
 }

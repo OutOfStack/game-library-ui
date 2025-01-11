@@ -23,6 +23,7 @@ import '../styles/UploadWidget.css'
 
 const fieldWidthLarge = '400px'
 const fieldWidthSmall = '210px'
+const dateFormat="YYYY-MM-DD"
 
 interface IAddGameModal {
   handleAddGameDialogClose: () => void,
@@ -135,7 +136,7 @@ const AddGameModal = (props: IAddGameModal) => {
       setAddGameValidation(v => ({ ...v, releaseDate: 'Release date is required' }))
       valid = false
     } else if (!moment(addGame.releaseDate).isValid()) {
-      setAddGameValidation(v => ({ ...v, releaseDate: 'Invalid date or format. Should be YYYY-MM-DD' }))
+      setAddGameValidation(v => ({ ...v, releaseDate: `Invalid date or format. Should be ${dateFormat}` }))
       valid = false
     }
 
@@ -189,7 +190,7 @@ const AddGameModal = (props: IAddGameModal) => {
 
     const newGame: ICreateGame = {
       ...addGame,
-      releaseDate: moment(addGame.releaseDate).format("yyyy-MM-DD")
+      releaseDate: moment(addGame.releaseDate).format(dateFormat)
     }
 
     const [resp, err] = await createGame(newGame)
@@ -275,211 +276,211 @@ const AddGameModal = (props: IAddGameModal) => {
   const uwpk = '8869032692db5708aebb'
 
   return (
-    <>
-      <Notification 
-        message={alert} 
-        resetMessage={() => setAlert(null)}
-      />
-      <Modal
-        fullwidth={matchesMd}
-        matchesMd={matchesMd}
-        isOpen={addGameDialogOpen}
-        closeDialog={handleAddGameDialogClose}
-        title='Add new game'
-        dialogText={addGameDialogText}
-        dialogErrorText={addGameErrorText}
-        submitActionName='Add game'
-        handleSubmit={handleAddGame}
-      >
-        <>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-            <TextField
-              required
-              error={!!addGameValidation.name}
-              helperText={addGameValidation.name}
-              fullWidth
-              label="Name"
-              margin="normal"
-              value={addGame?.name || ""}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'name')}
+  <>
+    <Notification 
+      message={alert} 
+      resetMessage={() => setAlert(null)}
+    />
+    <Modal
+      fullwidth={matchesMd}
+      matchesMd={matchesMd}
+      isOpen={addGameDialogOpen}
+      closeDialog={handleAddGameDialogClose}
+      title='Add new game'
+      dialogText={addGameDialogText}
+      dialogErrorText={addGameErrorText}
+      submitActionName='Add game'
+      handleSubmit={handleAddGame}
+    >
+      <>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          <TextField
+            required
+            error={!!addGameValidation.name}
+            helperText={addGameValidation.name}
+            fullWidth
+            label="Name"
+            margin="normal"
+            value={addGame?.name || ""}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'name')}
+          />
+        </Grid>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          <TextField
+            required
+            error={!!addGameValidation.developer}
+            helperText={addGameValidation.developer}
+            fullWidth
+            label="Developer"
+            margin="normal"
+            value={addGame?.developer || ""}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'developer')}
+          />
+        </Grid>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          {isTouchDevice()
+            ? <MobileDatePicker
+              label="Release date"
+              format={dateFormat}
+              value={addGame?.releaseDate ? moment(addGame.releaseDate) : null}
+              onChange={(d: moment.Moment | null) => {
+                setAddGameValidation(v => ({ ...v, releaseDate: "" }))
+                setAddGame(g => ({ ...g, releaseDate: d?.format(dateFormat) || "" }))
+              }}
+              slotProps={{ 
+                textField: { 
+                  fullWidth: true, 
+                  margin: "normal",
+                  required: true, 
+                  error: !!addGameValidation.releaseDate,
+                  helperText: addGameValidation.releaseDate
+                } 
+              }}
             />
-          </Grid>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-            <TextField
-              required
-              error={!!addGameValidation.developer}
-              helperText={addGameValidation.developer}
-              fullWidth
-              label="Developer"
-              margin="normal"
-              value={addGame?.developer || ""}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'developer')}
+            : <DesktopDatePicker
+              label="Release date"
+              format={dateFormat}
+              value={addGame?.releaseDate ? moment(addGame.releaseDate) : null}
+              onChange={(d: moment.Moment | null) => {
+                setAddGameValidation(v => ({ ...v, releaseDate: "" }))
+                setAddGame(g => ({ ...g, releaseDate: d?.format(dateFormat) || "" }))
+              }}
+              slotProps={{ 
+                textField: { 
+                  fullWidth: true, 
+                  margin: "normal",
+                  required: true, 
+                  error: !!addGameValidation.releaseDate,
+                  helperText: addGameValidation.releaseDate
+                } 
+              }}
             />
-          </Grid>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-            {isTouchDevice()
-              ? <MobileDatePicker
-                label="Release date"
-                inputFormat="yyyy-MM-DD"
-                value={addGame?.releaseDate || null}
-                onChange={(d: string | null) => {
-                  setAddGameValidation(v => ({ ...v, releaseDate: "" }))
-                  setAddGame(g => ({ ...g, releaseDate: d || "" }))
-                }}
-                mask="____-__-__"
-                renderInput={(params: TextFieldProps) =>
-                  <TextField {...params}
-                    fullWidth
-                    margin="normal"
-                    required
-                    error={!!addGameValidation.releaseDate}
-                    helperText={addGameValidation.releaseDate}
-                  />}
-              />
-              : <DesktopDatePicker
-                label="Release date"
-                inputFormat="yyyy-MM-DD"
-                value={addGame?.releaseDate || null}
-                onChange={(d: string | null) => {
-                  setAddGameValidation(v => ({ ...v, releaseDate: "" }))
-                  setAddGame(g => ({ ...g, releaseDate: d || "" }))
-                }}
-                mask="____-__-__"
-                renderInput={(params: TextFieldProps) =>
-                  <TextField {...params}
-                    fullWidth
-                    margin="normal"
-                    required
-                    error={!!addGameValidation.releaseDate}
-                    helperText={addGameValidation.releaseDate}
-                  />}
-              />
+          }
+        </Grid>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          <TextField
+            required
+            error={!!addGameValidation.summary}
+            helperText={addGameValidation.summary}
+            fullWidth
+            multiline
+            margin="normal"
+            label="Summary"
+            value={addGame?.summary || ""}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, "summary")}
+          />
+        </Grid>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          <TextField
+            error={!!addGameValidation.websites}
+            helperText={addGameValidation.websites}
+            fullWidth
+            margin="normal"
+            label="Websites"
+            placeholder="mygame.com,twitch.com/mygame"
+            value={addGame?.websites?.join(",") || ""}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameWebsitesChange(e)}
+          />
+        </Grid>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Autocomplete
+          multiple
+          disableCloseOnSelect
+          filterSelectedOptions
+          id="genres"
+          options={genres}
+          getOptionLabel={(option: IGenre) => option.name}
+          onChange={(e: React.SyntheticEvent, value: IGenre[], reason: AutocompleteChangeReason, details?: AutocompleteChangeDetails<IGenre> | undefined) => {
+            setAddGame(g => ({
+              ...g,
+              genresIds: value?.map(g => g.id)
+            }))
+
+            if (addGameValidation.genres?.length !== 0 && value?.length > 0) {
+              setAddGameValidation(v => ({ ...v, genres: '' }))
             }
-          </Grid>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          }}
+          renderInput={(params) => (
             <TextField
+              {...params}
               required
-              error={!!addGameValidation.summary}
-              helperText={addGameValidation.summary}
               fullWidth
-              multiline
+              error={!!addGameValidation.genres}
+              helperText={addGameValidation.genres}
               margin="normal"
-              label="Summary"
-              value={addGame?.summary || ""}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, "summary")}
+              label="Genres"
             />
-          </Grid>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          )}
+        />
+        <Autocomplete
+          multiple
+          disableCloseOnSelect
+          filterSelectedOptions
+          id="platforms"
+          options={platforms}
+          getOptionLabel={(option: IPlatform) => option.name}
+          onChange={(e: React.SyntheticEvent, value: IPlatform[], reason: AutocompleteChangeReason, details?: AutocompleteChangeDetails<IPlatform> | undefined) => {
+            setAddGame(g => ({
+              ...g,
+              platformsIds: value?.map(p => p.id)
+            }))
+
+            if (addGameValidation.platforms?.length !== 0 && value?.length > 0) {
+              setAddGameValidation(v => ({ ...v, platforms: '' }))
+            }
+          }}
+          renderInput={(params) => (
             <TextField
-              error={!!addGameValidation.websites}
-              helperText={addGameValidation.websites}
+              {...params}
+              required
               fullWidth
+              error={!!addGameValidation.platforms}
+              helperText={addGameValidation.platforms}
               margin="normal"
-              label="Websites"
-              placeholder="mygame.com,twitch.com/mygame"
-              value={addGame?.websites?.join(",") || ""}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameWebsitesChange(e)}
+              label="Platforms"
             />
-          </Grid>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-          <Autocomplete
-            multiple
-            disableCloseOnSelect
-            filterSelectedOptions
-            id="genres"
-            options={genres}
-            getOptionLabel={(option: IGenre) => option.name}
-            onChange={(e: React.SyntheticEvent, value: IGenre[], reason: AutocompleteChangeReason, details?: AutocompleteChangeDetails<IGenre> | undefined) => {
-              setAddGame(g => ({
-                ...g,
-                genresIds: value?.map(g => g.id)
-              }))
-
-              if (addGameValidation.genres?.length !== 0 && value?.length > 0) {
-                setAddGameValidation(v => ({ ...v, genres: '' }))
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                required
-                fullWidth
-                error={!!addGameValidation.genres}
-                helperText={addGameValidation.genres}
-                margin="normal"
-                label="Genres"
-              />
-            )}
-          />
-          <Autocomplete
-            multiple
-            disableCloseOnSelect
-            filterSelectedOptions
-            id="platforms"
-            options={platforms}
-            getOptionLabel={(option: IPlatform) => option.name}
-            onChange={(e: React.SyntheticEvent, value: IPlatform[], reason: AutocompleteChangeReason, details?: AutocompleteChangeDetails<IPlatform> | undefined) => {
-              setAddGame(g => ({
-                ...g,
-                platformsIds: value?.map(p => p.id)
-              }))
-
-              if (addGameValidation.platforms?.length !== 0 && value?.length > 0) {
-                setAddGameValidation(v => ({ ...v, platforms: '' }))
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                required
-                fullWidth
-                error={!!addGameValidation.platforms}
-                helperText={addGameValidation.platforms}
-                margin="normal"
-                label="Platforms"
-              />
-            )}
-          />
-          </Grid>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-            <label htmlFor={'coverUploadWidget'}>Cover </label>
-            <Typography variant="caption" color={"rgba(200, 150, 100, 0.8)"}> (max size 150 kb, ratio 3:4)</Typography>
-            <div id={'coverUploadWidget'}>
-              <UploadWidget
-                imagesOnly
-                previewStep
-                clearable
-                crop='3:4'
-                tabs='file'
-                publicKey={uwpk}
-                validators={uploadValidators}
-                onChange={(fileInfo: FileInfo) => handleLogoChanged(fileInfo)}
-              />
-            </div>
-            <Typography variant="caption" color="#f44336">  {addGameValidation.logo}</Typography>
-          </Grid>
-          <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-            <label htmlFor={'screenshotsUploadWidget'}>Screenshots </label>
-            <Typography variant="caption" color={"rgba(200, 150, 100, 0.8)"}> (max size 150 kb, ratio 9:5, max 7 images)</Typography>
-            <div id={'screenshotsUploadWidget'}>
-              <UploadWidget
-                imagesOnly
-                multiple
-                previewStep
-                clearable
-                crop='9:5'
-                multipleMax={7}
-                tabs='file'
-                publicKey={uwpk}
-                validators={uploadValidators}
-                onFileSelect={(fileInfo: FileUpload | FilesUpload | null) => handleScreenshotsChanged(fileInfo)}
-              />
-            </div>
-            <Typography variant="caption" color="#f44336">  {addGameValidation.screenshots}</Typography>
-          </Grid>
-        </>
-      </Modal>
-    </>
+          )}
+        />
+        </Grid>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          <label htmlFor={'coverUploadWidget'}>Cover </label>
+          <Typography variant="caption" color={"rgba(200, 150, 100, 0.8)"}> (max size 150 kb, ratio 3:4)</Typography>
+          <div id={'coverUploadWidget'}>
+            <UploadWidget
+              imagesOnly
+              previewStep
+              clearable
+              crop='3:4'
+              tabs='file'
+              publicKey={uwpk}
+              validators={uploadValidators}
+              onChange={(fileInfo: FileInfo) => handleLogoChanged(fileInfo)}
+            />
+          </div>
+          <Typography variant="caption" color="#f44336">  {addGameValidation.logo}</Typography>
+        </Grid>
+        <Grid item sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+          <label htmlFor={'screenshotsUploadWidget'}>Screenshots </label>
+          <Typography variant="caption" color={"rgba(200, 150, 100, 0.8)"}> (max size 150 kb, ratio 9:5, max 7 images)</Typography>
+          <div id={'screenshotsUploadWidget'}>
+            <UploadWidget
+              imagesOnly
+              multiple
+              previewStep
+              clearable
+              crop='9:5'
+              multipleMax={7}
+              tabs='file'
+              publicKey={uwpk}
+              validators={uploadValidators}
+              onFileSelect={(fileInfo: FileUpload | FilesUpload | null) => handleScreenshotsChanged(fileInfo)}
+            />
+          </div>
+          <Typography variant="caption" color="#f44336">  {addGameValidation.screenshots}</Typography>
+        </Grid>
+      </>
+    </Modal>
+  </>
   )
 }
 
