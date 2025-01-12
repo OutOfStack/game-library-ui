@@ -3,20 +3,29 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
-import { TextEncoder, TextDecoder } from 'util';
+import { vi } from 'vitest'
+import { TextEncoder, TextDecoder } from 'util'
 
-global.TextEncoder = TextEncoder;
 
+if (typeof global.TextEncoder === 'undefined') {
+  global.TextEncoder = TextEncoder
+}
+
+if (typeof global.TextDecoder === 'undefined') {
+  global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder
+}
+
+// Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: query === '(prefers-color-scheme: dark)', // Simulate dark mode matches
     media: query,
     onchange: null,
-    addListener: jest.fn(), // For older APIs
-    removeListener: jest.fn(), // For older APIs
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn()
-  }))
+    addListener: vi.fn(), // For older APIs
+    removeListener: vi.fn(), // For older APIs
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
 })

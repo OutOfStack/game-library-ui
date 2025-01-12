@@ -1,14 +1,12 @@
+.PHONY: run build installyarn test
+
 run:
 	./env.sh
-	mv env-config.js ./build/
-	npm start
+	npm run dev
 
 build:
 	npm install
 	npm run build
-
-installyarn:
-	npm install -g yarn
 
 test:
 	npm test
