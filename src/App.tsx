@@ -64,7 +64,7 @@ const App = () => {
         <>
           <Header darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} searchFieldProps={{text: "", disabled: true} }/>
           <Container sx={{ paddingTop: theme.spacing(2) }} disableGutters={true}>
-            <Typography variant="h5" style={{textAlign: "center"}}>Page Not Found</Typography>
+            <Typography variant="h5" sx={{textAlign: "center"}}>Page Not Found</Typography>
           </Container>
         </>
     }

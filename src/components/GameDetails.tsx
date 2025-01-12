@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Alert, AlertColor, Box, Chip, Container, Dialog, DialogContent, IconButton, Link, Rating, Skeleton, Snackbar, 
+import { Alert, AlertColor, Box, Chip, Container, Dialog, DialogContent, Grid2 as Grid, IconButton, Link, Rating, Skeleton, Snackbar, 
   SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
-import Grid from '@mui/material/Unstable_Grid2'
 import { useTheme } from '@mui/material/styles'
 import { orange } from '@mui/material/colors'
 import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
@@ -158,9 +157,9 @@ const GameDetails = (props: IGameDetailsProps) => {
       >
         <Container maxWidth={maxWidth} disableGutters={true}>
           <DialogContent sx={{padding: matchesXs ? theme.spacing(1) : theme.spacing(2)}}>
-            <Grid container direction="row" justifyContent="space-between" spacing={matchesXs ? 1 : 2} disableEqualOverflow>
+            <Grid container direction="row" spacing={matchesXs ? 1 : 2} sx={{ justifyContent: "space-between" }}>
               {/* Logo */}
-              <Grid xs={6} sm={6} md={4.5}>
+              <Grid size={{ xs: 6, sm: 6, md: 4.5 }}>
                 <Box sx={{
                   textAlign: 'center',
                   maxWidth: '100%'
@@ -182,7 +181,7 @@ const GameDetails = (props: IGameDetailsProps) => {
               </Grid>
 
               {/* Close button, release date, publishers, developers, genres, platforms, rating */}
-              <Grid container xs={6} sm={6} md={7.5} direction="column" spacing={matchesXs ? 1 : 2}>
+              <Grid container size={{ xs: 6, sm: 6, md: 7.5 }} direction="column" spacing={matchesXs ? 1 : 2}>
                 <Grid sx={{textAlign: 'right', pt: matchesXs ? 0 : theme.spacing(1), pb: 0}}>
                   <IconButton
                     sx={{padding: 0}}
@@ -197,7 +196,7 @@ const GameDetails = (props: IGameDetailsProps) => {
                   <Typography variant={matchesXs ? 'h6' : matchesSm ? 'h4' : 'h3'} sx={{fontWeight: matchesXs ? 'normal' : 'bold'}}>{game?.name}</Typography>
                 </Grid>
                 {game.rating > 0 &&
-                  <Grid xs={12} sx={gridRowSx}>
+                  <Grid size={{ xs: 12 }} sx={gridRowSx}>
                     <Chip 
                       label={<Typography variant={matchesXs ? "h6" : "h5"}>{To1Precision(game.rating)}</Typography>}
                       variant="outlined"
@@ -209,33 +208,33 @@ const GameDetails = (props: IGameDetailsProps) => {
                 <Grid sx={gridRowSx}>
                   <Typography variant={matchesXs ? "body2" : "h6"} color="primary">Released {moment(game?.releaseDate).format('DD MMM, YYYY')}</Typography>
                 </Grid>
-                <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Publishers</Typography>
+                <Grid size={{ xs: 12 }} sx={gridRowSx}>
+                <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Publishers</Typography>
                   {[...game?.publishers].sort((a, b) => a.name.length - b.name.length).map((p: ICompany) => (
-                    <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{p.name}</Typography>
+                    <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{p.name}</Typography>
                   ))}
                 </Grid>
-                <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Developers</Typography>
+                <Grid size={{ xs: 12 }} sx={gridRowSx}>
+                <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Developers</Typography>
                   {[...game?.developers].sort((a, b) => a.name.length - b.name.length).map((d: ICompany) => (
-                    <Typography key={d.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{d.name}</Typography>
+                    <Typography key={d.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{d.name}</Typography>
                   ))}
                 </Grid>
-                <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Genres</Typography>
+                <Grid size={{ xs: 12 }} sx={gridRowSx}>
+                <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Genres</Typography>
                   {[...game?.genres].sort((a, b) => a.name.length - b.name.length).map((g: IGenre) => (
-                    <Typography key={g.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{g.name}</Typography>
+                    <Typography key={g.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{g.name}</Typography>
                   ))}
                 </Grid>
-                <Grid xs={12} sx={gridRowSx}>
-                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Platforms</Typography>
+                <Grid size={{ xs: 12 }} sx={gridRowSx}>
+                <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Platforms</Typography>
                   {[...game?.platforms].sort((a, b) => a.name.localeCompare(b.name)).map((p: IPlatform) => (
-                    <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" display="inline-block" sx={chipSx}>{p.abbreviation}</Typography>
+                    <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{p.abbreviation}</Typography>
                   ))}
                 </Grid>
                 {showUserRating && game.releaseDate && moment(game.releaseDate) <= moment() &&
-                  <Grid xs={12} sx={gridRowSx}>
-                    <Stack direction="row" alignItems="center">
+                  <Grid size={{ xs: 12 }} sx={gridRowSx}>
+                    <Stack direction="row" sx={{ alignItems: "center" }}>
                       <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Your rating </Typography>
                       <Chip
                         label={
@@ -259,7 +258,7 @@ const GameDetails = (props: IGameDetailsProps) => {
               </Grid>
 
               {/* Summary */} 
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography 
                   variant={matchesXs ? "body2" : "body1"} 
                   sx={{
@@ -274,7 +273,7 @@ const GameDetails = (props: IGameDetailsProps) => {
               </Grid>
 
               {/* Screenshots */}
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Carousel 
                   imgUrls={game.screenshots} 
                   scrDimensions={{height: scrDimensions.height, width: scrDimensions.width}} 
@@ -285,11 +284,13 @@ const GameDetails = (props: IGameDetailsProps) => {
 
               {/* websites */}
               {game?.websites?.length &&
-                <Grid xs={12} >
+                <Grid size={{ xs: 12 }} >
                   <Box sx={{ml: matchesXs ? theme.spacing(1) : theme.spacing(5)}}>
                     <Typography variant={matchesXs ? "body1" : "h6"} color="primary">Links</Typography>
                     {game.websites.map((url, i) => (
-                      <Link key={i} underline="hover" display="block" target="_blank" rel="noopener" color="secondary" href={url}>{ToHostname(url)}</Link>
+                      <Link key={i} underline="hover" target="_blank" rel="noopener" color="secondary" href={url} sx={{ display: "block" }}>
+                        {ToHostname(url)}
+                      </Link>
                     ))}
                   </Box>
                 </Grid>
