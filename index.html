@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Game library app" />
+    <meta name="google-site-verification" content="Qi3UhfdiTgjS18NpgB5WuEQfm7rXhVHSggfIfKgWvEg" />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    
+    <!-- Metadata and manifest for progressive web app features -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- External styles for slick-carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
+    
+    <!-- Environment-specific configuration file -->
+    <script src="/env-config.js"></script>
+
+    <title>Game Library</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <!-- Entry point for the Vite application -->
+    <script type="module" src="/src/index.tsx"></script>
+    
+    <!--
+      This is the main HTML template for your Vite project.
+      - All assets in the `/public` folder are directly served at the root URL.
+      - Use <script type="module"> for modern ES modules (handled by Vite).
+      - Vite injects bundled scripts and other resources during the build process.
+    -->
+  </body>
+</html>
