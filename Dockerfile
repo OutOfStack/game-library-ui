@@ -1,35 +1,40 @@
-# Build app
-FROM node:18-alpine as builder
-RUN mkdir -p /usr/src/app
+# Stage 1 -  Build app
+FROM node:22-alpine AS builder
 WORKDIR /usr/src/app
 
-ENV PATH /usr/src/app/node_modules/.bin:$PATH
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json /usr/src/app/
 
-COPY package.json /usr/src/app/package.json
-
+# Install dependencies
 RUN npm install --silent
 
+# Copy the rest of the app's source code
 COPY . /usr/src/app
 
+# Generate env config
+RUN apk add --no-cache bash
+RUN chmod +x /usr/src/app/env.sh && /usr/src/app/env.sh
+
+# Stage 2 - Build the app for production
 RUN npm run build
 
-# Run app
-FROM nginx:latest
-# Static build
+# Run nginx with app
+FROM nginx:1.27-alpine
+
+# Copy the built app to Nginx's default static file serving directory
 COPY --from=builder /usr/src/app/build /usr/share/nginx/html
 
 # Nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy .env file and shell script to container
-WORKDIR /usr/share/nginx/html
-COPY ./env.sh .
-COPY .env .
+# Set read permissions on all built files
+RUN chmod -R 644 /usr/share/nginx/html/* && \
+    find /usr/share/nginx/html -type d -exec chmod 755 {} \;
 
-# Make shell script executable
-RUN chmod +x env.sh
+WORKDIR /usr/share/nginx/html
 
 # Default port exposure
 EXPOSE 80
 
-CMD ["/bin/bash", "-c", "/usr/share/nginx/html/env.sh && nginx -g \"daemon off;\""]
+# Run the environment script before starting Nginx
+CMD ["nginx", "-g", "daemon off;"]
