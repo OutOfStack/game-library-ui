@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import {
-  Backdrop, Box, Button, CircularProgress, Container, Grid, Pagination, Stack, Typography, 
+  Backdrop, Box, Button, CircularProgress, Container, Grid2 as Grid, Pagination, Stack, Typography, 
   ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme, Chip, ListItem, List, ListItemText, ListItemButton
 } from '@mui/material'
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
@@ -341,7 +341,10 @@ const Landing = (props: ILandingProps) => {
       <Layout searchFieldProps={searchFieldProps} darkModeProps={darkModeProps}>
         <Container maxWidth="xl" disableGutters={true}>
           <Backdrop
-            sx={{ color: '#fff', zIndex: (theme: any) => theme.zIndex.drawer + 1 }}
+            sx={theme => ({
+              color: '#fff',
+              zIndex: theme.zIndex.drawer + 1
+            })}
             open={isLoading}
           >
             <CircularProgress color="inherit" />
@@ -358,8 +361,8 @@ const Landing = (props: ILandingProps) => {
           />
 
           <Box sx={{ pb: 3 }}>
-            <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" justifyContent="space-between" alignItems="center" sx={{ pb: topCategoriesOpen ? 0.5 : 3 }}>
-              <Grid item xs={4} sx={{ pt: 0 }}>
+            <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" sx={{ justifyContent: "space-between", alignItems: "center", pb: topCategoriesOpen ? 0.5 : 3 }}>
+              <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
                 <ToggleButtonGroup
                   value={navigation.orderBy}
                   size="small"
@@ -378,18 +381,18 @@ const Landing = (props: ILandingProps) => {
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
-              <Grid item xs={3} sx={{ textAlign: "right" }}>
+              <Grid sx={{ textAlign: "right" }} size={{ xs: 3 }}>
                 <Typography variant={matchesXs ? "h6" : "h5"}>
                   Games <sup style={{ fontSize: matchesXs ? 9 : 11, color: "" }}> {count}</sup>
                 </Typography>
               </Grid>
-              <Grid item xs={2.5} sx={{ textAlign: "left" }}>
+              <Grid sx={{ textAlign: "left" }} size={{ xs: 2.5 }}>
                 {hasRole([roles.publisher])
                   ? <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>+ GAME</Button>
                   : <Box sx={{ width: "25w" }} />
                 }
               </Grid>
-              <Grid item xs={2.5} sx={{ textAlign: "right" }}>
+              <Grid sx={{ textAlign: "right" }} size={{ xs: 2.5} }>
                 <ToggleButton
                   value="check"
                   selected={topCategoriesOpen}
@@ -407,8 +410,8 @@ const Landing = (props: ILandingProps) => {
             </Grid>
 
             { topCategoriesOpen &&
-              <Grid container spacing={1} direction="row" justifyContent="center" alignItems="flex-start" sx={{ pb: 2, pt: 0.5 }}>
-                <Grid item xs={4} sx={{ textAlign: "center", pl: 1 }} >
+              <Grid container spacing={1} direction="row" sx={{ justifyContent: "center", alignItems: "flex-start", pb: 2, pt: 0.5 }}>
+                <Grid sx={{ textAlign: "center", pl: 1 }} size={{ xs: 4 }}>
                   <>
                   <Chip
                     label={<Typography color="primary" variant="body1">Genres</Typography>}
@@ -417,22 +420,21 @@ const Landing = (props: ILandingProps) => {
                   />
                   </>
                 </Grid>
-                <Grid item xs={4} sx={{ textAlign: "center" }} >
+                <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
                   <Chip
                     label={<Typography color="primary" variant="body1">Publishers</Typography>}
                     variant="outlined" 
                     color="info" 
                   />
                 </Grid>
-                <Grid item xs={4} sx={{ textAlign: "center" }} >
+                <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
                   <Chip
                     label={<Typography color="primary" variant="body1">Developers</Typography>}
-                    variant="outlined" 
+                    variant="outlined"
                     color="info" 
                   />
                 </Grid>
-
-                <Grid item xs={4} sx={{ pt: 0, pl: 0 }} >
+                <Grid sx={{ pt: 0, pl: 0 }} size={{ xs: 4 }}>
                   <List sx={{ pt: 0 }} >
                     {topGenres.map((genre: IGenre) => (
                       <ListItem key={genre.id} dense>
@@ -448,7 +450,9 @@ const Landing = (props: ILandingProps) => {
                         >
                           <ListItemText 
                             primary={genre.name}
-                            primaryTypographyProps={{ textAlign:"center", flex: 1, color: genre.id === navigation.genre ? selectedCategoryColor : "" }}
+                            slotProps={{
+                              primary: { textAlign:"center", flex: 1, color: genre.id === navigation.genre ? selectedCategoryColor : "" }
+                            }}
                             sx={{ mt: 0, mb: 0 }} 
                           />
                         </ListItemButton>
@@ -456,7 +460,7 @@ const Landing = (props: ILandingProps) => {
                     ))}
                   </List>
                 </Grid>
-                <Grid item xs={4} sx={{ pt: 0 }} >
+                <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
                   <List sx={{ pt: 0 }} >
                     {topPublishers.map((publisher: ICompany) => (
                       <ListItem key={publisher.id} dense>
@@ -472,7 +476,9 @@ const Landing = (props: ILandingProps) => {
                         >
                           <ListItemText 
                             primary={publisher.name}
-                            primaryTypographyProps={{ textAlign:"center", flex: 1, color: publisher.id === navigation.publisher ? selectedCategoryColor : "" }}
+                            slotProps={{
+                              primary: { textAlign:"center", flex: 1, color: publisher.id === navigation.publisher ? selectedCategoryColor : "" }
+                            }}
                             sx={{ mt: 0, mb: 0 }} 
                           />
                         </ListItemButton>
@@ -480,7 +486,7 @@ const Landing = (props: ILandingProps) => {
                     ))}
                   </List>
                 </Grid>
-                <Grid item xs={4} sx={{ pt: 0 }} >
+                <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
                   <List sx={{ pt: 0 }} >
                     {topDevelopers.map((developer: ICompany) => (
                       <ListItem key={developer.id} dense>
@@ -496,7 +502,9 @@ const Landing = (props: ILandingProps) => {
                         >
                           <ListItemText 
                             primary={developer.name} 
-                            primaryTypographyProps={{ textAlign:"center", flex: 1, color: developer.id === navigation.developer ? selectedCategoryColor : "" }}
+                            slotProps={{
+                              primary: { textAlign:"center", flex: 1, color: developer.id === navigation.developer ? selectedCategoryColor : "" }
+                            }}
                             sx={{ mt: 0, mb: 0 }}
                           />
                         </ListItemButton>
@@ -517,7 +525,7 @@ const Landing = (props: ILandingProps) => {
 
             <Grid container spacing={2}>
               {data.map((game: IGame) => (
-                <Grid key={game.id} item xs={6} sm={4} md={3} lg={2}>
+                <Grid key={game.id} size={{ xs: 6, sm: 4, md: 3, lg: 2 }}>
                   <GameCard
                     game={game}
                     handleOpenDetails={handleOpenGameDetails}

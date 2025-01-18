@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Alert, AlertColor, AppBar, Avatar, Box, Button, Checkbox, FormControlLabel, Grid, 
+import { Alert, AlertColor, AppBar, Avatar, Box, Button, Checkbox, FormControlLabel, Grid2 as Grid, 
   Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from 'tss-react/mui'
@@ -349,7 +349,7 @@ const Header = (props: IHeaderProps) => {
             handleSubmit={handleRegister}
           >
             <>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <TextField
                   required
                   error={!!registerValidation.username}
@@ -361,7 +361,7 @@ const Header = (props: IHeaderProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username', false)}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <TextField
                   required
                   error={!!registerValidation.name}
@@ -373,7 +373,7 @@ const Header = (props: IHeaderProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'name', false)}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <TextField
                   required
                   error={!!registerValidation.password}
@@ -386,7 +386,7 @@ const Header = (props: IHeaderProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password', false)}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <TextField
                   required
                   error={!!registerValidation.confirmPassword}
@@ -399,7 +399,7 @@ const Header = (props: IHeaderProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'confirmPassword', false)}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <FormControlLabel
                   control={
                     <Checkbox 
@@ -411,7 +411,7 @@ const Header = (props: IHeaderProps) => {
               </Grid>
             </>
           </Modal>
-
+          
           <Modal
             fullwidth={matchesMd}
             matchesMd={matchesMd}
@@ -424,7 +424,7 @@ const Header = (props: IHeaderProps) => {
             handleSubmit={handleLogin}
           >
             <>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <TextField
                   required
                   error={!!loginValidation.username}
@@ -436,7 +436,7 @@ const Header = (props: IHeaderProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username')}
                 />
               </Grid>
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <TextField
                   required
                   error={!!loginValidation.password}

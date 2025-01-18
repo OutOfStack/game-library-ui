@@ -1,4 +1,4 @@
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Typography } from '@mui/material'
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid2 as Grid, Typography } from '@mui/material'
 
 
 export interface IModalProps {
@@ -23,10 +23,10 @@ const Modal = (props: IModalProps) => {
       <DialogTitle sx={{textAlign: 'center'}}>{title}</DialogTitle>
       <DialogContent>
         {dialogText ||
-          <Grid container direction="column" alignItems="center">
+          <Grid container direction="column" sx={{ alignItems: "center" }}>
             {children}
             {dialogErrorText && 
-              <Grid item sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <Alert severity="error" icon={false}>
                   <Typography>
                     {dialogErrorText}
