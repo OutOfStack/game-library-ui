@@ -17,14 +17,41 @@ spec:
       - host: _K8S_URL_
         http:
             paths:
-              - backend:
+              - path: /
+                pathType: Prefix
+                backend:
                     service:
                         name: game-library-ui-service
                         port:
                             number: 80
-                path: /
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: game-library-ui-domain-ingress
+    namespace: game-library
+    annotations:
+        cert-manager.io/cluster-issuer: lets-encrypt
+        nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+    tls:
+      - hosts:
+          - _UI_URL_
+        secretName: ui-tls-secret
+    rules:
+      - host: _UI_URL_
+        http:
+            paths:
+              - path: /
                 pathType: Prefix
-                
+                backend:
+                    service:
+                        name: game-library-ui-service
+                        port:
+                            number: 80
 ---
 # If you encounter an error with http-01 challenge (`Waiting for HTTP-01 challenge propagation: did not get expected response when querying endpoint, expected "" but got: <!DOCTYPE html>`),
 # most likely the problem is with cert-manager pod and it can be solved the same way as in game-library deployment (dnsPolicy)
