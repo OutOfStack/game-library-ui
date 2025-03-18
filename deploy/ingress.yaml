@@ -1,3 +1,4 @@
+# ingress for vps domain
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -26,13 +27,14 @@ spec:
                             number: 80
 
 ---
+# ingress for game-library domain
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
     name: game-library-ui-domain-ingress
     namespace: game-library
     annotations:
-        cert-manager.io/cluster-issuer: lets-encrypt
+        cert-manager.io/cluster-issuer: lets-encrypt-dns
         nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
         nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
         nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
@@ -53,6 +55,7 @@ spec:
                         port:
                             number: 80
 ---
+# vps domain http challenge
 # If you encounter an error with http-01 challenge (`Waiting for HTTP-01 challenge propagation: did not get expected response when querying endpoint, expected "" but got: <!DOCTYPE html>`),
 # most likely the problem is with cert-manager pod and it can be solved the same way as in game-library deployment (dnsPolicy)
 apiVersion: cert-manager.io/v1
@@ -72,3 +75,22 @@ spec:
                 ingress:
                     # specific to microk8s
                     class: public
+---
+# cloudflare dns challenge for game-library domain
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+    name: lets-encrypt-dns
+spec:
+    acme:
+        email: _ACME_EMAIL_
+        server: "https://acme-v02.api.letsencrypt.org/directory"
+        privateKeySecretRef:
+            name: lets-encrypt-dns-private-key
+        solvers:
+          - dns01:
+                cloudflare:
+                    email: _ACME_EMAIL_
+                    apiTokenSecretRef:
+                        name: cloudflare-api-token
+                        key: api-token
