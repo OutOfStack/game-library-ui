@@ -55,7 +55,7 @@ spec:
                         port:
                             number: 80
 ---
-# vps domain http challenge
+# http challenge for vps domain
 # If you encounter an error with http-01 challenge (`Waiting for HTTP-01 challenge propagation: did not get expected response when querying endpoint, expected "" but got: <!DOCTYPE html>`),
 # most likely the problem is with cert-manager pod and it can be solved the same way as in game-library deployment (dnsPolicy)
 apiVersion: cert-manager.io/v1
