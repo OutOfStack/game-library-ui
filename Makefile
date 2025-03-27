@@ -1,4 +1,4 @@
-.PHONY: run build installyarn test
+.PHONY: run build test
 
 run:
 	./env.sh

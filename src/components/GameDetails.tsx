@@ -209,26 +209,26 @@ const GameDetails = (props: IGameDetailsProps) => {
                   <Typography variant={matchesXs ? "body2" : "h6"} color="primary">Released {moment(game?.releaseDate).format('DD MMM, YYYY')}</Typography>
                 </Grid>
                 <Grid size={{ xs: 12 }} sx={gridRowSx}>
-                <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Publishers</Typography>
-                  {[...game?.publishers].sort((a, b) => a.name.length - b.name.length).map((p: ICompany) => (
+                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Publishers</Typography>
+                  {[...game?.publishers ?? []].sort((a, b) => a.name.length - b.name.length).map((p: ICompany) => (
                     <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{p.name}</Typography>
                   ))}
                 </Grid>
                 <Grid size={{ xs: 12 }} sx={gridRowSx}>
-                <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Developers</Typography>
-                  {[...game?.developers].sort((a, b) => a.name.length - b.name.length).map((d: ICompany) => (
+                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Developers</Typography>
+                  {[...game?.developers ?? []].sort((a, b) => a.name.length - b.name.length).map((d: ICompany) => (
                     <Typography key={d.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{d.name}</Typography>
                   ))}
                 </Grid>
                 <Grid size={{ xs: 12 }} sx={gridRowSx}>
-                <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Genres</Typography>
-                  {[...game?.genres].sort((a, b) => a.name.length - b.name.length).map((g: IGenre) => (
+                  <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Genres</Typography>
+                  {[...game?.genres ?? []].sort((a, b) => a.name.length - b.name.length).map((g: IGenre) => (
                     <Typography key={g.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{g.name}</Typography>
                   ))}
                 </Grid>
                 <Grid size={{ xs: 12 }} sx={gridRowSx}>
                 <Typography variant={matchesXs ? "caption" : "subtitle1"} color="primary" sx={chipSx}>Platforms</Typography>
-                  {[...game?.platforms].sort((a, b) => a.name.localeCompare(b.name)).map((p: IPlatform) => (
+                  {[...game?.platforms ?? []].sort((a, b) => a.name.localeCompare(b.name)).map((p: IPlatform) => (
                     <Typography key={p.name} variant={matchesXs ? "caption" : "subtitle2"} color="secondary" sx={{ ...chipSx, display: "inline-block" }}>{p.abbreviation}</Typography>
                   ))}
                 </Grid>

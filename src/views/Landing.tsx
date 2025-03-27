@@ -523,7 +523,7 @@ const Landing = (props: ILandingProps) => {
               handleClose={handleCloseGameDetails}
             />
 
-            <Grid container spacing={2}>
+            <Grid container spacing={1.5} >
               {data.map((game: IGame) => (
                 <Grid key={game.id} size={{ xs: 6, sm: 4, md: 3, lg: 2 }}>
                   <GameCard

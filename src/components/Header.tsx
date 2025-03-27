@@ -357,6 +357,7 @@ const Header = (props: IHeaderProps) => {
                   fullWidth
                   label="Username"
                   margin="normal"
+                  name="username"
                   value={signUpData?.username || ""}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'username', false)}
                 />
@@ -369,6 +370,7 @@ const Header = (props: IHeaderProps) => {
                   fullWidth
                   label="Name"
                   margin="normal"
+                  name="name"
                   value={signUpData?.name || ""}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'name', false)}
                 />
@@ -382,6 +384,8 @@ const Header = (props: IHeaderProps) => {
                   margin="normal"
                   label="Password"
                   type="password"
+                  name="password"
+                  autoComplete="new-password"
                   value={signUpData?.password || ""}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password', false)}
                 />
@@ -395,6 +399,7 @@ const Header = (props: IHeaderProps) => {
                   margin="normal"
                   label="Confirm password"
                   type="password"
+                  name="confirm-password"
                   value={signUpData?.confirmPassword || ""}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'confirmPassword', false)}
                 />
