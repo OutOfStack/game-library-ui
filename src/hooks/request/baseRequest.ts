@@ -1,25 +1,25 @@
 import { IValidationResponse } from "../../types/Validation"
 
 const baseRequest = async<T> (url: string, initConfig: RequestInit): Promise<[T | number | null, IValidationResponse | string | null]> => {
-    try {
-      const resp = await fetch(url, initConfig)
-      if (!resp.ok) {
-        try {
-          const body: IValidationResponse = await resp.json()
-          console.log(body)
-          return [null, body]
-        } catch(e) {
-          console.log(e)
-          return [resp.status, resp.statusText || 'An error occured while fetching data']
-        }
-      } else {
-        return [await resp.json(), null]
+  try {
+    const resp = await fetch(url, initConfig)
+    if (!resp.ok) {
+      try {
+        const body: IValidationResponse = await resp.json()
+        console.log(body)
+        return [null, body]
+      } catch(e) {
+        console.log(e)
+        return [resp.status, resp.statusText || 'An error occured while fetching data']
       }
-    }
-    catch(e) {
-      console.log(e)
-      return [null, 'An error occured']
+    } else {
+      return [await resp.json(), null]
     }
   }
-  
-  export default baseRequest
+  catch(e) {
+    console.log(e)
+    return [null, 'An error occured']
+  }
+}
+
+export default baseRequest

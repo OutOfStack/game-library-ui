@@ -6,6 +6,7 @@ import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutl
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined'
 import Slider, { CustomArrowProps } from 'react-slick'
 
+
 interface ICarousel {
   imgUrls: string[],
   scrDimensions: {

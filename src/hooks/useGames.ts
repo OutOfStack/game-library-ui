@@ -1,7 +1,7 @@
 import config from '../api-clients/endpoints'
-import { authorizedRequestConfig, getRequestConfig, postRequestConfig } from './request/requestConfig'
+import { authorizedRequestConfig, getRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
-import { IGamesFilter, ICreateGame, IGame, IGameResponse, IGames, IUpdateGame } from '../types/Game'
+import { IGamesFilter, ICreateGame, IGame, IGameResponse, IGames, IUpdateGame, IUploadImagesResponse } from '../types/Game'
 import { ICreateRating, IRatingResponse } from '../types/Rating'
 import useAuth from './useAuth'
 
@@ -40,7 +40,8 @@ const useGames = () => {
 
   const updateById = async (data: IUpdateGame, id: number) => {
     const url = `${endpoint}/${id}`
-    const response = await baseRequest<IGameResponse>(url, {...postRequestConfig(data), method: "PUT" })
+    const token = getAccessToken()
+    const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("PUT", token, data))
     return response
   }
 
@@ -51,12 +52,29 @@ const useGames = () => {
     return response
   }
 
+  const uploadGameImages = async (cover: File, screenshots: File[]) => {
+    const url = `${endpoint}/images`
+    const token = getAccessToken()
+
+    const formData = new FormData()
+    if (cover) {
+      formData.append('cover', cover)
+    }
+    screenshots.forEach((screenshot) => {
+      formData.append('screenshots', screenshot)
+    })
+
+    const response = await baseRequest<IUploadImagesResponse>(url, authorizedRequestConfig("POST", token, formData, null))
+    return response
+  }
+
   return {
     fetchPage,
     fetchById,
     create,
     updateById,
-    rate
+    rate,
+    uploadGameImages
   }
 }
 

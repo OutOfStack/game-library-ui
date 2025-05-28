@@ -1,6 +1,7 @@
 import { styled, alpha } from '@mui/material/styles'
 import { InputBase } from '@mui/material'
 
+
 export const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,

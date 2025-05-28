@@ -4,23 +4,22 @@ import {
 } from '@mui/material'
 import { MobileDatePicker, DesktopDatePicker } from '@mui/x-date-pickers'
 import moment from 'moment'
-import { FileInfo, FileUpload, FilesUpload, Widget as UploadWidget } from '@uploadcare/react-widget'
 
-import Modal from '../components/Modal'
-import Notification from '../components/Notification'
-import { ICreateGame, IGameResponse } from '../types/Game'
+import Modal from './Modal'
+import Notification from './Notification'
+import ImageUploader from './ImageUploader'
+import { ICreateGame, IGameResponse, IUploadImagesResponse, IUploadedImage, isCoverImage, isScreenshotImage } from '../types/Game'
 import { IPlatform } from '../types/Platform'
 import { IGenre } from '../types/Genre'
+import { IValidationResponse } from '../types/Validation'
 import useGames from '../hooks/useGames'
 import useGenres from '../hooks/useGenres'
 import usePlatforms from '../hooks/usePlatforms'
-import { IValidationResponse } from '../types/Validation'
 import { isTouchDevice } from '../utils/devices'
 import { IsValidUrl } from '../utils/validators'
-import '../styles/UploadWidget.css'
 
 
-const fieldWidthLarge = '400px'
+const fieldWidthLarge = '520px'
 const fieldWidthSmall = '210px'
 const dateFormat="YYYY-MM-DD"
 
@@ -32,7 +31,7 @@ interface IAddGameModal {
 const AddGameModal = (props: IAddGameModal) => {
   const { handleAddGameDialogClose, addGameDialogOpen } = props
 
-  const { create: createGame } = useGames()
+  const { create: createGame, uploadGameImages } = useGames()
   const { fetchGenres } = useGenres()
   const { fetchPlatforms } = usePlatforms()
   const theme = useTheme()
@@ -40,7 +39,10 @@ const AddGameModal = (props: IAddGameModal) => {
 
   const [genres, setGenres] = useState<IGenre[]>([])
   const [platforms, setPlatforms] = useState<IPlatform[]>([])
+  const [cover, setCover] = useState<File | null>(null)
+  const [screenshots, setScreenshots] = useState<File[]>([])
 
+  const [isUploading, setIsUploading] = useState<boolean>(false)
   const [alert, setAlert] = useState<string | IValidationResponse | null>(null)
 
   // fetch genres
@@ -154,12 +156,12 @@ const AddGameModal = (props: IAddGameModal) => {
       valid = false
     }
 
-    if (!addGame.logoUrl) {
+    if (!cover) {
       setAddGameValidation(v => ({ ...v, logo: 'Cover is required' }))
       valid = false
     }
 
-    if (!addGame.screenshots?.length) {
+    if (screenshots.length === 0) {
       setAddGameValidation(v => ({ ...v, screenshots: 'Screenshots are required' }))
       valid = false
     }
@@ -183,13 +185,28 @@ const AddGameModal = (props: IAddGameModal) => {
 
   const handleAddGame = async () => {
     setAddGameErrorText("")
+
+    // validate
     if (!validateAddGameForm()) {
       return
     }
 
+    // upload image
+    const images = await uploadImages(cover!, screenshots)
+    if (images.length === 0) {
+      // Error is already set in uploadImages
+      return
+    }
+
+    const logoUrl = images.filter(i => isCoverImage(i))[0]?.fileUrl
+    const screenshotsUrls = images.filter(i => isScreenshotImage(i)).map(i => i.fileUrl)
+
+    // create game
     const newGame: ICreateGame = {
       ...addGame,
-      releaseDate: moment(addGame.releaseDate).format(dateFormat)
+      releaseDate: moment(addGame.releaseDate).format(dateFormat),
+      logoUrl,
+      screenshots: screenshotsUrls,
     }
 
     const [resp, err] = await createGame(newGame)
@@ -211,68 +228,69 @@ const AddGameModal = (props: IAddGameModal) => {
         setAddGameDialogText("")
       }, 300)
     } else {
-      setAddGameErrorText("An error occured. Try again later")
+      setAddGameErrorText("An error occurred. Try again later")
+    }
+  }
+
+  const uploadImages = async (cover: File, screenshots: File[]): Promise<IUploadedImage[]> => {
+    if (!cover || screenshots.length === 0) {
+      setAddGameErrorText("Cover and at least one screenshot are required")
+      return []
+    }
+
+    try {
+      setIsUploading(true)
+      setAddGameErrorText("")
+
+      const [resp, err] = await uploadGameImages(cover, screenshots)
+      if (err) {
+        if (typeof err === 'string') {
+          setAddGameErrorText(err)
+          return []
+        }
+        const error = err as IValidationResponse
+        setAddGameErrorText(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error)
+        return []
+      }
+
+      const images = resp as IUploadImagesResponse
+
+      if (images!.files!.length === 0) {
+        setAddGameErrorText("An error occured on image upload. Try again later")
+        return []
+      }
+
+      return images.files
+    } catch (error) {
+      console.error("Image upload error:", error)
+      setAddGameErrorText(`Upload failed: ${error instanceof Error ? error.message : "Unknown error"}`)
+      return []
+    } finally {
+      setIsUploading(false)
     }
   }
 
   //#endregion
 
-  //#region upload widget
+  //#region upload images
 
-  const handleLogoChanged = (fileInfo: FileInfo) => {
-    if (fileInfo.isStored) {
-      setAddGame(g => ({ ...g, logoUrl: fileInfo.cdnUrl || undefined }))
-    }
-
-    if (addGameValidation.logo.length > 0 && fileInfo.cdnUrl) {
+  const handleCoverUpdate = (file: File | null) => {
+    setCover(file)
+    // remove error if there is a value now
+    if (addGameValidation.logo?.length > 0 && file) {
       setAddGameValidation(v => ({ ...v, logo: '' }))
     }
   }
 
-  const handleScreenshotsChanged = async (fileInfo: FileUpload | FilesUpload | null) => {
-    if (!fileInfo) {
-      return
-    }
-    let group = fileInfo as FilesUpload
-    const files = await Promise.all(group.files())
-    const urls = files.map((file) => file?.cdnUrl || '')
-    
-    setAddGame(g => ({ ...g, screenshots: urls }))
-
-    if (addGameValidation.screenshots.length > 0 && urls?.length > 0) {
+  const handleScreenshotsUpdate = (files: File[]) => {
+    setScreenshots(files)
+    // remove error if there is a value now
+    if (addGameValidation.screenshots?.length > 0 && files.length) {
       setAddGameValidation(v => ({ ...v, screenshots: '' }))
     }
   }
 
-  const fileSizeLimit = (sizeInKb: number) => {
-    return (fileInfo: FileInfo) => {
-      if (fileInfo.name === null || fileInfo.size === null) {
-        return
-      }
-
-      if (fileInfo.size > sizeInKb * 1024) {
-        throw new Error('size')
-      }
-    }
-  }
-
-  const hasExtension = () => {
-    return (fileInfo: FileInfo) => {
-      if (fileInfo.name === null) {
-        return
-      }
-
-      if (!fileInfo.name.includes(".")) {
-        throw new Error('image')
-      }
-    }
-  }
-
-  const uploadValidators = [fileSizeLimit(150), hasExtension()]
-
   //#endregion
-
-  const uwpk = '8869032692db5708aebb'
 
   return (
   <>
@@ -281,14 +299,15 @@ const AddGameModal = (props: IAddGameModal) => {
       resetMessage={() => setAlert(null)}
     />
     <Modal
-      fullwidth={matchesMd}
+      fullScreen
       matchesMd={matchesMd}
       isOpen={addGameDialogOpen}
       closeDialog={handleAddGameDialogClose}
       title='Add new game'
       dialogText={addGameDialogText}
       dialogErrorText={addGameErrorText}
-      submitActionName='Add game'
+      submitActionName={isUploading ? 'Uploading...' : 'Add game'}
+      submitDisabled={isUploading}
       handleSubmit={handleAddGame}
     >
       <>
@@ -376,7 +395,7 @@ const AddGameModal = (props: IAddGameModal) => {
             fullWidth
             margin="normal"
             label="Websites"
-            placeholder="mygame.com,twitch.com/mygame"
+            placeholder="https://mygame.com,https://twitch.com/mygame"
             value={addGame?.websites?.join(",") || ""}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameWebsitesChange(e)}
           />
@@ -441,41 +460,30 @@ const AddGameModal = (props: IAddGameModal) => {
           )}
         />
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-          <label htmlFor={'coverUploadWidget'}>Cover </label>
-          <Typography variant="caption" color="rgba(200, 150, 100, 0.8)"> (max size 150 kb, ratio 3:4)</Typography>
-          <div id={'coverUploadWidget'}>
-            <UploadWidget
-              imagesOnly
-              previewStep
-              clearable
-              crop='3:4'
-              tabs='file'
-              publicKey={uwpk}
-              validators={uploadValidators}
-              onChange={(fileInfo: FileInfo) => handleLogoChanged(fileInfo)}
-            />
-          </div>
-          <Typography variant="caption" color="#f44336">  {addGameValidation.logo}</Typography>
+        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall, pb: 2 }}>
+          <Typography variant="subtitle1">Cover</Typography>
+          <Typography variant="subtitle2" color="secondary"> (max size 500 KB, ratio 3:4)</Typography>
+          <ImageUploader
+            fileSizeLimitKb={500}
+            cropAspect={3 / 4}
+            onSelectComplete={(files: File[]) => handleCoverUpdate(files[0]!)}
+          />
+          <Typography variant="caption" color="#f44336">
+            {addGameValidation.logo}
+          </Typography>
         </Grid>
         <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
-          <label htmlFor={'screenshotsUploadWidget'}>Screenshots </label>
-          <Typography variant="caption" color={"rgba(200, 150, 100, 0.8)"}> (max size 150 kb, ratio 9:5, max 7 images)</Typography>
-          <div id={'screenshotsUploadWidget'}>
-            <UploadWidget
-              imagesOnly
-              multiple
-              previewStep
-              clearable
-              crop='9:5'
-              multipleMax={7}
-              tabs='file'
-              publicKey={uwpk}
-              validators={uploadValidators}
-              onFileSelect={(fileInfo: FileUpload | FilesUpload | null) => handleScreenshotsChanged(fileInfo)}
-            />
-          </div>
-          <Typography variant="caption" color="#f44336">  {addGameValidation.screenshots}</Typography>
+          <Typography variant="subtitle1">Screenshots</Typography>
+          <Typography variant="subtitle2" color="secondary"> (max size 500 KB, max 8 files, ratio 9:5)</Typography>
+          <ImageUploader
+            maxFiles={8}
+            fileSizeLimitKb={500}
+            cropAspect={9 / 5}
+            onSelectComplete={handleScreenshotsUpdate}
+          />
+          <Typography variant="caption" color="#f44336">
+            {addGameValidation.screenshots}
+          </Typography>
         </Grid>
       </>
     </Modal>
