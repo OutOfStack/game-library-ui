@@ -15,32 +15,28 @@ const App = () => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
   const getIsDarkMode = (): boolean => {
-    const dmValue = localStorage.getItem(dmKey)
-    if (!dmValue) {
+    const darkModeValue = localStorage.getItem(dmKey)
+    if (!darkModeValue) {
       return prefersDarkMode
     }
-    if (dmValue === "true") {
-      return true
-    }
-    return false
+    return darkModeValue === "true"
   }
 
   const [darkMode, setDarkMode] = useState(getIsDarkMode())
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: darkMode ? 'dark' : 'light',
-          primary: {
-            main: darkMode ? grey[300] : grey[700]
-          },
-          secondary: {
-            main: darkMode ? blueGrey[300] : blue[900]
-          },
-          tonalOffset: 0.4
-        }
-      }),
+  const theme = useMemo(() =>
+    createTheme({
+      palette: {
+        mode: darkMode ? 'dark' : 'light',
+        primary: {
+          main: darkMode ? grey[300] : grey[700]
+        },
+        secondary: {
+          main: darkMode ? blueGrey[300] : blue[900]
+        },
+        tonalOffset: 0.4
+      }
+    }),
     [darkMode]
   )
 

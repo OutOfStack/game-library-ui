@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {
-  Autocomplete, AutocompleteChangeReason, AutocompleteChangeDetails, Grid2 as Grid, TextField, Typography, useMediaQuery, useTheme
+  Autocomplete, AutocompleteChangeReason, AutocompleteChangeDetails, Grid, TextField, Typography, useMediaQuery, useTheme
 } from '@mui/material'
 import { MobileDatePicker, DesktopDatePicker } from '@mui/x-date-pickers'
 import moment from 'moment'
