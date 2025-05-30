@@ -1,4 +1,4 @@
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid2 as Grid, Typography } from '@mui/material'
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Typography } from '@mui/material'
 
 
 export interface IModalProps {
