@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { Alert, AlertColor, Snackbar, SnackbarCloseReason } from "@mui/material"
+
 import { IValidationResponse } from "../types/Validation"
+
 
 interface INotification {
   message: string | IValidationResponse | null,

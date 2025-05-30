@@ -90,4 +90,41 @@ interface ICountResponse {
 	count: number
 }
 
-export type { IGame, IGames, IGamesFilter, ICreateGame, IUpdateGame, IGameResponse, ICountResponse }
+/**
+ * IUploadImagesResponse represents data received after upload images
+ */
+interface IUploadImagesResponse {
+	files: IUploadedImage[]
+}
+
+/**
+ * IUploadedImage represents uploaded image data
+ */
+interface IUploadedImage {
+	fileId: string,
+	fileName: string,
+	fileUrl: string,
+	type: string
+}
+
+// This function checks if the image type is "logo"
+export const isCoverImage = (image: IUploadedImage): boolean => {
+	return image.type === "cover"
+}
+
+// This function checks if the image type is "screenshot"
+export const isScreenshotImage = (image: IUploadedImage): boolean => {
+	return image.type === "screenshot"
+}
+
+export type { 
+	IGame, 
+	IGames, 
+	IGamesFilter, 
+	ICreateGame, 
+	IUpdateGame, 
+	IGameResponse, 
+	ICountResponse, 
+	IUploadImagesResponse,
+	IUploadedImage
+}

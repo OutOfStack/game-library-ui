@@ -1,7 +1,0 @@
-.uploadcare--widget__button, .uploadcare--widget__button_type_open {
-  background: #999999;
-}
-
-.uploadcare--widget__button:hover, .uploadcare--widget__button:focus, .uploadcare--widget__button_type_open:hover, .uploadcare--widget__button_type_open:focus {
-  background: #777676;
-}

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Container, CssBaseline, Typography, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
 import { grey, blueGrey, blue } from '@mui/material/colors'
-import { createBrowserRouter, RouterProvider } from 'react-router'
 
 import Landing from './views/Landing'
 import Header from './components/Header'

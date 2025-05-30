@@ -22,15 +22,15 @@ import { IDarkModeProps, ISearchFieldProps } from '../components/Header'
 import { IGame, IGames, IGamesFilter } from '../types/Game'
 import { IGenre } from '../types/Genre'
 import { ICompany } from '../types/Company'
+import { IValidationResponse } from '../types/Validation'
+import { IGetUserRatingsResponse } from '../types/Rating'
+import { roles } from '../types/Auth/User'
 import useGames from '../hooks/useGames'
 import useGenres from '../hooks/useGenres'
 import useCompanies from '../hooks/useCompanies'
 import useUser from '../hooks/useUser'
 import useAuth from '../hooks/useAuth'
-import { IValidationResponse } from '../types/Validation'
-import { roles } from '../auth/roles'
-import { IGetUserRatingsResponse } from '../types/Rating'
-import '../styles/UploadWidget.css'
+
 
 const topCategoriesLimit = 8
 const selectedCategoryColor = "#1ea0c0"
@@ -361,6 +361,16 @@ const Landing = (props: ILandingProps) => {
           />
 
           <Box sx={{ pb: 3 }}>
+            {hasRole([roles.publisher]) &&
+              <Grid container direction="row" sx={{ justifyContent: "space-between", alignItems: "left", pb: 2 }}>
+                <Grid size={{ xs: 9 }}>
+                  <Box />
+                </Grid>
+                <Grid sx={{ textAlign: "right" }} size={{ xs: 3 }}>
+                  <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>ADD GAME</Button>
+                </Grid>
+              </Grid>
+            }
             <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" sx={{ justifyContent: "space-between", alignItems: "center", pb: topCategoriesOpen ? 0.5 : 3 }}>
               <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
                 <ToggleButtonGroup
@@ -381,18 +391,12 @@ const Landing = (props: ILandingProps) => {
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
-              <Grid sx={{ textAlign: "right" }} size={{ xs: 3 }}>
+              <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
                 <Typography variant={matchesXs ? "h6" : "h5"}>
                   Games <sup style={{ fontSize: matchesXs ? 9 : 11, color: "" }}> {count}</sup>
                 </Typography>
               </Grid>
-              <Grid sx={{ textAlign: "left" }} size={{ xs: 2.5 }}>
-                {hasRole([roles.publisher])
-                  ? <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>+ GAME</Button>
-                  : <Box sx={{ width: "25w" }} />
-                }
-              </Grid>
-              <Grid sx={{ textAlign: "right" }} size={{ xs: 2.5} }>
+              <Grid sx={{ textAlign: "right" }} size={{ xs: 4} }>
                 <ToggleButton
                   value="check"
                   selected={topCategoriesOpen}

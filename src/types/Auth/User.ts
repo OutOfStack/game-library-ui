@@ -10,4 +10,9 @@ interface IGetUser {
 	dateUpdated: string
 }
 
+export const roles = {
+    user: "user",
+    publisher: "publisher"
+}
+
 export type { IGetUser }

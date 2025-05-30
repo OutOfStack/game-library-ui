@@ -12,13 +12,13 @@ import LightModeIcon from '@mui/icons-material/LightModeRounded'
 import SearchIcon from '@mui/icons-material/SearchRounded'
 
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchField'
+import Modal from '../components/Modal'
 import { ISignIn, IToken } from '../types/Auth/SignIn'
-import useAuth from '../hooks/useAuth'
 import { ISignUp } from '../types/Auth/SignUp'
 import { IGetUser } from '../types/Auth/User'
 import { IValidationResponse } from '../types/Validation'
 import { stringAvatar } from '../utils/avatar'
-import Modal from '../components/Modal'
+import useAuth from '../hooks/useAuth'
 
 
 const useStyles = makeStyles()(() => ({
@@ -78,14 +78,6 @@ const Header = (props: IHeaderProps) => {
     }
     setAlert(a => ({...defaultAlert, severity: a.severity}))
   }
-
-  /*const showNotification = (message: string, severity: AlertColor = "success") => {
-    setAlert({
-      message: message,
-      severity: severity,
-      open: true
-    })
-  }*/
 
   //#endregion
 
@@ -338,7 +330,7 @@ const Header = (props: IHeaderProps) => {
           }
 
           <Modal 
-            fullwidth={matchesMd}
+            fullScreen
             matchesMd={matchesMd}
             isOpen={registerDialogOpen} 
             closeDialog={handleRegisterDialogClose} 
@@ -418,7 +410,7 @@ const Header = (props: IHeaderProps) => {
           </Modal>
           
           <Modal
-            fullwidth={matchesMd}
+            fullScreen
             matchesMd={matchesMd}
             isOpen={loginDialogOpen} 
             closeDialog={handleLoginDialogClose} 
