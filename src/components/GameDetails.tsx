@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Alert, AlertColor, Box, Chip, Container, Dialog, DialogContent, Grid2 as Grid, IconButton, Link, Rating, Skeleton, Snackbar, 
+import { Alert, AlertColor, Box, Chip, Container, Dialog, DialogContent, Grid, IconButton, Link, Rating, Skeleton, Snackbar, 
   SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { orange } from '@mui/material/colors'
@@ -120,13 +120,6 @@ const GameDetails = (props: IGameDetailsProps) => {
     setNewUserRating(null)
   }
 
-  const getLogoUrl = (url?: string): string | undefined => {
-    if (!url) {
-      return undefined
-    }
-    return url.endsWith('/') ? url : `${url}/`
-  }
-
   if (!game) {
     return <Fragment />
   }
@@ -165,7 +158,7 @@ const GameDetails = (props: IGameDetailsProps) => {
                   maxWidth: '100%'
                 }}>
                   <img
-                    src={getLogoUrl(game?.logoUrl) || ""}
+                    src={game?.logoUrl || ""}
                     alt={game?.name + " logo"}
                     style={{maxWidth: '100%', display: logoLoaded ? 'inline' : 'none'}}
                     onLoad={() => setLogoLoaded(true)}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import {
-  Backdrop, Box, Button, CircularProgress, Container, Grid2 as Grid, Pagination, Stack, Typography, 
+  Backdrop, Box, Button, CircularProgress, Container, Grid, Pagination, Stack, Typography, 
   ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme, Chip, ListItem, List, ListItemText, ListItemButton
 } from '@mui/material'
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
