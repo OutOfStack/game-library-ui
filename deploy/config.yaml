@@ -6,3 +6,4 @@ metadata:
 data:
     GAMES_URL: https://_K8S_URL_/_api
     AUTH_URL: https://_K8S_URL_/_auth
+    GOOGLE_CLIENT_ID: _GOOGLE_CLIENT_ID_

@@ -39,6 +39,12 @@ const useAuth = () => {
     return response
   }
 
+  const signInWithGoogle = async (idToken: string) => {
+    const url = `${endpoint}/oauth/google`
+    const response = await baseRequest<IToken>(url, postRequestConfig({ idToken: idToken }))
+    return response
+  }
+
   const checkAuth = (): boolean => {
     const token = getAccessToken()
 
@@ -118,7 +124,8 @@ const useAuth = () => {
     logout,
     signUp,
     signIn,
-    deleteAccount
+    deleteAccount,
+    signInWithGoogle
   }
 }
 

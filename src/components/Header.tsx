@@ -15,11 +15,13 @@ import DeleteIcon from '@mui/icons-material/Delete'
 
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchField'
 import Modal from '../components/Modal'
+import GoogleSignInButton from '../components/GoogleSignInButton'
 import { ISignIn, IToken } from '../types/Auth/SignIn'
 import { ISignUp } from '../types/Auth/SignUp'
 import { IGetUser } from '../types/Auth/User'
 import { IValidationResponse } from '../types/Validation'
 import { stringAvatar } from '../utils/avatar'
+import { randomName } from '../utils/randomName'
 import useAuth from '../hooks/useAuth'
 
 
@@ -55,7 +57,7 @@ const Header = (props: IHeaderProps) => {
 
   const { searchFieldProps, darkModeProps } = props
 
-  const { signIn, signUp, getClaims, isAuthenticated, setUserStorage, logout, deleteAccount } = useAuth()
+  const { signIn, signUp, signInWithGoogle, getClaims, isAuthenticated, setUserStorage, logout, deleteAccount } = useAuth()
   const { classes } = useStyles()
   const navigate = useNavigate()
   const theme = useTheme()
@@ -282,6 +284,33 @@ const Header = (props: IHeaderProps) => {
 
   //#endregion
 
+  //#region google sign in
+
+  const handleGoogleSignInSuccess = async (idToken: string) => {
+    setLoginErrorText("")
+    const [resp, err] = await signInWithGoogle(idToken)
+    if (err) {
+      if (typeof err === 'string') {
+        setLoginErrorText(err)
+        return
+      }
+      const error = err as IValidationResponse
+      setLoginErrorText(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error)
+      return
+    }
+    const token = resp as IToken
+    setUserStorage(token)
+    setLoginDialogText("You have successfully logged in with Google")
+    setTimeout(() => {
+      handleLoginDialogClose()
+    }, 500)
+  }
+
+  const handleGoogleSignInError = (error: string) => {
+    setLoginErrorText(error)
+  }
+
+  //#endregion
 
   const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, field: string, isLogin = true) => {
     const value = e.target.value?.trimStart()
@@ -410,7 +439,6 @@ const Header = (props: IHeaderProps) => {
           }
 
           <Modal 
-            fullScreen
             matchesMd={matchesMd}
             isOpen={registerDialogOpen} 
             closeDialog={handleRegisterDialogClose} 
@@ -442,6 +470,7 @@ const Header = (props: IHeaderProps) => {
                   helperText={registerValidation.name}
                   fullWidth
                   label="Display name"
+                  placeholder={randomName()}
                   margin="normal"
                   name="name"
                   value={signUpData?.name || ""}
@@ -524,7 +553,6 @@ const Header = (props: IHeaderProps) => {
           </Modal>
           
           <Modal
-            fullScreen
             matchesMd={matchesMd}
             isOpen={loginDialogOpen} 
             closeDialog={handleLoginDialogClose} 
@@ -560,6 +588,11 @@ const Header = (props: IHeaderProps) => {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleFieldChange(e, 'password')}
                 />
               </Grid>
+              <GoogleSignInButton 
+                onSuccess={handleGoogleSignInSuccess}
+                onError={handleGoogleSignInError}
+                width={matchesMd ? 250 : 180}
+              />
             </>
           </Modal>
 

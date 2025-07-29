@@ -8,7 +8,7 @@ const baseRequest = async<T> (url: string, initConfig: RequestInit): Promise<[T 
         const body: IValidationResponse = await resp.json()
         return [null, body]
       } catch(e) {
-        console.log(e)
+        console.error(e)
         return [resp.status, resp.statusText || 'An error occured while fetching data']
       }
     } else {
@@ -19,7 +19,7 @@ const baseRequest = async<T> (url: string, initConfig: RequestInit): Promise<[T 
     }
   }
   catch(e) {
-    console.log(e)
+    console.error(e)
     return [null, 'An error occured']
   }
 }
