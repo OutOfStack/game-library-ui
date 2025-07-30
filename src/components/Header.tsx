@@ -441,7 +441,7 @@ const Header = (props: IHeaderProps) => {
                   error={!!registerValidation.name}
                   helperText={registerValidation.name}
                   fullWidth
-                  label="Name"
+                  label="Display name"
                   margin="normal"
                   name="name"
                   value={signUpData?.name || ""}
