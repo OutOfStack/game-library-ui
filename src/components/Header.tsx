@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Alert, AlertColor, AppBar, Avatar, Box, Button, Checkbox, FormControlLabel, Grid, 
-  Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
+  IconButton, Link, Menu, MenuItem, Snackbar, TextField, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from 'tss-react/mui'
 import LoginIcon from '@mui/icons-material/LoginRounded'
@@ -10,6 +10,8 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import DarkModeIcon from '@mui/icons-material/DarkModeRounded'
 import LightModeIcon from '@mui/icons-material/LightModeRounded'
 import SearchIcon from '@mui/icons-material/SearchRounded'
+import MenuIcon from '@mui/icons-material/Menu'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import { Search, SearchIconWrapper, StyledInputBase } from './SearchField'
 import Modal from '../components/Modal'
@@ -53,12 +55,11 @@ const Header = (props: IHeaderProps) => {
 
   const { searchFieldProps, darkModeProps } = props
 
-  const { signIn, signUp, getClaims, isAuthenticated, setUserStorage, logout } = useAuth()
+  const { signIn, signUp, getClaims, isAuthenticated, setUserStorage, logout, deleteAccount } = useAuth()
   const { classes } = useStyles()
   const navigate = useNavigate()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
-  const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
   const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
 
   const { name, username } = getClaims()
@@ -71,6 +72,8 @@ const Header = (props: IHeaderProps) => {
     severity: "success" as AlertColor
   }
   const [alert, setAlert] = useState(defaultAlert)
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   const handleCloseAlert = (event: Event | React.SyntheticEvent<any, Event>, reason?: string) => {
     if (reason === 'clickaway') {
@@ -84,6 +87,7 @@ const Header = (props: IHeaderProps) => {
   //#region sign up
   
   const [signUpData, setSignUpData] = useState<ISignUp>({} as ISignUp)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [registerDialogOpen, setRegisterDialogOpen] = useState(false)
   const [registerDialogText, setRegisterDialogText] = useState("")
   const [registerErrorText, setRegisterErrorText] = useState("")
@@ -91,7 +95,8 @@ const Header = (props: IHeaderProps) => {
     username: "",
     name: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    terms: ""
   })
 
   const handleRegisterDialogOpen = () => setRegisterDialogOpen(true)
@@ -122,6 +127,11 @@ const Header = (props: IHeaderProps) => {
       valid = false
     } else if (signUpData.password !== signUpData.confirmPassword) {
       setRegisterValidation(v => ({...v, confirmPassword: 'passwords do not match'}))
+      valid = false
+    }
+
+    if (!termsAccepted) {
+      setRegisterValidation(v => ({...v, terms: 'you must agree to the terms and privacy policy'}))
       valid = false
     }
 
@@ -230,6 +240,48 @@ const Header = (props: IHeaderProps) => {
 
   //#endregion
 
+  //#region user menu
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null)
+  }
+
+  const handleDeleteAccountOpen = () => {
+    setDeleteConfirmOpen(true)
+    handleMenuClose()
+  }
+
+  const handleDeleteAccountClose = () => {
+    setDeleteConfirmOpen(false)
+  }
+
+  const handleDeleteAccount = async () => {
+    const [_, err] = await deleteAccount()
+    if (err) {
+      setAlert({
+        open: true,
+        message: typeof err === 'string' ? err : 'Failed to delete account',
+        severity: 'error'
+      })
+    } else {
+      setAlert({
+        open: true,
+        message: 'Account deleted successfully',
+        severity: 'success'
+      })
+      setTimeout(() => {
+        logout()
+      }, 1000)
+    }
+    setDeleteConfirmOpen(false)
+  }
+
+  //#endregion
+
 
   const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, field: string, isLogin = true) => {
     const value = e.target.value?.trimStart()
@@ -306,9 +358,37 @@ const Header = (props: IHeaderProps) => {
               }
               <DarkThemeIcon/>
               { matchesXs
-                ? <LogoutIcon color="action" fontSize="large" onClick={() => logout()} sx={{pl: theme.spacing(1)}} />
-                : <Button color="inherit" sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : { ml: theme.spacing(0.5)}} onClick={() => logout()}>Logout</Button>
+                ? <Tooltip title="User menu">
+                    <IconButton onClick={handleMenuOpen} sx={{pl: theme.spacing(1)}}>
+                      <MenuIcon color="action" fontSize="large" />
+                    </IconButton>
+                  </Tooltip>
+                : <IconButton onClick={handleMenuOpen} sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : { ml: theme.spacing(0.5)}}>
+                    <MenuIcon color="inherit" />
+                  </IconButton>
               }
+              <Menu
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+              >
+                <MenuItem onClick={() => { logout(); handleMenuClose(); }}>
+                  <LogoutIcon sx={{ mr: 1 }} />
+                  Logout
+                </MenuItem>
+                <MenuItem onClick={handleDeleteAccountOpen} sx={{ color: 'error.main' }}>
+                  <DeleteIcon sx={{ mr: 1 }} />
+                  Delete Account
+                </MenuItem>
+              </Menu>
             </>
             : <>
               <DarkThemeIcon/>
@@ -338,6 +418,7 @@ const Header = (props: IHeaderProps) => {
             dialogText={registerDialogText} 
             dialogErrorText={registerErrorText} 
             submitActionName='Register' 
+            submitDisabled={!termsAccepted}
             handleSubmit={handleRegister}
           >
             <>
@@ -397,14 +478,47 @@ const Header = (props: IHeaderProps) => {
                 />
               </Grid>
               <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
+                <Tooltip title="Contributors can add games to the library but cannot rate games" placement="right">
+                  <FormControlLabel
+                    control={
+                      <Checkbox 
+                        checked={signUpData.isPublisher || false} 
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => (setSignUpData(d => ({...d, isPublisher: e.target.checked})))}
+                      />}
+                    label="I want to contribute games"
+                  />
+                </Tooltip>
+              </Grid>
+              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
                 <FormControlLabel
                   control={
                     <Checkbox 
-                      checked={signUpData.isPublisher || false} 
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => (setSignUpData(d => ({...d, isPublisher: e.target.checked})))}
+                      checked={termsAccepted} 
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        setTermsAccepted(e.target.checked)
+                        if (registerValidation.terms && e.target.checked) {
+                          setRegisterValidation(v => ({...v, terms: ''}))
+                        }
+                      }}
                     />}
-                  label="I am a publisher"
+                  label={
+                    <Typography variant="body2">
+                      I agree to the{' '}
+                      <Link href="/privacy-policy.html" target="_blank" rel="noopener">
+                        Privacy Policy
+                      </Link>
+                      {' '}and{' '}
+                      <Link href="/terms-of-service.html" target="_blank" rel="noopener">
+                        Terms of Service
+                      </Link>
+                    </Typography>
+                  }
                 />
+                {registerValidation.terms && (
+                  <Typography variant="caption" color="error" sx={{ display: 'block', mt: 0.5 }}>
+                    {registerValidation.terms}
+                  </Typography>
+                )}
               </Grid>
             </>
           </Modal>
@@ -447,6 +561,25 @@ const Header = (props: IHeaderProps) => {
                 />
               </Grid>
             </>
+          </Modal>
+
+          <Modal
+            fullScreen={false}
+            matchesMd={matchesMd}
+            isOpen={deleteConfirmOpen}
+            closeDialog={handleDeleteAccountClose}
+            title='Delete Account'
+            dialogText=''
+            dialogErrorText=''
+            submitActionName='Delete Account'
+            handleSubmit={handleDeleteAccount}
+          >
+            <Typography variant="body2" color="error" sx={{ textAlign: 'center', mb: 2 }}>
+              Are you sure you want to delete your account?
+            </Typography>
+            <Typography variant="body2" color="error" sx={{ textAlign: 'center' }}>
+              This action cannot be undone and will permanently delete your account.
+            </Typography>
           </Modal>
           
         </Toolbar>

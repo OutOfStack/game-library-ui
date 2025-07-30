@@ -10,7 +10,9 @@ const endpoints = {
   authSvc: {
     domain: (window as any)._env_?.AUTH_URL || "http://localhost:8001",
     signIn: "/signin",
-    signUp: "/signup"
+    signUp: "/signup",
+    updateProfile: "/account",
+    deleteAccount: "/account"
   }
 }
   
