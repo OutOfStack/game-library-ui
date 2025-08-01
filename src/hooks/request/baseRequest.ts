@@ -12,6 +12,9 @@ const baseRequest = async<T> (url: string, initConfig: RequestInit): Promise<[T 
         return [resp.status, resp.statusText || 'An error occured while fetching data']
       }
     } else {
+      if (resp.status === 204 || resp.headers.get('content-length') === '0') {
+        return [resp.status as T, null]
+      }
       return [await resp.json(), null]
     }
   }

@@ -317,7 +317,7 @@ const AddGameModal = (props: IAddGameModal) => {
             error={!!addGameValidation.name}
             helperText={addGameValidation.name}
             fullWidth
-            label="Name"
+            label="Title"
             margin="normal"
             value={addGame?.name || ""}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'name')}

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
 import config from '../api-clients/endpoints'
-import { postRequestConfig } from './request/requestConfig'
+import { authorizedRequestConfig, postRequestConfig } from './request/requestConfig'
 import baseRequest from './request/baseRequest'
 import { ISignUp } from '../types/Auth/SignUp'
 import { IJWToken, ISignIn, IToken } from '../types/Auth/SignIn'
@@ -29,6 +29,13 @@ const useAuth = () => {
   const signIn = async (data: ISignIn) => {
     const url = `${endpoint}${config.authSvc.signIn}`
     const response = await baseRequest<IToken>(url, postRequestConfig(data))
+    return response
+  }
+
+  const deleteAccount = async () => {
+    const url = `${endpoint}${config.authSvc.deleteAccount}`
+    const token = getAccessToken()
+    const response = await baseRequest(url, authorizedRequestConfig("DELETE", token))
     return response
   }
 
@@ -110,7 +117,8 @@ const useAuth = () => {
     hasRole,
     logout,
     signUp,
-    signIn
+    signIn,
+    deleteAccount
   }
 }
 

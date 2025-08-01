@@ -44,7 +44,6 @@ const Modal = (props: IModalProps) => {
             size="large"
             variant="contained"
             onClick={closeDialog}
-            disabled={submitDisabled}
           >
             Cancel
           </Button>
