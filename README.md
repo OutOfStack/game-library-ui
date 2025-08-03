@@ -65,6 +65,7 @@ For a complete game-library experience, you'll need to set up the following serv
 - Browse, search and rate games
 - View detailed game information
 - User authentication and authorization
+- Sign in with Google OAuth integration
 
 ## Tech Stack
 

@@ -310,6 +310,30 @@ const Header = (props: IHeaderProps) => {
     setLoginErrorText(error)
   }
 
+  const handleGoogleSignUpSuccess = async (idToken: string) => {
+    setRegisterErrorText("")
+    const [resp, err] = await signInWithGoogle(idToken)
+    if (err) {
+      if (typeof err === 'string') {
+        setRegisterErrorText(err)
+        return
+      }
+      const error = err as IValidationResponse
+      setRegisterErrorText(error.fields?.map(f => `${f.field}: ${f.error}`).join("; ") || error.error)
+      return
+    }
+    const token = resp as IToken
+    setUserStorage(token)
+    setRegisterDialogText("You have successfully registered with Google")
+    setTimeout(() => {
+      handleRegisterDialogClose()
+    }, 500)
+  }
+
+  const handleGoogleSignUpError = (error: string) => {
+    setRegisterErrorText(error)
+  }
+
   //#endregion
 
   const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, field: string, isLogin = true) => {
@@ -380,7 +404,7 @@ const Header = (props: IHeaderProps) => {
           {isAuthenticated
             ? <>
               <Tooltip title={name || ''}>
-                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || '')}/>
+                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || username || '')}/>
               </Tooltip>
               {!matchesXs && 
                 <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username}</Typography>
@@ -549,6 +573,11 @@ const Header = (props: IHeaderProps) => {
                   </Typography>
                 )}
               </Grid>
+              <GoogleSignInButton 
+                onSuccess={handleGoogleSignUpSuccess}
+                onError={handleGoogleSignUpError}
+                width={matchesMd ? 250 : 180}
+              />
             </>
           </Modal>
           
