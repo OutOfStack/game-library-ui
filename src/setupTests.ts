@@ -29,3 +29,13 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 })
+
+// Mock environment variables
+Object.defineProperty(window, '_env_', {
+  writable: true,
+  value: {
+    GOOGLE_CLIENT_ID: 'test-google-client-id',
+    GAMES_URL: 'http://localhost:8000',
+    AUTH_URL: 'http://localhost:8001'
+  }
+})
