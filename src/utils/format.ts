@@ -17,7 +17,7 @@ export const ToHostname = (url: string): string => {
     const u = new URL(url)
     return u.hostname
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return ""
   }
 }

@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Container, CssBaseline, Typography, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
 import { grey, blueGrey, blue } from '@mui/material/colors'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 import Landing from './views/Landing'
 import Header from './components/Header'
@@ -67,12 +68,14 @@ const App = () => {
   ])
 
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <GoogleOAuthProvider clientId={window._env_.GOOGLE_CLIENT_ID}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </GoogleOAuthProvider>
   )
 }
 

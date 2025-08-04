@@ -55,6 +55,7 @@ jobs:
         -e 's/_IMAGE_TAG_/${{ github.sha }}/g' \
         -e 's/_ACME_EMAIL_/${{ secrets.ACME_EMAIL }}/g' \
         -e 's/_UI_URL_/${{ vars.UI_URL }}/g' \
+        -e 's/_GOOGLE_CLIENT_ID_/${{ secrets.GOOGLE_CLIENT_ID }}/g' \
         deploy/*.yaml
 
     - name: Kubernetes Apply configs

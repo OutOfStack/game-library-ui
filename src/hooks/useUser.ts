@@ -4,7 +4,7 @@ import baseRequest from './request/baseRequest'
 import useAuth from './useAuth'
 import { IGetUserRatings, IGetUserRatingsResponse } from '../types/Rating'
 
-const useGames = () => {
+const useUser = () => {
   const endpoint = `${config.gamesSvc.domain}${config.gamesSvc.user}`
 
   const { getAccessToken } = useAuth()
@@ -21,5 +21,5 @@ const useGames = () => {
   }
 }
 
-export default useGames
+export default useUser
 
