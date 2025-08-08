@@ -1,4 +1,4 @@
-import { Container, Paper } from '@mui/material'
+import { Box, Container, Paper } from '@mui/material'
 import { makeStyles } from 'tss-react/mui'
 import { Theme } from '@mui/material/styles'
 import { grey } from '@mui/material/colors'
@@ -31,14 +31,14 @@ const Layout = (props: ILayoutProps) => {
   const { classes } = useStyles()
 
   return (
-    <div>
+    <Box>
       <Paper className={classes.paper}>
         <Header searchFieldProps={searchFieldProps} darkModeProps={darkModeProps} />
-        <Container className={classes.container} disableGutters={true}>
+        <Container maxWidth="lg" sx={{ pt: 2 }}>
           {children}
         </Container>
       </Paper>
-    </div>
+    </Box>
   )
 }
 

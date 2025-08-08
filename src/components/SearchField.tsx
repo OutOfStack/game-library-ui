@@ -5,15 +5,23 @@ import { InputBase } from '@mui/material'
 export const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  backgroundColor:
+    theme.palette.mode === 'dark'
+      ? alpha(theme.palette.common.white, 0.08)
+      : alpha(theme.palette.text.primary, 0.04),
+  border: `1px solid ${alpha(theme.palette.text.primary, 0.18)}`,
   '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor:
+      theme.palette.mode === 'dark'
+        ? alpha(theme.palette.common.white, 0.12)
+        : alpha(theme.palette.text.primary, 0.06),
+    borderColor: alpha(theme.palette.text.primary, 0.28)
   },
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(1),
-      width: 'auto'
+    marginLeft: theme.spacing(1),
+    width: 'auto'
   }
 }))
   

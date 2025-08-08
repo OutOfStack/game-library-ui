@@ -57,7 +57,7 @@ const Header = (props: IHeaderProps) => {
 
   const { searchFieldProps, darkModeProps } = props
 
-  const { signIn, signUp, signInWithGoogle, getClaims, isAuthenticated, setUserStorage, logout, deleteAccount } = useAuth()
+  const { signIn, signUp, signInWithGoogle, getClaims, isAuthenticated, setUserTokenStorage, logout, deleteAccount } = useAuth()
   const { classes } = useStyles()
   const navigate = useNavigate()
   const theme = useTheme()
@@ -169,7 +169,7 @@ const Header = (props: IHeaderProps) => {
         return
       }
       const token = response as IToken
-      setUserStorage(token)
+      setUserTokenStorage(token)
     }
     
     setRegisterDialogText("You have successfully logged in")
@@ -233,7 +233,7 @@ const Header = (props: IHeaderProps) => {
       return
     }
     const token = response as IToken
-    setUserStorage(token)
+    setUserTokenStorage(token)
     setLoginDialogText("You have successfully logged in")
     setTimeout(() => {
       handleLoginDialogClose()
@@ -299,7 +299,7 @@ const Header = (props: IHeaderProps) => {
       return
     }
     const token = resp as IToken
-    setUserStorage(token)
+    setUserTokenStorage(token)
     setLoginDialogText("You have successfully logged in with Google")
     setTimeout(() => {
       handleLoginDialogClose()
@@ -323,7 +323,7 @@ const Header = (props: IHeaderProps) => {
       return
     }
     const token = resp as IToken
-    setUserStorage(token)
+    setUserTokenStorage(token)
     setRegisterDialogText("You have successfully registered with Google")
     setTimeout(() => {
       handleRegisterDialogClose()
@@ -376,7 +376,18 @@ const Header = (props: IHeaderProps) => {
           {alert.message}
         </Alert>
       </Snackbar>
-      <AppBar position="static">
+      <AppBar
+        position="sticky"
+        color="default"
+        sx={{
+          backdropFilter: 'saturate(180%) blur(6px)',
+          bgcolor: 'background.paper',
+          backgroundImage: 'none',
+          boxShadow: 'none',
+          borderBottom: '1px solid',
+          borderColor: 'divider'
+        }}
+      >
         <Toolbar>
           <Typography variant={matchesXs ? "subtitle2" : "h5"} sx={matchesMd ? {  mr: 2, ml: '5vw' } : {}}>
             <span
@@ -403,7 +414,7 @@ const Header = (props: IHeaderProps) => {
 
           {isAuthenticated
             ? <>
-              <Tooltip title={name || ''}>
+              <Tooltip title={name || username || ''}>
                 <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || username || '')}/>
               </Tooltip>
               {!matchesXs && 
