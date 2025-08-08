@@ -39,3 +39,39 @@ Object.defineProperty(window, '_env_', {
     AUTH_URL: 'http://localhost:8001'
   }
 })
+
+// Mock fetch for tests to avoid real network
+const mockResponse = (data: unknown, status = 200) => ({
+  ok: status >= 200 && status < 300,
+  status,
+  headers: { get: (_: string) => (data ? '10' : '0') },
+  json: async () => data
+}) as unknown as Response
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+global.fetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+  const url = typeof input === 'string' ? input : input.toString()
+  // Games list and game endpoints
+  if (url.includes('/api/games')) {
+    // list or details; return minimal shape for list
+    return mockResponse({ games: [], count: 0 })
+  }
+  // Genres
+  if (url.includes('/api/genres')) {
+    return mockResponse([])
+  }
+  // Companies (top devs/pubs)
+  if (url.includes('/api/companies')) {
+    return mockResponse([])
+  }
+  // Platforms
+  if (url.includes('/api/platforms')) {
+    return mockResponse([])
+  }
+  // Auth (if ever hit in tests)
+  if (url.includes('/signin') || url.includes('/signup') || url.includes('/oauth/')) {
+    return mockResponse({ accessToken: 'test', refreshToken: 'test' })
+  }
+  return mockResponse({})
+})
