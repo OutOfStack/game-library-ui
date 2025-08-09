@@ -8,10 +8,8 @@ import CloseIcon from '@mui/icons-material/CloseRounded'
 import LanguageIcon from '@mui/icons-material/LanguageRounded'
 import StoreIcon from '@mui/icons-material/StorefrontRounded'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsportsRounded'
-import ArticleIcon from '@mui/icons-material/ArticleRounded'
 import YouTubeIcon from '@mui/icons-material/YouTube'
 import TwitterIcon from '@mui/icons-material/Twitter'
-import RedditIcon from '@mui/icons-material/Reddit'
 import ForumIcon from '@mui/icons-material/ForumRounded'
 import LiveTvIcon from '@mui/icons-material/LiveTvRounded'
 import FacebookIcon from '@mui/icons-material/Facebook'
@@ -304,7 +302,7 @@ const GameDetails = (props: IGameDetailsProps) => {
                         else if (lower.includes('nintendo')) { label = 'Nintendo'; icon = <SportsEsportsIcon fontSize="small" /> }
                         else if (lower.includes('twitch')) { label = 'Twitch'; icon = <LiveTvIcon fontSize="small" /> }
                         else if (lower.includes('youtube')) { label = 'YouTube'; icon = <YouTubeIcon fontSize="small" /> }
-                        else if (lower.includes('twitter') || lower.includes('x.com')) { label = 'Twitter'; icon = <TwitterIcon fontSize="small" /> }
+                        else if (lower.includes('twitter') || lower === 'x.com') { label = 'Twitter'; icon = <TwitterIcon fontSize="small" /> }
                         else if (lower.includes('facebook')) { label = 'Facebook'; icon = <FacebookIcon fontSize="small" /> }
                         else if (lower.includes('discord')) { label = 'Discord'; icon = <ForumIcon fontSize="small" /> }
                         return (
