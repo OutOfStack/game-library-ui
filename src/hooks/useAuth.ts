@@ -8,7 +8,7 @@ import { ISignUp } from '../types/Auth/SignUp'
 import { IJWToken, ISignIn, IToken } from '../types/Auth/SignIn'
 import { IGetUser } from '../types/Auth/User'
 
-const lsKey = 'gl_user_'
+const lsKey = 'gl_user_token'
 
 const useAuth = () => {
   const endpoint = config.authSvc.domain
@@ -81,7 +81,7 @@ const useAuth = () => {
     window.location.reload()
   }
 
-  const getUserStorage = (): IToken | null => {
+  const getUserTokenStorage = (): IToken | null => {
     const item = localStorage.getItem(lsKey)
     if (!item) {
       return null
@@ -89,7 +89,7 @@ const useAuth = () => {
     return JSON.parse(item)
   }
 
-  const setUserStorage = (data: IToken) => {
+  const setUserTokenStorage = (data: IToken) => {
     localStorage.setItem(lsKey, JSON.stringify(data))
     setIsAuthenticated(checkAuth())
     // TODO: remove refresh
@@ -97,7 +97,7 @@ const useAuth = () => {
   }
 
   const getAccessToken = (): string => {
-    const storage = getUserStorage()
+    const storage = getUserTokenStorage()
     const access_token = storage ? storage.accessToken : ''
     return access_token
   }
@@ -117,7 +117,7 @@ const useAuth = () => {
 
   return {
     isAuthenticated,
-    setUserStorage,
+    setUserTokenStorage,
     getAccessToken,
     getClaims,
     hasRole,

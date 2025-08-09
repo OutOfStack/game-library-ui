@@ -339,7 +339,6 @@ const Landing = (props: ILandingProps) => {
   return (
     <LocalizationProvider dateAdapter={DateAdapter}>
       <Layout searchFieldProps={searchFieldProps} darkModeProps={darkModeProps}>
-        <Container maxWidth="xl" disableGutters={true}>
           <Backdrop
             sx={theme => ({
               color: '#fff',
@@ -527,7 +526,11 @@ const Landing = (props: ILandingProps) => {
               handleClose={handleCloseGameDetails}
             />
 
-            <Grid container spacing={1.5} >
+            <Grid
+              container
+              rowSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
+              columnSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
+            >
               {data.map((game: IGame) => (
                 <Grid key={game.id} size={{ xs: 6, sm: 4, md: 3, lg: 2 }}>
                   <GameCard
@@ -553,7 +556,6 @@ const Landing = (props: ILandingProps) => {
               />
             </Stack>
           </Box>
-        </Container>
       </Layout>
     </LocalizationProvider>
   )

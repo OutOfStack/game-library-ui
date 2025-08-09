@@ -1,41 +1,36 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
-import { TextEncoder, TextDecoder } from 'util'
 
-
-if (typeof global.TextEncoder === 'undefined') {
-  global.TextEncoder = TextEncoder
+// Node 24 compatibility: Mock AbortController/AbortSignal for React Router
+if (typeof global.AbortController === 'undefined') {
+  const MockAbortSignal = class extends EventTarget {
+    aborted = false
+    onabort: ((this: AbortSignal, ev: Event) => any) | null = null
+    reason: any = undefined
+    throwIfAborted() {}
+    static abort() { return new MockAbortSignal() as AbortSignal }
+  }
+  
+  global.AbortController = class {
+    signal = new MockAbortSignal() as AbortSignal
+    abort() {}
+  } as any
+  
+  global.AbortSignal = MockAbortSignal as any
 }
 
-if (typeof global.TextDecoder === 'undefined') {
-  global.TextDecoder = TextDecoder as unknown as typeof global.TextDecoder
-}
-
-// Mock matchMedia
+// Mock matchMedia for MUI
 Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: query === '(prefers-color-scheme: dark)', // Simulate dark mode matches
-    media: query,
-    onchange: null,
-    addListener: vi.fn(), // For older APIs
-    removeListener: vi.fn(), // For older APIs
+  value: () => ({
+    matches: false,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
     addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+    removeEventListener: vi.fn()
+  })
 })
 
 // Mock environment variables
 Object.defineProperty(window, '_env_', {
-  writable: true,
-  value: {
-    GOOGLE_CLIENT_ID: 'test-google-client-id',
-    GAMES_URL: 'http://localhost:8000',
-    AUTH_URL: 'http://localhost:8001'
-  }
+  value: { GOOGLE_CLIENT_ID: 'test-client-id' }
 })

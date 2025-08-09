@@ -5,6 +5,14 @@ import { useTheme } from '@mui/material/styles'
 import { orange } from '@mui/material/colors'
 import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
 import CloseIcon from '@mui/icons-material/CloseRounded'
+import LanguageIcon from '@mui/icons-material/LanguageRounded'
+import StoreIcon from '@mui/icons-material/StorefrontRounded'
+import SportsEsportsIcon from '@mui/icons-material/SportsEsportsRounded'
+import YouTubeIcon from '@mui/icons-material/YouTube'
+import TwitterIcon from '@mui/icons-material/Twitter'
+import ForumIcon from '@mui/icons-material/ForumRounded'
+import LiveTvIcon from '@mui/icons-material/LiveTvRounded'
+import FacebookIcon from '@mui/icons-material/Facebook'
 import moment from 'moment'
 
 import useGames from '../hooks/useGames'
@@ -276,18 +284,65 @@ const GameDetails = (props: IGameDetailsProps) => {
               </Grid>
 
               {/* websites */}
-              {game?.websites?.length &&
-                <Grid size={{ xs: 12 }} >
-                  <Box sx={{ml: matchesXs ? theme.spacing(1) : theme.spacing(5)}}>
-                    <Typography variant={matchesXs ? "body1" : "h6"} color="primary">Links</Typography>
-                    {game.websites.map((url, i) => (
-                      <Link key={i} underline="hover" target="_blank" rel="noopener" color="secondary" href={url} sx={{ display: "block" }}>
-                        {ToHostname(url)}
-                      </Link>
-                    ))}
+              {game?.websites?.length && (
+                <Grid size={{ xs: 12 }}>
+                  <Box sx={{ ml: matchesXs ? theme.spacing(1) : theme.spacing(5) }}>
+                    <Typography variant={matchesXs ? 'body1' : 'h6'} color="primary" sx={{ mb: 1 }}>Links</Typography>
+                    <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
+                      {game.websites.map((url, i) => {
+                        const host = ToHostname(url)
+                        const lower = host.toLowerCase()
+                        let label = host
+                        let icon: JSX.Element = <LanguageIcon fontSize="small" />
+                        if (lower.includes('steam')) { label = 'Steam'; icon = <StoreIcon fontSize="small" /> }
+                        else if (lower.includes('epic')) { label = 'Epic Games'; icon = <StoreIcon fontSize="small" /> }
+                        else if (lower.includes('gog')) { label = 'GOG'; icon = <StoreIcon fontSize="small" /> }
+                        else if (lower.includes('xbox')) { label = 'Xbox'; icon = <SportsEsportsIcon fontSize="small" /> }
+                        else if (lower.includes('playstation')) { label = 'PlayStation'; icon = <SportsEsportsIcon fontSize="small" /> }
+                        else if (lower.includes('nintendo')) { label = 'Nintendo'; icon = <SportsEsportsIcon fontSize="small" /> }
+                        else if (lower.includes('twitch')) { label = 'Twitch'; icon = <LiveTvIcon fontSize="small" /> }
+                        else if (lower.includes('youtube')) { label = 'YouTube'; icon = <YouTubeIcon fontSize="small" /> }
+                        else if (lower.includes('twitter') || lower === 'x.com') { label = 'Twitter'; icon = <TwitterIcon fontSize="small" /> }
+                        else if (lower.includes('facebook')) { label = 'Facebook'; icon = <FacebookIcon fontSize="small" /> }
+                        else if (lower.includes('discord')) { label = 'Discord'; icon = <ForumIcon fontSize="small" /> }
+                        return (
+                          <Chip
+                            key={`${i}-${host}`}
+                            component="a"
+                            href={url}
+                            target="_blank"
+                            rel="noopener"
+                            clickable
+                            size={'small'}
+                            icon={icon}
+                            label={label}
+                            color="info"
+                            variant="outlined"
+                            sx={{
+                              px: 0.5,
+                              '& .MuiChip-icon': {
+                                ml: 0.25,
+                                mr: 0.5,
+                                fontSize: 18,
+                                width: 18,
+                                height: 18,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              },
+                              '& .MuiChip-label': {
+                                px: 0.5
+                              },
+                              '&:hover': { borderColor: 'primary.main' }
+                            }}
+                            title={`${label} (${host})`}
+                          />
+                        )
+                      })}
+                    </Stack>
                   </Box>
                 </Grid>
-              }
+              )}
             </Grid>
           </DialogContent>
         </Container>

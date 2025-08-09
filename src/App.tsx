@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useState, lazy } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Container, CssBaseline, Typography, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
 import { grey, blueGrey, blue } from '@mui/material/colors'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
-import Landing from './views/Landing'
+const Landing = lazy(() => import('./views/Landing'))
 import Header from './components/Header'
 
 
@@ -30,13 +30,25 @@ const App = () => {
       palette: {
         mode: darkMode ? 'dark' : 'light',
         primary: {
-          main: darkMode ? grey[300] : grey[700]
+          main: darkMode ? grey[300] : grey[800]
         },
         secondary: {
-          main: darkMode ? blueGrey[300] : blue[900]
+          main: darkMode ? blueGrey[300] : blueGrey[700]
         },
-        tonalOffset: 0.4
-      }
+        ...(darkMode
+          ? {
+              background: { default: '#121212', paper: grey[900] },
+              divider: grey[800]
+            }
+          : {
+              background: { default: grey[200], paper: grey[100] },
+              divider: grey[300],
+              text: { primary: grey[900], secondary: grey[700] }
+            }
+        ),
+        tonalOffset: 0.2
+      },
+      shape: { borderRadius: 10 }
     }),
     [darkMode]
   )
@@ -53,7 +65,11 @@ const App = () => {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Landing darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} />
+      element: (
+        <Suspense fallback={<div style={{ display: 'grid', placeItems: 'center', minHeight: '50vh' }}>Loading…</div>}>
+          <Landing darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} />
+        </Suspense>
+      )
     },
     {
       path: "*",
