@@ -90,7 +90,6 @@ spec:
         solvers:
           - dns01:
                 cloudflare:
-                    email: _ACME_EMAIL_
                     apiTokenSecretRef:
                         name: cloudflare-api-token
                         key: api-token

@@ -33,7 +33,7 @@ interface IGames {
  * IGamesFilter represents games filter
  */
 interface IGamesFilter {
-	orderBy: "default" | "name" | "releaseDate",
+	orderBy: "default" | "name" | "releaseDate" | "rating",
 	name: string,
 	genre: number,
 	developer: number, 

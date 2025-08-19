@@ -8,6 +8,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers'
 import AbcIcon from '@mui/icons-material/AbcRounded'
 import WhatshotIcon from '@mui/icons-material/WhatshotRounded'
 import DateRangeIcon from '@mui/icons-material/DateRangeRounded'
+import StarIcon from '@mui/icons-material/StarHalfRounded'
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined'
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined'
@@ -387,6 +388,9 @@ const Landing = (props: ILandingProps) => {
                   </ToggleButton>
                   <ToggleButton value="name" aria-label="name" title="Name">
                     <AbcIcon fontSize={mediaQueryToTextSize()} />
+                  </ToggleButton>
+                  <ToggleButton value="rating" aria-label="rating" title="Rating">
+                    <StarIcon fontSize={mediaQueryToTextSize()} />
                   </ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
