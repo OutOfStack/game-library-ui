@@ -12,7 +12,9 @@ const endpoints = {
     signIn: "/signin",
     signUp: "/signup",
     updateProfile: "/account",
-    deleteAccount: "/account"
+    deleteAccount: "/account",
+    verifyEmail: "/verify-email",
+    resendVerification: "/resend-verification"
   }
 }
   

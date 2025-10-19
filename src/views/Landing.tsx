@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
-  Backdrop, Box, Button, CircularProgress, Container, Grid, Pagination, Stack, Typography, 
-  ToggleButton, ToggleButtonGroup, useMediaQuery, useTheme, Chip, ListItem, List, ListItemText, ListItemButton
+  Backdrop, Box, Button, CircularProgress, Grid, Pagination, Stack, Typography, ToggleButton,
+  ToggleButtonGroup, useMediaQuery, useTheme, Chip, ListItem, List, ListItemText, ListItemButton
 } from '@mui/material'
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -31,6 +31,7 @@ import useGenres from '../hooks/useGenres'
 import useCompanies from '../hooks/useCompanies'
 import useUser from '../hooks/useUser'
 import useAuth from '../hooks/useAuth'
+import Footer from '../components/Footer'
 
 
 const topCategoriesLimit = 8
@@ -63,13 +64,13 @@ const Landing = (props: ILandingProps) => {
   const [isLoading, setIsLoading] = useState(false)
 
   const [alert, setAlert] = useState<string | IValidationResponse | null>(null)
-  
-  const mediaQueryToSize = (): "small" | "medium" | "large" => {
-    return matchesXs ? "small" : matchesSm ? "medium" : "large"
+
+  const mediaQueryToSize = (): "small" | "medium" => {
+    return matchesXs ? "small" : "medium"
   }
 
-  const mediaQueryToTextSize = (): "small" | "medium" | "large" => {
-    return matchesXs ? "small" :"medium"
+  const mediaQueryToTextSize = (): "small" | "medium" => {
+    return matchesXs ? "small" : "medium"
   }
 
   //#region navigation
@@ -89,7 +90,7 @@ const Landing = (props: ILandingProps) => {
     searchText: "",
     genre: 0,
     developer: 0,
-    publisher: 0 
+    publisher: 0
   }
 
   let [searchParams, setSearchParams] = useSearchParams()
@@ -254,7 +255,7 @@ const Landing = (props: ILandingProps) => {
     const getData = async () => {
       setIsLoading(true)
       let filter = {
-        orderBy: navigation.orderBy, 
+        orderBy: navigation.orderBy,
         name: navigation.searchText,
         genre: navigation.genre,
         developer: navigation.developer,
@@ -267,7 +268,7 @@ const Landing = (props: ILandingProps) => {
         return
       }
       const gamesResp = resp as IGames
-      setData(gamesResp.games)               
+      setData(gamesResp.games)
 
       setCount(gamesResp.count)
       if (navigation.page > pagesCount(gamesResp.count)) {
@@ -340,226 +341,227 @@ const Landing = (props: ILandingProps) => {
   return (
     <LocalizationProvider dateAdapter={DateAdapter}>
       <Layout searchFieldProps={searchFieldProps} darkModeProps={darkModeProps}>
-          <Backdrop
-            sx={theme => ({
-              color: '#fff',
-              zIndex: theme.zIndex.drawer + 1
-            })}
-            open={isLoading}
-          >
-            <CircularProgress color="inherit" />
-          </Backdrop>
+        <Backdrop
+          sx={theme => ({
+            color: '#fff',
+            zIndex: theme.zIndex.drawer + 1
+          })}
+          open={isLoading}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
 
-          <AddGameModal
-            handleAddGameDialogClose={handleAddGameDialogClose}
-            addGameDialogOpen={addGameDialogOpen}
-          />
+        <AddGameModal
+          handleAddGameDialogClose={handleAddGameDialogClose}
+          addGameDialogOpen={addGameDialogOpen}
+        />
 
-          <Notification 
-            message={alert} 
-            resetMessage={() => setAlert(null)}
-          />
+        <Notification
+          message={alert}
+          resetMessage={() => setAlert(null)}
+        />
 
-          <Box sx={{ pb: 3 }}>
-            {hasRole([roles.publisher]) &&
-              <Grid container direction="row" sx={{ justifyContent: "space-between", alignItems: "left", pb: 2 }}>
-                <Grid size={{ xs: 9 }}>
-                  <Box />
-                </Grid>
-                <Grid sx={{ textAlign: "right" }} size={{ xs: 3 }}>
-                  <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>ADD GAME</Button>
-                </Grid>
+        <Box sx={{ pb: 3 }}>
+          {hasRole([roles.publisher]) &&
+            <Grid container direction="row" sx={{ justifyContent: "space-between", alignItems: "left", pb: 2 }}>
+              <Grid size={{ xs: 9 }}>
+                <Box />
               </Grid>
-            }
-            <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" sx={{ justifyContent: "space-between", alignItems: "center", pb: topCategoriesOpen ? 0.5 : 3 }}>
-              <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
-                <ToggleButtonGroup
-                  value={navigation.orderBy}
-                  size="small"
-                  exclusive
-                  onChange={handleSorting}
-                  aria-label="sorting"
-                >
-                  <ToggleButton value="default" aria-label="default" title="Ranking">
-                    <WhatshotIcon fontSize={mediaQueryToTextSize()} />
-                  </ToggleButton>
-                  <ToggleButton value="releaseDate" aria-label="release date" title="Release date">
-                    <DateRangeIcon fontSize={mediaQueryToTextSize()} />
-                  </ToggleButton>
-                  <ToggleButton value="name" aria-label="name" title="Name">
-                    <AbcIcon fontSize={mediaQueryToTextSize()} />
-                  </ToggleButton>
-                  <ToggleButton value="rating" aria-label="rating" title="Rating">
-                    <StarIcon fontSize={mediaQueryToTextSize()} />
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Grid>
-              <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
-                <Typography variant={matchesXs ? "h6" : "h5"}>
-                  Games <sup style={{ fontSize: matchesXs ? 9 : 11, color: "" }}> {count}</sup>
-                </Typography>
-              </Grid>
-              <Grid sx={{ textAlign: "right" }} size={{ xs: 4} }>
-                <ToggleButton
-                  value="check"
-                  selected={topCategoriesOpen}
-                  onChange={() => {setTopCategoriesOpen(v => !v) }}
-                  size="small"
-                  title="Categories"
-                >
-                  <CategoryOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
-                  {topCategoriesOpen 
-                  ?  <KeyboardArrowUpOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
-                  : <KeyboardArrowDownOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
-                  }
-                </ToggleButton>
+              <Grid sx={{ textAlign: "right" }} size={{ xs: 3 }}>
+                <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>ADD GAME</Button>
               </Grid>
             </Grid>
+          }
+          <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" sx={{ justifyContent: "space-between", alignItems: "center", pb: topCategoriesOpen ? 0.5 : 3 }}>
+            <Grid sx={{ pt: 0 }} size={{ xs: 5.5, md: 4 }}>
+              <ToggleButtonGroup
+                value={navigation.orderBy}
+                size="small"
+                exclusive
+                onChange={handleSorting}
+                aria-label="sorting"
+              >
+                <ToggleButton value="default" aria-label="default" title="Ranking" size={mediaQueryToSize()}>
+                  <WhatshotIcon fontSize={mediaQueryToTextSize()} />
+                </ToggleButton>
+                <ToggleButton value="releaseDate" aria-label="release date" title="Release date" size={mediaQueryToSize()}>
+                  <DateRangeIcon fontSize={mediaQueryToTextSize()} />
+                </ToggleButton>
+                <ToggleButton value="name" aria-label="name" title="Name" size={mediaQueryToSize()} >
+                  <AbcIcon fontSize={mediaQueryToTextSize()} />
+                </ToggleButton>
+                <ToggleButton value="rating" aria-label="rating" title="Rating" size={mediaQueryToSize()}>
+                  <StarIcon fontSize={mediaQueryToTextSize()} />
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Grid>
+            <Grid sx={{ textAlign: "center" }} size={{ xs: 3.5, md: 4 }}>
+              <Typography variant={matchesXs ? "body1" : "h5"}>
+                Games <sup style={{ fontSize: matchesXs ? 8 : 11, color: "" }}> {count}</sup>
+              </Typography>
+            </Grid>
+            <Grid sx={{ textAlign: "right" }} size={{ xs: 3, md: 4 }}>
+              <ToggleButton
+                value="check"
+                selected={topCategoriesOpen}
+                onChange={() => { setTopCategoriesOpen(v => !v) }}
+                size={mediaQueryToSize()}
+                title="Categories"
+              >
+                <CategoryOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
+                {topCategoriesOpen
+                  ? <KeyboardArrowUpOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
+                  : <KeyboardArrowDownOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
+                }
+              </ToggleButton>
+            </Grid>
+          </Grid>
 
-            { topCategoriesOpen &&
-              <Grid container spacing={1} direction="row" sx={{ justifyContent: "center", alignItems: "flex-start", pb: 2, pt: 0.5 }}>
-                <Grid sx={{ textAlign: "center", pl: 1 }} size={{ xs: 4 }}>
-                  <>
+          {topCategoriesOpen &&
+            <Grid container spacing={1} direction="row" sx={{ justifyContent: "center", alignItems: "flex-start", pb: 2, pt: 0.5 }}>
+              <Grid sx={{ textAlign: "center", pl: 1 }} size={{ xs: 4 }}>
+                <>
                   <Chip
                     label={<Typography color="primary" variant="body1">Genres</Typography>}
-                    variant="outlined" 
-                    color="info" 
-                  />
-                  </>
-                </Grid>
-                <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
-                  <Chip
-                    label={<Typography color="primary" variant="body1">Publishers</Typography>}
-                    variant="outlined" 
-                    color="info" 
-                  />
-                </Grid>
-                <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
-                  <Chip
-                    label={<Typography color="primary" variant="body1">Developers</Typography>}
                     variant="outlined"
-                    color="info" 
+                    color="info"
                   />
-                </Grid>
-                <Grid sx={{ pt: 0, pl: 0 }} size={{ xs: 4 }}>
-                  <List sx={{ pt: 0 }} >
-                    {topGenres.map((genre: IGenre) => (
-                      <ListItem key={genre.id} dense>
-                        <ListItemButton 
-                          component="a"
-                          dense
-                          selected={genre.id === navigation.genre}
-                          disableGutters={matchesXs}
-                          onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                            event.preventDefault() // Prevent default anchor link behavior
-                            handleCategoryChange("genre", genre.id)
-                          }}
-                        >
-                          <ListItemText 
-                            primary={genre.name}
-                            slotProps={{
-                              primary: { textAlign:"center", flex: 1, color: genre.id === navigation.genre ? selectedCategoryColor : "" }
-                            }}
-                            sx={{ mt: 0, mb: 0 }} 
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Grid>
-                <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
-                  <List sx={{ pt: 0 }} >
-                    {topPublishers.map((publisher: ICompany) => (
-                      <ListItem key={publisher.id} dense>
-                        <ListItemButton 
-                          component="a"
-                          dense
-                          selected={publisher.id === navigation.publisher}
-                          disableGutters={matchesXs}
-                          onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                            event.preventDefault() // Prevent default anchor link behavior
-                            handleCategoryChange("publisher", publisher.id)
-                          }}
-                        >
-                          <ListItemText 
-                            primary={publisher.name}
-                            slotProps={{
-                              primary: { textAlign:"center", flex: 1, color: publisher.id === navigation.publisher ? selectedCategoryColor : "" }
-                            }}
-                            sx={{ mt: 0, mb: 0 }} 
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Grid>
-                <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
-                  <List sx={{ pt: 0 }} >
-                    {topDevelopers.map((developer: ICompany) => (
-                      <ListItem key={developer.id} dense>
-                        <ListItemButton 
-                          component="a"
-                          dense
-                          selected={developer.id === navigation.developer}
-                          disableGutters={matchesXs}
-                          onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                            event.preventDefault() // Prevent default anchor link behavior
-                            handleCategoryChange("developer", developer.id)
-                          }}
-                        >
-                          <ListItemText 
-                            primary={developer.name} 
-                            slotProps={{
-                              primary: { textAlign:"center", flex: 1, color: developer.id === navigation.developer ? selectedCategoryColor : "" }
-                            }}
-                            sx={{ mt: 0, mb: 0 }}
-                          />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Grid>
+                </>
               </Grid>
-            }
-
-            <GameDetails
-              game={selectedGame}
-              showUserRating={isAuthenticated && hasRole([roles.user])}
-              userRating={userRatings[selectedGame?.id?.toString() || ""]}
-              open={gameDetailsOpen}
-              handleClose={handleCloseGameDetails}
-            />
-
-            <Grid
-              container
-              rowSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
-              columnSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
-            >
-              {data.map((game: IGame) => (
-                <Grid key={game.id} size={{ xs: 6, sm: 4, md: 3, lg: 2 }}>
-                  <GameCard
-                    game={game}
-                    handleOpenDetails={handleOpenGameDetails}
-                    darkMode={darkModeProps.darkMode}
-                  />
-                </Grid>
-              ))}
+              <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
+                <Chip
+                  label={<Typography color="primary" variant="body1">Publishers</Typography>}
+                  variant="outlined"
+                  color="info"
+                />
+              </Grid>
+              <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
+                <Chip
+                  label={<Typography color="primary" variant="body1">Developers</Typography>}
+                  variant="outlined"
+                  color="info"
+                />
+              </Grid>
+              <Grid sx={{ pt: 0, pl: 0 }} size={{ xs: 4 }}>
+                <List sx={{ pt: 0 }} >
+                  {topGenres.map((genre: IGenre) => (
+                    <ListItem key={genre.id} dense>
+                      <ListItemButton
+                        component="a"
+                        dense
+                        selected={genre.id === navigation.genre}
+                        disableGutters={matchesXs}
+                        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                          event.preventDefault() // Prevent default anchor link behavior
+                          handleCategoryChange("genre", genre.id)
+                        }}
+                      >
+                        <ListItemText
+                          primary={genre.name}
+                          slotProps={{
+                            primary: { textAlign: "center", flex: 1, color: genre.id === navigation.genre ? selectedCategoryColor : "" }
+                          }}
+                          sx={{ mt: 0, mb: 0 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Grid>
+              <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
+                <List sx={{ pt: 0 }} >
+                  {topPublishers.map((publisher: ICompany) => (
+                    <ListItem key={publisher.id} dense>
+                      <ListItemButton
+                        component="a"
+                        dense
+                        selected={publisher.id === navigation.publisher}
+                        disableGutters={matchesXs}
+                        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                          event.preventDefault() // Prevent default anchor link behavior
+                          handleCategoryChange("publisher", publisher.id)
+                        }}
+                      >
+                        <ListItemText
+                          primary={publisher.name}
+                          slotProps={{
+                            primary: { textAlign: "center", flex: 1, color: publisher.id === navigation.publisher ? selectedCategoryColor : "" }
+                          }}
+                          sx={{ mt: 0, mb: 0 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Grid>
+              <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
+                <List sx={{ pt: 0 }} >
+                  {topDevelopers.map((developer: ICompany) => (
+                    <ListItem key={developer.id} dense>
+                      <ListItemButton
+                        component="a"
+                        dense
+                        selected={developer.id === navigation.developer}
+                        disableGutters={matchesXs}
+                        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+                          event.preventDefault() // Prevent default anchor link behavior
+                          handleCategoryChange("developer", developer.id)
+                        }}
+                      >
+                        <ListItemText
+                          primary={developer.name}
+                          slotProps={{
+                            primary: { textAlign: "center", flex: 1, color: developer.id === navigation.developer ? selectedCategoryColor : "" }
+                          }}
+                          sx={{ mt: 0, mb: 0 }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Grid>
             </Grid>
-            <Stack sx={{ alignItems: 'center', pt: 3 }}>
-              <Pagination
-                defaultPage={defaultNavigation.page}
-                hidePrevButton={navigation.page === defaultNavigation.page}
-                hideNextButton={navigation.page >= pagesCount(count)}
-                siblingCount={0}
-                count={pagesCount(count)}
-                page={navigation.page}
-                variant="outlined"
-                shape="rounded"
-                size="large"
-                onChange={(_, page) => handleNavigation(page)}
-              />
-            </Stack>
-          </Box>
+          }
+
+          <GameDetails
+            game={selectedGame}
+            showUserRating={isAuthenticated && hasRole([roles.user])}
+            userRating={userRatings[selectedGame?.id?.toString() || ""]}
+            open={gameDetailsOpen}
+            handleClose={handleCloseGameDetails}
+          />
+
+          <Grid
+            container
+            rowSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
+            columnSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
+          >
+            {data.map((game: IGame) => (
+              <Grid key={game.id} size={{ xs: 6, sm: 4, md: 3, lg: 2 }}>
+                <GameCard
+                  game={game}
+                  handleOpenDetails={handleOpenGameDetails}
+                  darkMode={darkModeProps.darkMode}
+                />
+              </Grid>
+            ))}
+          </Grid>
+          <Stack sx={{ alignItems: 'center', pt: 3 }}>
+            <Pagination
+              defaultPage={defaultNavigation.page}
+              hidePrevButton={navigation.page === defaultNavigation.page}
+              hideNextButton={navigation.page >= pagesCount(count)}
+              siblingCount={0}
+              count={pagesCount(count)}
+              page={navigation.page}
+              variant="outlined"
+              shape="rounded"
+              size="large"
+              onChange={(_, page) => handleNavigation(page)}
+            />
+          </Stack>
+        </Box>
+        <Footer />
       </Layout>
     </LocalizationProvider>
   )

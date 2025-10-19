@@ -4,6 +4,7 @@ declare global {
       GAMES_URL: string
       AUTH_URL: string
       GOOGLE_CLIENT_ID: string
+      EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS: string
     }
   }
 }

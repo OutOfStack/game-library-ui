@@ -32,5 +32,10 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock environment variables
 Object.defineProperty(window, '_env_', {
-  value: { GOOGLE_CLIENT_ID: 'test-client-id' }
+  value: {
+    GOOGLE_CLIENT_ID: 'test-client-id',
+    EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS: '120',
+    GAMES_URL: 'http://localhost:8000',
+    AUTH_URL: 'http://localhost:8001'
+  }
 })

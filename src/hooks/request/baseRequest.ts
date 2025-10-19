@@ -24,4 +24,9 @@ const baseRequest = async<T> (url: string, initConfig: RequestInit): Promise<[T 
   }
 }
 
-export default baseRequest
+const noContentRequest = async (url: string, config: RequestInit): Promise<IValidationResponse | string | null> => {
+  const [_, err] = await baseRequest(url, config)
+  return err
+}
+
+export { baseRequest, noContentRequest }

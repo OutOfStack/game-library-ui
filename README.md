@@ -64,7 +64,7 @@ For a complete game-library experience, you'll need to set up the following serv
 
 - Browse, search and rate games
 - View detailed game information
-- User authentication and authorization
+- User authentication and authorization, email verification for publishers
 - Sign in with Google OAuth integration
 
 ## Tech Stack
@@ -98,6 +98,7 @@ If you prefer using Make, the following commands are available:
 - `make run`: Start the development server
 - `make build`: Build the application for production
 - `make test`: Run tests
+- `make updateall`: Update all dependencies
 
 ## Build and Deployment
 

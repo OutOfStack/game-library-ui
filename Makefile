@@ -1,4 +1,4 @@
-.PHONY: run build test
+.PHONY: run build test updateall
 
 run:
 	./env.sh
@@ -10,3 +10,7 @@ build:
 
 test:
 	npm test
+
+updateall:
+	npx npm-check-updates -u
+	npm install
