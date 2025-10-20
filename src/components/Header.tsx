@@ -69,13 +69,14 @@ const Header = (props: IHeaderProps) => {
   const [registerDialogOpen, setRegisterDialogOpen] = useState(false)
   const [loginDialogOpen, setLoginDialogOpen] = useState(false)
   const [verifyEmailDialogOpen, setVerifyEmailDialogOpen] = useState(false)
+  const [verifyEmailDismissed, setVerifyEmailDismissed] = useState(false)
 
-  // Show verification modal automatically when vrf_required is true
+  // Show verification modal automatically when vrf_required is true, but only if not manually dismissed
   useEffect(() => {
-    if (isAuthenticated && vrf_required && !verifyEmailDialogOpen) {
+    if (isAuthenticated && vrf_required && !verifyEmailDialogOpen && !verifyEmailDismissed) {
       setVerifyEmailDialogOpen(true)
     }
-  }, [isAuthenticated, vrf_required, verifyEmailDialogOpen])
+  }, [isAuthenticated, vrf_required, verifyEmailDialogOpen, verifyEmailDismissed])
 
   const handleCloseAlert = (_: Event | React.SyntheticEvent<any, Event>, reason?: string) => {
     if (reason === 'clickaway') {
@@ -141,10 +142,9 @@ const Header = (props: IHeaderProps) => {
   }
 
   const handleResendVerification = async (): Promise<void> => {
-    const err = await resendVerification()
+    const [, err] = await resendVerification()
     if (err) {
-      const errorMessage = typeof err === 'string' ? err : (err as IValidationResponse).error
-      throw errorMessage
+      throw err
     }
   }
 
@@ -239,7 +239,10 @@ const Header = (props: IHeaderProps) => {
                 anchorEl={menuAnchorEl}
                 onClose={handleMenuClose}
                 vrf_required={vrf_required}
-                onVerifyEmailClick={() => setVerifyEmailDialogOpen(true)}
+                onVerifyEmailClick={() => {
+                  setVerifyEmailDialogOpen(true)
+                  setVerifyEmailDismissed(false)
+                }}
                 onLogout={logout}
                 onDeleteSuccess={handleDeleteSuccess}
                 onDeleteError={handleDeleteError}
@@ -278,7 +281,10 @@ const Header = (props: IHeaderProps) => {
 
           <EmailVerificationModal
             isOpen={verifyEmailDialogOpen}
-            closeDialog={() => setVerifyEmailDialogOpen(false)}
+            closeDialog={() => {
+              setVerifyEmailDialogOpen(false)
+              setVerifyEmailDismissed(true)
+            }}
             handleSubmit={handleVerifyEmail}
             handleResend={handleResendVerification}
           />

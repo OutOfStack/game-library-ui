@@ -65,7 +65,7 @@ const useAuth = () => {
   const resendVerification = async () => {
     const url = `${endpoint}${config.authSvc.resendVerification}`
     const token = getAccessToken()
-    const response = await noContentRequest(url, authorizedRequestConfig("POST", token))
+    const response = await baseRequest(url, authorizedRequestConfig("POST", token))
     return response
   }
 

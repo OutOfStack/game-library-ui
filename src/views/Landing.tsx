@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Backdrop, Box, Button, CircularProgress, Grid, Pagination, Stack, Typography, ToggleButton,
   ToggleButtonGroup, useMediaQuery, useTheme, Chip, ListItem, List, ListItemText, ListItemButton
@@ -48,7 +48,10 @@ const Landing = (props: ILandingProps) => {
   const { fetchRatings } = useUser()
   const { fetchTopGenres } = useGenres()
   const { fetchTopCompanies } = useCompanies()
-  const { hasRole, isAuthenticated } = useAuth()
+  const { hasRole, isAuthenticated, getClaims } = useAuth()
+  const vrfRequired = useMemo(() =>
+    isAuthenticated ? getClaims().vrf_required : false
+  , [isAuthenticated, getClaims])
 
   const theme = useTheme()
   const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
@@ -172,7 +175,13 @@ const Landing = (props: ILandingProps) => {
 
   const [addGameDialogOpen, setAddGameDialogOpen] = useState(false)
 
-  const handleAddGameDialogOpen = () => setAddGameDialogOpen(true)
+  const handleAddGameDialogOpen = () => {
+    if (vrfRequired) {
+      setAlert({ error: 'Please verify your email address first. You can verify it from the user menu.' })
+      return
+    }
+    setAddGameDialogOpen(true)
+  }
   const handleAddGameDialogClose = () => setAddGameDialogOpen(false)
 
   //#endregion
@@ -248,7 +257,7 @@ const Landing = (props: ILandingProps) => {
     if (isAuthenticated && hasRole([roles.user])) {
       getRatings()
     }
-  }, [data])
+  }, [data, isAuthenticated])
 
   // fetch games with pagination when page, order by or search text changes
   useEffect(() => {
@@ -364,10 +373,10 @@ const Landing = (props: ILandingProps) => {
         <Box sx={{ pb: 3 }}>
           {hasRole([roles.publisher]) &&
             <Grid container direction="row" sx={{ justifyContent: "space-between", alignItems: "left", pb: 2 }}>
-              <Grid size={{ xs: 9 }}>
+              <Grid size={{ xs: 8, sm: 9 }}>
                 <Box />
               </Grid>
-              <Grid sx={{ textAlign: "right" }} size={{ xs: 3 }}>
+              <Grid sx={{ textAlign: "right" }} size={{ xs: 4, sm: 3 }}>
                 <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>ADD GAME</Button>
               </Grid>
             </Grid>

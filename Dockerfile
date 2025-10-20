@@ -1,5 +1,5 @@
 # Stage 1 - Build app
-FROM node:24-alpine3.22 AS builder
+FROM node:25-alpine3.22 AS builder
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
@@ -15,7 +15,7 @@ COPY . /usr/src/app
 RUN npm run build
 
 # Stage 2 - Run app with Nginx
-FROM nginx:1.29-alpine
+FROM nginx:1.29-alpine3.22
 
 # Install bash for env.sh
 RUN apk add --no-cache bash

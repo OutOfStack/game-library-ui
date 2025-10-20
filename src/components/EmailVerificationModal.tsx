@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, ClipboardEvent, KeyboardEvent, ChangeEvent } from 'react'
 import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, TextField, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import { IValidationResponse } from '../types/Validation'
 
 export interface IEmailVerificationModalProps {
   isOpen: boolean,
@@ -113,7 +114,31 @@ const EmailVerificationModal = (props: IEmailVerificationModalProps) => {
       setResendCooldown(cooldownSeconds)
       setSuccessText('Verification code sent to your email')
     } catch (error) {
-      setErrorText(typeof error === 'string' ? error : 'Failed to resend code. Please try again.')
+      let errorMessage = 'Failed to resend code. Please try again.'
+      let cooldownFromHeader: number | null = null
+
+      if (typeof error === 'object' && error !== null) {
+        const validationError = error as IValidationResponse
+        errorMessage = validationError.error || errorMessage
+
+        // Read Retry-After header if present (for 429 responses)
+        const retryAfter = validationError.headers?.get('Retry-After')
+        if (retryAfter) {
+          const parsedCooldown = parseInt(retryAfter, 10)
+          if (!isNaN(parsedCooldown) && parsedCooldown > 0) {
+            cooldownFromHeader = parsedCooldown
+          }
+        }
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      }
+
+      // Set cooldown from header if available
+      if (cooldownFromHeader) {
+        setResendCooldown(cooldownFromHeader)
+      }
+
+      setErrorText(errorMessage)
     }
   }
 
@@ -121,6 +146,7 @@ const EmailVerificationModal = (props: IEmailVerificationModalProps) => {
     setCode(['', '', '', '', '', ''])
     setErrorText('')
     setSuccessText('')
+    setResendCooldown(0)
   }
 
   const handleClose = () => {
@@ -129,7 +155,7 @@ const EmailVerificationModal = (props: IEmailVerificationModalProps) => {
   }
 
   return (
-    <Dialog open={isOpen} onClose={handleClose}>
+    <Dialog open={isOpen} onClose={handleClose} disableEscapeKeyDown>
       <DialogTitle sx={{ textAlign: 'center' }}>Verify Your Email</DialogTitle>
       <DialogContent>
         <Grid container direction="column" sx={{ alignItems: 'center' }}>
