@@ -30,7 +30,51 @@ Object.defineProperty(window, 'matchMedia', {
   })
 })
 
+// Mock localStorage for Node 25 compatibility
+class LocalStorageMock implements Storage {
+  private store: Record<string, string> = {}
+
+  clear() {
+    this.store = {}
+  }
+
+  getItem(key: string) {
+    return this.store[key] || null
+  }
+
+  setItem(key: string, value: string) {
+    this.store[key] = String(value)
+  }
+
+  removeItem(key: string) {
+    delete this.store[key]
+  }
+
+  get length() {
+    return Object.keys(this.store).length
+  }
+
+  key(index: number) {
+    const keys = Object.keys(this.store)
+    return keys[index] || null
+  }
+}
+
+const localStorageMock = new LocalStorageMock()
+global.localStorage = localStorageMock
+
+// Also set it on window for jsdom StorageEvent compatibility
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true
+})
+
 // Mock environment variables
 Object.defineProperty(window, '_env_', {
-  value: { GOOGLE_CLIENT_ID: 'test-client-id' }
+  value: {
+    GOOGLE_CLIENT_ID: 'test-client-id',
+    EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS: '120',
+    GAMES_URL: 'http://localhost:8000',
+    AUTH_URL: 'http://localhost:8001'
+  }
 })

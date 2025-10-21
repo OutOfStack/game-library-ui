@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Box, Card, CardMedia, IconButton, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import BlurOnIcon from '@mui/icons-material/BlurOn'
+import CircleIcon from '@mui/icons-material/Circle'
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined'
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined'
 import Slider, { CustomArrowProps } from 'react-slick'
@@ -80,7 +80,7 @@ const Carousel = (props: ICarousel) => {
   const settings = {
     customPaging: function(index: number) {
       return (
-        <BlurOnIcon fontSize="small" color={currentSlide === index ? "primary" : "secondary"} />
+        <CircleIcon fontSize="small" color={currentSlide === index ? "primary" : "secondary"} />
       )
     },
     nextArrow: <NextArrow />,

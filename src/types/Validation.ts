@@ -7,6 +7,7 @@ interface IValidationResponse {
     field: string,
     error: string
   }[]
+  headers?: Headers
 }
 
 export type { IValidationResponse }

@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Essential Commands
 - `npm run dev` - Start development server (runs on port 3000)
 - `npm run build` - Build for production (outputs to `build/` directory)
+- `npm run preview` - Serve the production build locally
 - `npm test` - Run tests using Vitest
 - `./env.sh` - Generate runtime environment configuration from .env file
 
@@ -20,6 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 2. Configure `.env` file with backend service URLs:
    - `GAMES_URL` - Backend games service (default: http://localhost:8000)
    - `AUTH_URL` - Authentication service (default: http://localhost:8001)
+   - `GOOGLE_CLIENT_ID` - Google OAuth client ID for authentication
 
 ## Architecture Overview
 
@@ -86,6 +88,32 @@ src/
 - Testing Library for component testing
 - Global test utilities setup in `src/setupTests.ts`
 - Test configuration in `vite.config.ts`
+- Test files: `*.test.tsx|ts` colocated with source files
+- JSDOM configured with matchMedia, TextEncoder/Decoder, and `window._env_` polyfills
+
+## Coding Style & Conventions
+
+### File Naming
+- Components: `PascalCase.tsx` (e.g., `GameCard.tsx`)
+- Hooks: `useSomething.ts` (e.g., `useAuth.ts`)
+- Utils: `camelCase.ts` (e.g., `formatDate.ts`)
+- Types: `PascalCase.ts` under `src/types/` (e.g., `User.ts`)
+
+### Code Style
+- Language: TypeScript (strict mode)
+- Formatting: 2-space indentation, single quotes
+- Components: Functional components + hooks (no class components)
+- Linting: ESLint configured via `.eslintrc.json` (React recommended rules)
+- NEVER change existing code styling like importing every component on individual line or adding ';' at the end of line.
+
+## Security & Configuration
+
+### Environment Variables
+- Never commit real secrets to the repository
+- Use `.env` file locally (gitignored)
+- Generate `env-config.js` via `./env.sh` or `make run` before starting dev server
+- Expected environment keys: `GAMES_URL`, `AUTH_URL`, `GOOGLE_CLIENT_ID`
+- Variables consumed from `window._env_` global object at runtime
 
 ### Deployment
 - Docker multi-stage build with Nginx serving static files

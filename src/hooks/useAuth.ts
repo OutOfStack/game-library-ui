@@ -1,28 +1,38 @@
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore, useMemo } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
 import config from '../api-clients/endpoints'
 import { authorizedRequestConfig, postRequestConfig } from './request/requestConfig'
-import baseRequest from './request/baseRequest'
+import { baseRequest, noContentRequest } from './request/baseRequest'
 import { ISignUp } from '../types/Auth/SignUp'
-import { IJWToken, ISignIn, IToken } from '../types/Auth/SignIn'
-import { IGetUser } from '../types/Auth/User'
+import { ISignIn } from '../types/Auth/SignIn'
+import { IJWToken, IToken } from '../types/Auth/Claims'
+import { IVerifyEmailRequest } from '../types/Auth/EmailVerification'
 
 const lsKey = 'gl_user_token'
+
+const subscribers = new Set<() => void>()
+const notify = () => subscribers.forEach((cb) => cb())
+const subscribe = (cb: () => void) => {
+  subscribers.add(cb)
+  return () => subscribers.delete(cb)
+}
+
+// Sync auth changes across tabs/windows via the Storage event
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('storage', (e: StorageEvent) => {
+    if (e.key === lsKey) {
+      notify()
+    }
+  })
+}
 
 const useAuth = () => {
   const endpoint = config.authSvc.domain
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-
-  useEffect(() => {
-    const isAuthed = checkAuth()
-    setIsAuthenticated(isAuthed)
-  }, [])
-
   const signUp = async (data: ISignUp) => {
     const url = `${endpoint}${config.authSvc.signUp}`
-    const response = await baseRequest<IGetUser>(url, postRequestConfig(data))
+    const response = await baseRequest<IToken>(url, postRequestConfig(data))
     return response
   }
 
@@ -35,7 +45,7 @@ const useAuth = () => {
   const deleteAccount = async () => {
     const url = `${endpoint}${config.authSvc.deleteAccount}`
     const token = getAccessToken()
-    const response = await baseRequest(url, authorizedRequestConfig("DELETE", token))
+    const response = await noContentRequest(url, authorizedRequestConfig("DELETE", token))
     return response
   }
 
@@ -45,40 +55,61 @@ const useAuth = () => {
     return response
   }
 
-  const checkAuth = (): boolean => {
+  const verifyEmail = async (data: IVerifyEmailRequest) => {
+    const url = `${endpoint}${config.authSvc.verifyEmail}`
     const token = getAccessToken()
+    const response = await baseRequest<IToken>(url, authorizedRequestConfig("POST", token, data))
+    return response
+  }
 
-    if (!token) {
-      if (isAuthenticated) {
-        setIsAuthenticated(false)
-      }
-      return false
+  const resendVerification = async () => {
+    const url = `${endpoint}${config.authSvc.resendVerification}`
+    const token = getAccessToken()
+    const response = await baseRequest(url, authorizedRequestConfig("POST", token))
+    return response
+  }
+
+  const getTokenSnapshot = (): string | null => {
+    const raw = localStorage.getItem(lsKey)
+    if (!raw) {
+      return null
     }
-
     try {
+      const parsed = JSON.parse(raw) as IToken
+      const token = parsed?.accessToken
+      if (!token) {
+        return null
+      }
       const { exp, nbf } = jwtDecode<IJWToken>(token)
       const now = (new Date().getTime() / 1000) + 1
       if (exp! < now || nbf! > now) {
         // TODO: use refresh_token
-        logout()
-        return false
+        return null
       }
+      return token
     } catch (err) {
       console.error(err)
-      if (isAuthenticated) {
-        setIsAuthenticated(false)
-      }
-      return false
+      return null
     }
-
-    return true
   }
+
+  const tokenSnapshot = useSyncExternalStore(subscribe, getTokenSnapshot, getTokenSnapshot)
+  const isAuthenticated = tokenSnapshot !== null
+
+  // Memoize claims so they only change when token changes
+  const claims = useMemo<IJWToken>(() => {
+    if (!tokenSnapshot) return {} as IJWToken
+    try {
+      return jwtDecode<IJWToken>(tokenSnapshot)
+    } catch (err) {
+      console.error(err)
+      return {} as IJWToken
+    }
+  }, [tokenSnapshot])
 
   const logout = () => {
     localStorage.removeItem(lsKey)
-    setIsAuthenticated(false)
-    // TODO: remove refresh
-    window.location.reload()
+    notify()
   }
 
   const getUserTokenStorage = (): IToken | null => {
@@ -91,9 +122,7 @@ const useAuth = () => {
 
   const setUserTokenStorage = (data: IToken) => {
     localStorage.setItem(lsKey, JSON.stringify(data))
-    setIsAuthenticated(checkAuth())
-    // TODO: remove refresh
-    window.location.reload()
+    notify()
   }
 
   const getAccessToken = (): string => {
@@ -102,30 +131,23 @@ const useAuth = () => {
     return access_token
   }
 
-  const getClaims = (): IJWToken => {
-    if (isAuthenticated) {
-      const token = getAccessToken()
-      return jwtDecode<IJWToken>(token)
-    }
-    return {} as IJWToken
-  }
-
   const hasRole = (allowedRoles: string[]): boolean => {
-    const claims = getClaims()
     return allowedRoles.includes(claims.user_role)
   }
 
   return {
     isAuthenticated,
+    claims,
     setUserTokenStorage,
     getAccessToken,
-    getClaims,
     hasRole,
     logout,
     signUp,
     signIn,
     deleteAccount,
-    signInWithGoogle
+    signInWithGoogle,
+    verifyEmail,
+    resendVerification
   }
 }
 

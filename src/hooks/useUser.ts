@@ -1,6 +1,6 @@
 import config from '../api-clients/endpoints'
 import { authorizedRequestConfig } from './request/requestConfig'
-import baseRequest from './request/baseRequest'
+import { baseRequest } from './request/baseRequest'
 import useAuth from './useAuth'
 import { IGetUserRatings, IGetUserRatingsResponse } from '../types/Rating'
 
