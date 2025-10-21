@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react'
+import { useSyncExternalStore, useMemo } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
 import config from '../api-clients/endpoints'
@@ -69,31 +69,43 @@ const useAuth = () => {
     return response
   }
 
-  const isTokenValid = (): boolean => {
+  const getTokenSnapshot = (): string | null => {
     const raw = localStorage.getItem(lsKey)
     if (!raw) {
-      return false
+      return null
     }
     try {
       const parsed = JSON.parse(raw) as IToken
       const token = parsed?.accessToken
       if (!token) {
-        return false
+        return null
       }
       const { exp, nbf } = jwtDecode<IJWToken>(token)
       const now = (new Date().getTime() / 1000) + 1
       if (exp! < now || nbf! > now) {
         // TODO: use refresh_token
-        return false
+        return null
       }
-      return true
+      return token
     } catch (err) {
       console.error(err)
-      return false
+      return null
     }
   }
 
-  const isAuthenticated = useSyncExternalStore(subscribe, isTokenValid, isTokenValid)
+  const tokenSnapshot = useSyncExternalStore(subscribe, getTokenSnapshot, getTokenSnapshot)
+  const isAuthenticated = tokenSnapshot !== null
+
+  // Memoize claims so they only change when token changes
+  const claims = useMemo<IJWToken>(() => {
+    if (!tokenSnapshot) return {} as IJWToken
+    try {
+      return jwtDecode<IJWToken>(tokenSnapshot)
+    } catch (err) {
+      console.error(err)
+      return {} as IJWToken
+    }
+  }, [tokenSnapshot])
 
   const logout = () => {
     localStorage.removeItem(lsKey)
@@ -119,22 +131,15 @@ const useAuth = () => {
     return access_token
   }
 
-  const getClaims = (): IJWToken => {
-    if (!isAuthenticated) return {} as IJWToken
-    const token = getAccessToken()
-    return jwtDecode<IJWToken>(token)
-  }
-
   const hasRole = (allowedRoles: string[]): boolean => {
-    const claims = getClaims()
     return allowedRoles.includes(claims.user_role)
   }
 
   return {
     isAuthenticated,
+    claims,
     setUserTokenStorage,
     getAccessToken,
-    getClaims,
     hasRole,
     logout,
     signUp,

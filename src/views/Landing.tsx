@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Backdrop, Box, Button, CircularProgress, Grid, Pagination, Stack, Typography, ToggleButton,
   ToggleButtonGroup, useMediaQuery, useTheme, Chip, ListItem, List, ListItemText, ListItemButton
@@ -12,7 +12,6 @@ import StarIcon from '@mui/icons-material/StarHalfRounded'
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined'
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined'
-import { useSearchParams } from 'react-router'
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
@@ -31,6 +30,7 @@ import useGenres from '../hooks/useGenres'
 import useCompanies from '../hooks/useCompanies'
 import useUser from '../hooks/useUser'
 import useAuth from '../hooks/useAuth'
+import useGamesNavigation from '../hooks/useGamesNavigation'
 import Footer from '../components/Footer'
 
 
@@ -48,10 +48,19 @@ const Landing = (props: ILandingProps) => {
   const { fetchRatings } = useUser()
   const { fetchTopGenres } = useGenres()
   const { fetchTopCompanies } = useCompanies()
-  const { hasRole, isAuthenticated, getClaims } = useAuth()
-  const vrfRequired = useMemo(() =>
-    isAuthenticated ? getClaims().vrf_required : false
-  , [isAuthenticated, getClaims])
+  const { hasRole, isAuthenticated, claims } = useAuth()
+  const vrfRequired = claims.vrf_required || false
+
+  const {
+    navigation,
+    defaultNavigation,
+    pagesCount,
+    handleSorting,
+    handleSearchTextChange,
+    handleCategoryChange,
+    handleNavigation,
+    resetToFirstPage
+  } = useGamesNavigation()
 
   const theme = useTheme()
   const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
@@ -76,63 +85,6 @@ const Landing = (props: ILandingProps) => {
     return matchesXs ? "small" : "medium"
   }
 
-  //#region navigation
-
-  const minSearchTextLength = 2
-  const defaultOrderBy = "default"
-  const pageParam = "page"
-  const orderByParam = "orderBy"
-  const searchTextParam = "search"
-  const genreParam = "genre"
-  const developerParam = "developer"
-  const publisherParam = "publisher"
-  const defaultNavigation = {
-    pageSize: 24,
-    page: 1,
-    orderBy: defaultOrderBy,
-    searchText: "",
-    genre: 0,
-    developer: 0,
-    publisher: 0
-  }
-
-  let [searchParams, setSearchParams] = useSearchParams()
-  const [navigation, setNavigation] = useState(() => {
-    const pageSize = defaultNavigation.pageSize
-    const pageP = parseInt(searchParams.get(pageParam) || "")
-    const page = pageP >= defaultNavigation.page
-      ? pageP
-      : defaultNavigation.page
-    const orderByP = searchParams.get(orderByParam) || ""
-    const orderBy = orderByP && orderByP !== defaultOrderBy
-      ? orderByP
-      : defaultNavigation.orderBy
-    const searchTextP = searchParams.get(searchTextParam) || ""
-    const searchText = searchTextP.length >= minSearchTextLength
-      ? searchTextP
-      : defaultNavigation.searchText
-    const genreP = parseInt(searchParams.get(genreParam) || "")
-    const genre = genreP || defaultNavigation.genre
-    const developerP = parseInt(searchParams.get(developerParam) || "")
-    const developer = developerP || defaultNavigation.developer
-    const publisherP = parseInt(searchParams.get(publisherParam) || "")
-    const publisher = publisherP || defaultNavigation.publisher
-
-    return {
-      pageSize: pageSize,
-      page: page,
-      orderBy: orderBy,
-      searchText: searchText,
-      genre: genre,
-      developer: developer,
-      publisher: publisher,
-    }
-  })
-
-  const pagesCount = (count: number) => Math.ceil(count / navigation.pageSize)
-
-  //#endregion
-
   //#region game details modal
   const [selectedGame, setSelectedGame] = useState<IGame | null>(null)
   const [gameDetailsOpen, setGameDetailsOpen] = useState<boolean>(false)
@@ -145,28 +97,6 @@ const Landing = (props: ILandingProps) => {
   const handleOpenGameDetails = (game: IGame) => {
     setSelectedGame(game)
     setGameDetailsOpen(true)
-  }
-
-  //#endregion
-
-  //#region sorting
-  const handleSorting = (event: React.MouseEvent<HTMLElement>, orderBy: string | null) => {
-    if (orderBy) {
-      setNavigation(p => ({
-        ...p,
-        page: defaultNavigation.page,
-        orderBy: orderBy
-      }))
-      setSearchParams(p => {
-        p.delete(pageParam)
-        if (orderBy === defaultOrderBy) {
-          p.delete(orderByParam)
-        } else {
-          p.set(orderByParam, orderBy)
-        }
-        return p
-      })
-    }
   }
 
   //#endregion
@@ -185,57 +115,6 @@ const Landing = (props: ILandingProps) => {
   const handleAddGameDialogClose = () => setAddGameDialogOpen(false)
 
   //#endregion
-
-  const handleSearchTextChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    const text = e.target.value
-    setNavigation(p => ({
-      ...p,
-      page: text.length >= minSearchTextLength ? defaultNavigation.page : p.page,
-      searchText: text
-    }))
-    setSearchParams(p => {
-      p.delete(pageParam)
-      if (text.length >= minSearchTextLength) {
-        p.set(searchTextParam, text)
-      } else {
-        p.delete(searchTextParam)
-      }
-      return p
-    })
-  }
-
-  const handleCategoryChange = (type: "genre" | "publisher" | "developer", id: number) => {
-    if (id) {
-      if (id === navigation[type]) {
-        id = 0
-      }
-      setNavigation(p => ({
-        ...p,
-        page: defaultNavigation.page,
-        [type]: id
-      }))
-    }
-    setSearchParams(p => {
-      p.delete(pageParam)
-      if (id && id !== navigation[type]) {
-        p.set(type, id.toString())
-      } else {
-        p.delete(type)
-      }
-      return p
-    })
-  }
-
-  const handleNavigation = (page: number = defaultNavigation.page) => {
-    setNavigation(p => ({
-      ...p,
-      page: page
-    }))
-    setSearchParams(p => {
-      p.set(pageParam, page.toString())
-      return p
-    })
-  }
 
   // get user ratings
   useEffect(() => {
@@ -256,6 +135,8 @@ const Landing = (props: ILandingProps) => {
     }
     if (isAuthenticated && hasRole([roles.user])) {
       getRatings()
+    } else {
+      setUserRatings({})
     }
   }, [data, isAuthenticated])
 
@@ -281,14 +162,7 @@ const Landing = (props: ILandingProps) => {
 
       setCount(gamesResp.count)
       if (navigation.page > pagesCount(gamesResp.count)) {
-        setNavigation(p => ({
-          ...p,
-          page: defaultNavigation.page
-        }))
-        setSearchParams(p => {
-          p.delete(pageParam)
-          return p
-        })
+        resetToFirstPage()
       }
 
       setIsLoading(false)
@@ -360,6 +234,7 @@ const Landing = (props: ILandingProps) => {
           <CircularProgress color="inherit" />
         </Backdrop>
 
+        {/** Add game modal - closed by default */}
         <AddGameModal
           handleAddGameDialogClose={handleAddGameDialogClose}
           addGameDialogOpen={addGameDialogOpen}
@@ -371,6 +246,7 @@ const Landing = (props: ILandingProps) => {
         />
 
         <Box sx={{ pb: 3 }}>
+          {/** Publisher-specific features like add game */}
           {hasRole([roles.publisher]) &&
             <Grid container direction="row" sx={{ justifyContent: "space-between", alignItems: "left", pb: 2 }}>
               <Grid size={{ xs: 8, sm: 9 }}>
@@ -381,6 +257,8 @@ const Landing = (props: ILandingProps) => {
               </Grid>
             </Grid>
           }
+
+          {/** Sorting, filtering by company and genre */}
           <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" sx={{ justifyContent: "space-between", alignItems: "center", pb: topCategoriesOpen ? 0.5 : 3 }}>
             <Grid sx={{ pt: 0 }} size={{ xs: 5.5, md: 4 }}>
               <ToggleButtonGroup
@@ -426,6 +304,7 @@ const Landing = (props: ILandingProps) => {
             </Grid>
           </Grid>
 
+          {/* Categories (companies genres) filter - closed by default */}
           {topCategoriesOpen &&
             <Grid container spacing={1} direction="row" sx={{ justifyContent: "center", alignItems: "flex-start", pb: 2, pt: 0.5 }}>
               <Grid sx={{ textAlign: "center", pl: 1 }} size={{ xs: 4 }}>
@@ -451,6 +330,8 @@ const Landing = (props: ILandingProps) => {
                   color="info"
                 />
               </Grid>
+
+              {/** Genres */}
               <Grid sx={{ pt: 0, pl: 0 }} size={{ xs: 4 }}>
                 <List sx={{ pt: 0 }} >
                   {topGenres.map((genre: IGenre) => (
@@ -477,6 +358,8 @@ const Landing = (props: ILandingProps) => {
                   ))}
                 </List>
               </Grid>
+
+              {/** Publishers */}
               <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
                 <List sx={{ pt: 0 }} >
                   {topPublishers.map((publisher: ICompany) => (
@@ -503,6 +386,8 @@ const Landing = (props: ILandingProps) => {
                   ))}
                 </List>
               </Grid>
+
+              {/** Developers */}
               <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
                 <List sx={{ pt: 0 }} >
                   {topDevelopers.map((developer: ICompany) => (
@@ -532,6 +417,7 @@ const Landing = (props: ILandingProps) => {
             </Grid>
           }
 
+          {/* Game details modal - closed by default */}
           <GameDetails
             game={selectedGame}
             showUserRating={isAuthenticated && hasRole([roles.user])}
@@ -540,6 +426,7 @@ const Landing = (props: ILandingProps) => {
             handleClose={handleCloseGameDetails}
           />
 
+          {/* Games grid */}
           <Grid
             container
             rowSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
@@ -551,24 +438,29 @@ const Landing = (props: ILandingProps) => {
                   game={game}
                   handleOpenDetails={handleOpenGameDetails}
                   darkMode={darkModeProps.darkMode}
+                  userRating={userRatings[game.id?.toString()]}
                 />
               </Grid>
             ))}
           </Grid>
-          <Stack sx={{ alignItems: 'center', pt: 3 }}>
-            <Pagination
-              defaultPage={defaultNavigation.page}
-              hidePrevButton={navigation.page === defaultNavigation.page}
-              hideNextButton={navigation.page >= pagesCount(count)}
-              siblingCount={0}
-              count={pagesCount(count)}
-              page={navigation.page}
-              variant="outlined"
-              shape="rounded"
-              size="large"
-              onChange={(_, page) => handleNavigation(page)}
-            />
-          </Stack>
+          
+          {/* Pagination */}
+          {count > 0 && (
+            <Stack sx={{ alignItems: 'center', pt: 3 }}>
+              <Pagination
+                defaultPage={defaultNavigation.page}
+                hidePrevButton={navigation.page === defaultNavigation.page}
+                hideNextButton={navigation.page >= pagesCount(count)}
+                siblingCount={0}
+                count={pagesCount(count)}
+                page={navigation.page}
+                variant="outlined"
+                shape="rounded"
+                size="large"
+                onChange={(_, page) => handleNavigation(page)}
+              />
+            </Stack>
+          )}
         </Box>
         <Footer />
       </Layout>

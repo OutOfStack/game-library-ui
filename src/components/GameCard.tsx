@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react'
 import { Box, Card, CardActionArea, CardContent, Chip, Skeleton, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { grey } from '@mui/material/colors'
+import StarIcon from '@mui/icons-material/Star'
 
 import { IGame } from '../types/Game'
 import { To1Precision } from '../utils/format'
@@ -10,11 +11,12 @@ import { To1Precision } from '../utils/format'
 interface IGameCardProps {
   handleOpenDetails: (game: IGame) => void,
   game: IGame,
-  darkMode: boolean
+  darkMode: boolean,
+  userRating?: number
 }
 
 const GameCard = (props: IGameCardProps) => {
-  const { game, handleOpenDetails, darkMode } = props
+  const { game, handleOpenDetails, darkMode, userRating } = props
 
   const logoWidth = 528
   const logoHeight = 748
@@ -87,6 +89,26 @@ const GameCard = (props: IGameCardProps) => {
               variant="rectangular"
               sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: 0 }}
             />
+          )}
+          {/* User rating badge */}
+          {userRating && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                backdropFilter: 'blur(4px)',
+                borderRadius: '50%',
+                width: 32,
+                height: 32
+              }}
+            >
+              <StarIcon sx={{ fontSize: 20, color: '#ffd700' }} />
+            </Box>
           )}
         </Box>
       </CardActionArea>

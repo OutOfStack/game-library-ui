@@ -48,14 +48,14 @@ export interface IHeaderProps {
 const Header = (props: IHeaderProps) => {
   const { searchFieldProps, darkModeProps } = props
 
-  const { getClaims, isAuthenticated, setUserTokenStorage, logout, verifyEmail, resendVerification } = useAuth()
+  const { claims, isAuthenticated, setUserTokenStorage, logout, verifyEmail, resendVerification } = useAuth()
   const { classes } = useStyles()
   const navigate = useNavigate()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
   const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
 
-  const { name, username, vrf_required } = getClaims()
+  const { name, username, vrf_required } = claims
 
   //#region notification
 

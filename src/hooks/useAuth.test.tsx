@@ -61,7 +61,7 @@ describe('useAuth', () => {
     localStorage.setItem(lsKey, newValue)
 
     act(() => {
-      window.dispatchEvent(new StorageEvent('storage', { key: lsKey, newValue, oldValue: null, storageArea: localStorage }))
+      window.dispatchEvent(new StorageEvent('storage', { key: lsKey, newValue, oldValue: null }))
     })
 
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true))
@@ -69,7 +69,7 @@ describe('useAuth', () => {
     // Simulate another tab removing the token
     localStorage.removeItem(lsKey)
     act(() => {
-      window.dispatchEvent(new StorageEvent('storage', { key: lsKey, newValue: null, oldValue: newValue, storageArea: localStorage }))
+      window.dispatchEvent(new StorageEvent('storage', { key: lsKey, newValue: null, oldValue: newValue }))
     })
 
     await waitFor(() => expect(result.current.isAuthenticated).toBe(false))

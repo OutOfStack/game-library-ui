@@ -1,5 +1,5 @@
 # Stage 1 - Build app
-FROM node:24-alpine3.22 AS builder
+FROM node:25-alpine3.22 AS builder
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json
