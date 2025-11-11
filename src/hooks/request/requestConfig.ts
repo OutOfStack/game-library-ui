@@ -15,6 +15,13 @@ const postRequestConfig = (body: object): RequestInit => {
   }
 }
 
+const postRequestConfigWithCredentials = (body: object): RequestInit => {
+  return {
+    ...postRequestConfig(body),
+    credentials: "include",
+  }
+}
+
 const authorizedRequestConfig = (
   method: string = "GET",
   token: string,
@@ -41,4 +48,22 @@ const authorizedRequestConfig = (
   return req
 }
 
-export { getRequestConfig, postRequestConfig, authorizedRequestConfig }
+const authorizedRequestConfigWithCredentials = (
+  method: string = "GET",
+  token: string,
+  body?: BodyInit | object,
+  contentType: string | null = jsonContentType,
+): RequestInit => {
+  return {
+    ...authorizedRequestConfig(method, token, body, contentType),
+    credentials: "include",
+  }
+}
+
+export {
+  getRequestConfig,
+  postRequestConfig,
+  postRequestConfigWithCredentials,
+  authorizedRequestConfig,
+  authorizedRequestConfigWithCredentials
+}

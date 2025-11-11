@@ -2,8 +2,9 @@ import { useSyncExternalStore, useMemo } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
 import config from '../api-clients/endpoints'
-import { authorizedRequestConfig, postRequestConfig } from './request/requestConfig'
+import { authorizedRequestConfig, authorizedRequestConfigWithCredentials, postRequestConfig, postRequestConfigWithCredentials } from './request/requestConfig'
 import { baseRequest, noContentRequest } from './request/baseRequest'
+import { authorizedRequest, noContentAuthorizedRequest } from './request/authorizedRequest'
 import { ISignUp } from '../types/Auth/SignUp'
 import { ISignIn } from '../types/Auth/SignIn'
 import { IJWToken, IToken } from '../types/Auth/Claims'
@@ -32,40 +33,55 @@ const useAuth = () => {
 
   const signUp = async (data: ISignUp) => {
     const url = `${endpoint}${config.authSvc.signUp}`
-    const response = await baseRequest<IToken>(url, postRequestConfig(data))
+    const response = await baseRequest<IToken>(url, postRequestConfigWithCredentials(data))
     return response
   }
 
   const signIn = async (data: ISignIn) => {
     const url = `${endpoint}${config.authSvc.signIn}`
-    const response = await baseRequest<IToken>(url, postRequestConfig(data))
+    const response = await baseRequest<IToken>(url, postRequestConfigWithCredentials(data))
     return response
   }
 
   const deleteAccount = async () => {
     const url = `${endpoint}${config.authSvc.deleteAccount}`
     const token = getAccessToken()
-    const response = await noContentRequest(url, authorizedRequestConfig("DELETE", token))
+    const response = await noContentAuthorizedRequest(url, authorizedRequestConfigWithCredentials("DELETE", token))
     return response
   }
 
   const signInWithGoogle = async (idToken: string) => {
     const url = `${endpoint}/oauth/google`
-    const response = await baseRequest<IToken>(url, postRequestConfig({ idToken: idToken }))
+    const response = await baseRequest<IToken>(url, postRequestConfigWithCredentials({ idToken: idToken }))
     return response
   }
 
   const verifyEmail = async (data: IVerifyEmailRequest) => {
     const url = `${endpoint}${config.authSvc.verifyEmail}`
     const token = getAccessToken()
-    const response = await baseRequest<IToken>(url, authorizedRequestConfig("POST", token, data))
+    const response = await baseRequest<IToken>(url, authorizedRequestConfigWithCredentials("POST", token, data))
     return response
+  }
+
+  const refreshToken = async (): Promise<[IToken | null, string | null]> => {
+    const url = `${endpoint}${config.authSvc.refresh}`
+    const [data, err] = await baseRequest<IToken>(url, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    if (err) {
+      return [null, typeof err === 'string' ? err : err.error]
+    }
+    return [data as IToken, null]
   }
 
   const resendVerification = async () => {
     const url = `${endpoint}${config.authSvc.resendVerification}`
     const token = getAccessToken()
-    const response = await baseRequest(url, authorizedRequestConfig("POST", token))
+    const response = await authorizedRequest(url, authorizedRequestConfig("POST", token))
     return response
   }
 
@@ -83,7 +99,8 @@ const useAuth = () => {
       const { exp, nbf } = jwtDecode<IJWToken>(token)
       const now = (new Date().getTime() / 1000) + 1
       if (exp! < now || nbf! > now) {
-        // TODO: use refresh_token
+        // Token expired - will need to refresh
+        // Note: refresh happens automatically in baseRequest on 401
         return null
       }
       return token
@@ -147,7 +164,8 @@ const useAuth = () => {
     deleteAccount,
     signInWithGoogle,
     verifyEmail,
-    resendVerification
+    resendVerification,
+    refreshToken
   }
 }
 

@@ -1,6 +1,7 @@
 import config from '../api-clients/endpoints'
 import { authorizedRequestConfig, getRequestConfig } from './request/requestConfig'
 import { baseRequest } from './request/baseRequest'
+import { authorizedRequest } from './request/authorizedRequest'
 import { IGamesFilter, ICreateGame, IGame, IGameResponse, IGames, IUpdateGame, IUploadImagesResponse } from '../types/Game'
 import { ICreateRating, IRatingResponse } from '../types/Rating'
 import useAuth from './useAuth'
@@ -34,21 +35,21 @@ const useGames = () => {
   const create = async (data: ICreateGame) => {
     const url = endpoint
     const token = getAccessToken()
-    const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("POST", token, data))
+    const response = await authorizedRequest<IGameResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
 
   const updateById = async (data: IUpdateGame, id: number) => {
     const url = `${endpoint}/${id}`
     const token = getAccessToken()
-    const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("PUT", token, data))
+    const response = await authorizedRequest<IGameResponse>(url, authorizedRequestConfig("PUT", token, data))
     return response
   }
 
   const rate = async (data: ICreateRating, id: number) => {
     const url = `${endpoint}/${id}/rate`
     const token = getAccessToken()
-    const response = await baseRequest<IRatingResponse>(url, authorizedRequestConfig("POST", token, data))
+    const response = await authorizedRequest<IRatingResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
 
@@ -64,7 +65,7 @@ const useGames = () => {
       formData.append('screenshots', screenshot)
     })
 
-    const response = await baseRequest<IUploadImagesResponse>(url, authorizedRequestConfig("POST", token, formData, null))
+    const response = await authorizedRequest<IUploadImagesResponse>(url, authorizedRequestConfig("POST", token, formData, null))
     return response
   }
 

@@ -7,6 +7,7 @@ const baseRequest = async<T> (url: string, initConfig: RequestInit): Promise<[T 
       try {
         const body: IValidationResponse = await resp.json()
         body.headers = resp.headers
+        body.status = resp.status
         return [null, body]
       } catch(e) {
         console.error(e)
