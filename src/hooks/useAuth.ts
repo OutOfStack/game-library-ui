@@ -1,10 +1,9 @@
-import { useSyncExternalStore, useMemo } from 'react'
+import { useSyncExternalStore, useMemo, useEffect } from 'react'
 import { jwtDecode } from 'jwt-decode'
 
 import config from '../api-clients/endpoints'
 import { authorizedRequestConfig, authorizedRequestConfigWithCredentials, postRequestConfig, postRequestConfigWithCredentials } from './request/requestConfig'
 import { baseRequest, noContentRequest } from './request/baseRequest'
-import { authorizedRequest, noContentAuthorizedRequest } from './request/authorizedRequest'
 import { ISignUp } from '../types/Auth/SignUp'
 import { ISignIn } from '../types/Auth/SignIn'
 import { IJWToken, IToken } from '../types/Auth/Claims'
@@ -28,6 +27,9 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
   })
 }
 
+let refreshPromise: Promise<IToken | null> | null = null
+let refreshContext: string | null | undefined
+
 const useAuth = () => {
   const endpoint = config.authSvc.domain
 
@@ -45,8 +47,8 @@ const useAuth = () => {
 
   const deleteAccount = async () => {
     const url = `${endpoint}${config.authSvc.deleteAccount}`
-    const token = getAccessToken()
-    const response = await noContentAuthorizedRequest(url, authorizedRequestConfigWithCredentials("DELETE", token))
+    const token = await getAccessToken()
+    const response = await noContentRequest(url, authorizedRequestConfigWithCredentials("DELETE", token))
     return response
   }
 
@@ -56,59 +58,159 @@ const useAuth = () => {
     return response
   }
 
+  const signOut = async () => {
+    const url = `${endpoint}${config.authSvc.logout}`
+    const response = await noContentRequest(url, postRequestConfigWithCredentials())
+    return response
+  }
+
   const verifyEmail = async (data: IVerifyEmailRequest) => {
     const url = `${endpoint}${config.authSvc.verifyEmail}`
-    const token = getAccessToken()
+    const token = await getAccessToken()
     const response = await baseRequest<IToken>(url, authorizedRequestConfigWithCredentials("POST", token, data))
     return response
   }
 
-  const refreshToken = async (): Promise<[IToken | null, string | null]> => {
-    const url = `${endpoint}${config.authSvc.refresh}`
-    const [data, err] = await baseRequest<IToken>(url, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    if (err) {
-      return [null, typeof err === 'string' ? err : err.error]
-    }
-    return [data as IToken, null]
-  }
-
   const resendVerification = async () => {
     const url = `${endpoint}${config.authSvc.resendVerification}`
-    const token = getAccessToken()
-    const response = await authorizedRequest(url, authorizedRequestConfig("POST", token))
+    const token = await getAccessToken()
+    const response = await baseRequest(url, authorizedRequestConfig('POST', token))
     return response
   }
 
-  const getTokenSnapshot = (): string | null => {
-    const raw = localStorage.getItem(lsKey)
-    if (!raw) {
+  /* Token management */
+
+  const getUserTokenStorage = (): IToken | null => {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return null
+    }
+    const item = localStorage.getItem(lsKey)
+    if (!item) {
       return null
     }
     try {
-      const parsed = JSON.parse(raw) as IToken
-      const token = parsed?.accessToken
-      if (!token) {
-        return null
-      }
-      const { exp, nbf } = jwtDecode<IJWToken>(token)
-      const now = (new Date().getTime() / 1000) + 1
-      if (exp! < now || nbf! > now) {
-        // Token expired - will need to refresh
-        // Note: refresh happens automatically in baseRequest on 401
-        return null
-      }
-      return token
+      return JSON.parse(item)
     } catch (err) {
       console.error(err)
       return null
     }
   }
+
+  const setUserTokenStorage = (data: IToken) => {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return
+    }
+    localStorage.setItem(lsKey, JSON.stringify(data))
+    notify()
+  }
+
+  const clearUserTokenStorage = () => {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return
+    }
+    const hadToken = localStorage.getItem(lsKey) !== null
+    localStorage.removeItem(lsKey)
+    if (hadToken) {
+      notify()
+    }
+  }
+
+  // Returns the current access token
+  const getTokenSnapshot = (): string | null => {
+    const storage = getUserTokenStorage()
+    return storage?.accessToken || null
+  }
+
+  // Checks JWT exp/nbf to see if we can still use the token without refreshing
+  const isTokenValid = (token: string): boolean => {
+    try {
+      const { exp, nbf } = jwtDecode<IJWToken>(token)
+      const now = (new Date().getTime() / 1000) + 1
+      if (exp && exp < now) {
+        return false
+      }
+      if (nbf && nbf > now) {
+        return false
+      }
+      return true
+    } catch (err) {
+      console.error(err)
+      return false
+    }
+  }
+
+  // Calls the backend refresh endpoint using the HttpOnly cookie
+  const requestRefreshToken = async (): Promise<[IToken | null, string | null]> => {
+    const url = `${endpoint}${config.authSvc.refresh}`
+    const [data, err] = await baseRequest<IToken>(url, postRequestConfigWithCredentials())
+    if (err || !data) {
+      const errorMsg = typeof err === 'string'
+        ? err
+        : err?.error || 'Token refresh failed'
+      return [null, errorMsg]
+    }
+    return [data as IToken, null]
+  }
+
+  // Public helper to refresh immediately and persist the new token
+  const refreshToken = async (): Promise<[IToken | null, string | null]> => {
+    const [token, err] = await requestRefreshToken()
+    if (token) {
+      setUserTokenStorage(token)
+      return [token, null]
+    }
+    clearUserTokenStorage()
+    return [null, err]
+  }
+
+  // Ensures only one refresh request is in flight; consumers await the shared promise
+  const queueRefresh = (previousToken: string | null) => {
+    if (!refreshPromise) {
+      refreshContext = previousToken
+      refreshPromise = requestRefreshToken()
+        .then(([token]) => {
+          if (!token) {
+            const current = getUserTokenStorage()?.accessToken || null
+            // Only clear storage if nothing changed while we were refreshing:
+            // - If we started with no token and still have none
+            // - Or if we started with token X and storage still holds X
+            const shouldClear =
+              (refreshContext === null && current === null) ||
+              (refreshContext !== null && current === refreshContext)
+            if (shouldClear) {
+              clearUserTokenStorage()
+              return null
+            }
+            return getUserTokenStorage()
+          }
+          const current = getUserTokenStorage()?.accessToken || null
+          // Only overwrite storage if it still contains the token that triggered refresh
+          const shouldUpdate =
+            refreshContext === null
+              ? current === null
+              : current === refreshContext
+          if (shouldUpdate) {
+            setUserTokenStorage(token)
+            return token
+          }
+          return getUserTokenStorage()
+        })
+        .finally(() => {
+          refreshPromise = null
+          refreshContext = undefined
+        })
+    }
+    return refreshPromise
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return
+    }
+    if (!getUserTokenStorage()) {
+      queueRefresh(null)
+    }
+  }, [])
 
   const tokenSnapshot = useSyncExternalStore(subscribe, getTokenSnapshot, getTokenSnapshot)
   const isAuthenticated = tokenSnapshot !== null
@@ -124,28 +226,24 @@ const useAuth = () => {
     }
   }, [tokenSnapshot])
 
-  const logout = () => {
-    localStorage.removeItem(lsKey)
-    notify()
+  const logout = async () => {
+    await signOut()
+    clearUserTokenStorage()
   }
 
-  const getUserTokenStorage = (): IToken | null => {
-    const item = localStorage.getItem(lsKey)
-    if (!item) {
-      return null
-    }
-    return JSON.parse(item)
-  }
-
-  const setUserTokenStorage = (data: IToken) => {
-    localStorage.setItem(lsKey, JSON.stringify(data))
-    notify()
-  }
-
-  const getAccessToken = (): string => {
+  // Used by hooks/service calls to always obtain a valid bearer token
+  const getAccessToken = async (): Promise<string> => {
     const storage = getUserTokenStorage()
-    const access_token = storage ? storage.accessToken : ''
-    return access_token
+    const token = storage?.accessToken
+    if (!token) {
+      const refreshed = await queueRefresh(null)
+      return refreshed?.accessToken || ''
+    }
+    if (isTokenValid(token)) {
+      return token
+    }
+    const refreshed = await queueRefresh(token)
+    return refreshed?.accessToken || ''
   }
 
   const hasRole = (allowedRoles: string[]): boolean => {

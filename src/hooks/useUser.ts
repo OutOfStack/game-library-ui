@@ -1,6 +1,6 @@
 import config from '../api-clients/endpoints'
 import { authorizedRequestConfig } from './request/requestConfig'
-import { authorizedRequest } from './request/authorizedRequest'
+import { baseRequest } from './request/baseRequest'
 import useAuth from './useAuth'
 import { IGetUserRatings, IGetUserRatingsResponse } from '../types/Rating'
 
@@ -11,8 +11,8 @@ const useUser = () => {
 
   const fetchRatings = async (data: IGetUserRatings) => {
     const url = `${endpoint}/ratings`
-    const token = getAccessToken()
-    const response = await authorizedRequest<IGetUserRatingsResponse>(url, authorizedRequestConfig("POST", token, data))
+    const token = await getAccessToken()
+    const response = await baseRequest<IGetUserRatingsResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
 
@@ -22,4 +22,3 @@ const useUser = () => {
 }
 
 export default useUser
-

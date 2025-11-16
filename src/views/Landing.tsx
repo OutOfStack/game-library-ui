@@ -288,6 +288,7 @@ const Landing = (props: ILandingProps) => {
               </Typography>
             </Grid>
             <Grid sx={{ textAlign: "right" }} size={{ xs: 3, md: 4 }}>
+              {(topGenres.length > 0 || topDevelopers.length > 0 || topPublishers.length > 0) &&
               <ToggleButton
                 value="check"
                 selected={topCategoriesOpen}
@@ -301,6 +302,7 @@ const Landing = (props: ILandingProps) => {
                   : <KeyboardArrowDownOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
                 }
               </ToggleButton>
+              }
             </Grid>
           </Grid>
 

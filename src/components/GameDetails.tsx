@@ -293,7 +293,7 @@ const GameDetails = (props: IGameDetailsProps) => {
                         const host = ToHostname(url)
                         const lower = host.toLowerCase()
                         let label = host
-                        let icon: JSX.Element = <LanguageIcon fontSize="small" />
+                        let icon = <LanguageIcon fontSize="small" />
                         if (lower.includes('steam')) { label = 'Steam'; icon = <StoreIcon fontSize="small" /> }
                         else if (lower.includes('epic')) { label = 'Epic Games'; icon = <StoreIcon fontSize="small" /> }
                         else if (lower.includes('gog')) { label = 'GOG'; icon = <StoreIcon fontSize="small" /> }
