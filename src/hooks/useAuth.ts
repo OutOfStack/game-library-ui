@@ -78,8 +78,26 @@ const useAuth = () => {
     return response
   }
 
+  const hasRole = (allowedRoles: string[]): boolean => {
+    return allowedRoles.includes(claims.user_role)
+  }
+
   /* Token management */
 
+  // Calls the backend refresh endpoint using the HttpOnly cookie
+  const refreshToken = async (): Promise<[IToken | null, string | null]> => {
+    const url = `${endpoint}${config.authSvc.refresh}`
+    const [data, err] = await baseRequest<IToken>(url, postRequestConfigWithCredentials())
+    if (err || !data) {
+      const errorMsg = typeof err === 'string'
+        ? err
+        : err?.error || 'Token refresh failed'
+      return [null, errorMsg]
+    }
+    return [data as IToken, null]
+  }
+
+  // Reads the serialized token payload from localStorage
   const getUserTokenStorage = (): IToken | null => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return null
@@ -96,6 +114,7 @@ const useAuth = () => {
     }
   }
 
+  // Persists the token payload and notifies listeners
   const setUserTokenStorage = (data: IToken) => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return
@@ -104,6 +123,7 @@ const useAuth = () => {
     notify()
   }
 
+  // Removes the token payload and emits a change event
   const clearUserTokenStorage = () => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return
@@ -122,10 +142,12 @@ const useAuth = () => {
   }
 
   // Checks JWT exp/nbf to see if we can still use the token without refreshing
+  const refreshSkewSeconds = 60
+
   const isTokenValid = (token: string): boolean => {
     try {
       const { exp, nbf } = jwtDecode<IJWToken>(token)
-      const now = (new Date().getTime() / 1000) + 1
+      const now = (new Date().getTime() / 1000) + refreshSkewSeconds
       if (exp && exp < now) {
         return false
       }
@@ -139,35 +161,11 @@ const useAuth = () => {
     }
   }
 
-  // Calls the backend refresh endpoint using the HttpOnly cookie
-  const requestRefreshToken = async (): Promise<[IToken | null, string | null]> => {
-    const url = `${endpoint}${config.authSvc.refresh}`
-    const [data, err] = await baseRequest<IToken>(url, postRequestConfigWithCredentials())
-    if (err || !data) {
-      const errorMsg = typeof err === 'string'
-        ? err
-        : err?.error || 'Token refresh failed'
-      return [null, errorMsg]
-    }
-    return [data as IToken, null]
-  }
-
-  // Public helper to refresh immediately and persist the new token
-  const refreshToken = async (): Promise<[IToken | null, string | null]> => {
-    const [token, err] = await requestRefreshToken()
-    if (token) {
-      setUserTokenStorage(token)
-      return [token, null]
-    }
-    clearUserTokenStorage()
-    return [null, err]
-  }
-
   // Ensures only one refresh request is in flight; consumers await the shared promise
   const queueRefresh = (previousToken: string | null) => {
     if (!refreshPromise) {
       refreshContext = previousToken
-      refreshPromise = requestRefreshToken()
+      refreshPromise = refreshToken()
         .then(([token]) => {
           if (!token) {
             const current = getUserTokenStorage()?.accessToken || null
@@ -203,6 +201,7 @@ const useAuth = () => {
     return refreshPromise
   }
 
+  // On initial mount, attempt a refresh if no token is persisted yet
   useEffect(() => {
     if (typeof window === 'undefined' || !window.localStorage) {
       return
@@ -246,10 +245,6 @@ const useAuth = () => {
     return refreshed?.accessToken || ''
   }
 
-  const hasRole = (allowedRoles: string[]): boolean => {
-    return allowedRoles.includes(claims.user_role)
-  }
-
   return {
     isAuthenticated,
     claims,
@@ -262,8 +257,7 @@ const useAuth = () => {
     deleteAccount,
     signInWithGoogle,
     verifyEmail,
-    resendVerification,
-    refreshToken
+    resendVerification
   }
 }
 
