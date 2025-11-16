@@ -227,8 +227,8 @@ const useAuth = () => {
   }, [tokenSnapshot])
 
   const logout = async () => {
-    await signOut()
     clearUserTokenStorage()
+    await signOut()
   }
 
   // Used by hooks/service calls to always obtain a valid bearer token
