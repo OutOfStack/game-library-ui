@@ -17,6 +17,7 @@ import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
 import GameDetails from '../components/GameDetails'
 import AddGameModal from '../components/AddGameModal'
+import PublisherModerationModal from '../components/PublisherModerationModal'
 import Notification from '../components/Notification'
 import { IDarkModeProps, ISearchFieldProps } from '../components/Header'
 import { IGame, IGames, IGamesFilter } from '../types/Game'
@@ -113,6 +114,21 @@ const Landing = (props: ILandingProps) => {
     setAddGameDialogOpen(true)
   }
   const handleAddGameDialogClose = () => setAddGameDialogOpen(false)
+
+  //#endregion
+
+  //#region publisher moderation modal
+
+  const [moderationModalOpen, setModerationModalOpen] = useState(false)
+
+  const handleModerationModalOpen = () => {
+    if (vrfRequired) {
+      setAlert({ error: 'Please verify your email address first. You can verify it from the user menu.' })
+      return
+    }
+    setModerationModalOpen(true)
+  }
+  const handleModerationModalClose = () => setModerationModalOpen(false)
 
   //#endregion
 
@@ -240,6 +256,12 @@ const Landing = (props: ILandingProps) => {
           addGameDialogOpen={addGameDialogOpen}
         />
 
+        {/** Publisher moderation modal - closed by default */}
+        <PublisherModerationModal
+          isOpen={moderationModalOpen}
+          handleClose={handleModerationModalClose}
+        />
+
         <Notification
           message={alert}
           resetMessage={() => setAlert(null)}
@@ -249,10 +271,13 @@ const Landing = (props: ILandingProps) => {
           {/** Publisher-specific features like add game */}
           {hasRole([roles.publisher]) &&
             <Grid container direction="row" sx={{ justifyContent: "space-between", alignItems: "left", pb: 2 }}>
-              <Grid size={{ xs: 8, sm: 9 }}>
+              <Grid size={{ xs: 8, sm: 6 }}>
                 <Box />
               </Grid>
-              <Grid sx={{ textAlign: "right" }} size={{ xs: 4, sm: 3 }}>
+              <Grid sx={{ textAlign: "right", display: "flex", gap: 1, justifyContent: "flex-end" }} size={{ xs: 4, sm: 6 }}>
+                <Button variant="outlined" size={mediaQueryToSize()} onClick={() => handleModerationModalOpen()}>
+                  {matchesSm ? "MODERATION" : "MOD"}
+                </Button>
                 <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>ADD GAME</Button>
               </Grid>
             </Grid>
