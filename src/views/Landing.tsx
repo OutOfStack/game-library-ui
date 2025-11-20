@@ -119,19 +119,16 @@ const Landing = (props: ILandingProps) => {
   // get user ratings
   useEffect(() => {
     const getRatings = async () => {
-      setIsLoading(true)
       const gameIds = data.map(d => d.id)
       const [resp, err] = await fetchRatings({
         gameIds: gameIds
       })
       if (err) {
         setAlert(err)
-        setIsLoading(false)
         return
       }
       const ratings = resp as IGetUserRatingsResponse
       setUserRatings(ratings)
-      setIsLoading(false)
     }
     if (isAuthenticated && hasRole([roles.user])) {
       getRatings()
@@ -288,6 +285,7 @@ const Landing = (props: ILandingProps) => {
               </Typography>
             </Grid>
             <Grid sx={{ textAlign: "right" }} size={{ xs: 3, md: 4 }}>
+              {(topGenres.length > 0 || topDevelopers.length > 0 || topPublishers.length > 0) &&
               <ToggleButton
                 value="check"
                 selected={topCategoriesOpen}
@@ -301,6 +299,7 @@ const Landing = (props: ILandingProps) => {
                   : <KeyboardArrowDownOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
                 }
               </ToggleButton>
+              }
             </Grid>
           </Grid>
 

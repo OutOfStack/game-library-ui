@@ -14,7 +14,9 @@ const endpoints = {
     updateProfile: "/account",
     deleteAccount: "/account",
     verifyEmail: "/verify-email",
-    resendVerification: "/resend-verification"
+    resendVerification: "/resend-verification",
+    refresh: "/refresh",
+    logout: "/logout"
   }
 }
   

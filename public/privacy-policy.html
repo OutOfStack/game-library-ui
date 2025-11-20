@@ -169,6 +169,7 @@
         <h3>2.4 Technical Information</h3>
         <ul>
             <li><strong>Authentication Tokens:</strong> JWT tokens for maintaining your login session</li>
+            <li><strong>Authentication Cookies:</strong> A refresh token stored in an HttpOnly cookie issued by our auth service to securely renew your session</li>
             <li><strong>Local Storage Data:</strong> Site preferences like theme settings (light/dark mode)</li>
             <li><strong>System Logs:</strong> Technical logs for service operation and debugging</li>
         </ul>
@@ -217,12 +218,12 @@
         </ul>
 
         <h2>8. Cookies and Local Storage</h2>
-        <p>We use browser local storage to:</p>
+        <p>We use two storage mechanisms to keep you signed in and remember preferences:</p>
         <ul>
-            <li>Store authentication tokens for your login session</li>
-            <li>Save your site preferences (such as theme selection)</li>
+            <li><strong>HttpOnly Refresh Token Cookie:</strong> After signing in, our authentication service stores a refresh token in a secure, HttpOnly cookie that is only sent back to that service. It contains no personal profile data and is used exclusively to issue new access tokens when your session expires.</li>
+            <li><strong>Local Storage:</strong> We keep the short-lived access token and UI preferences (such as theme selection) in browser local storage so the application can operate while you are logged in.</li>
         </ul>
-        <p>We do not use cookies for tracking, analytics, or advertising purposes.</p>
+        <p>The refresh cookie is required for the service to keep you logged in and can be removed by logging out or clearing your browser cookies. We do not use any cookies or storage mechanisms for analytics, advertising, or cross-site tracking.</p>
 
         <h2>9. International Data Transfers</h2>
         <p>This service may be accessed from anywhere in the world. By using the service, you consent to the transfer and processing of your information in accordance with this privacy policy, regardless of your location.</p>
@@ -249,7 +250,7 @@
         </ul>
 
         <div class="last-updated">
-            <strong>Last Updated:</strong> October 2025
+            <strong>Last Updated:</strong> November 2025
         </div>
     </div>
 </body>

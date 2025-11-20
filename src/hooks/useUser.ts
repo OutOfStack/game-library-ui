@@ -11,7 +11,7 @@ const useUser = () => {
 
   const fetchRatings = async (data: IGetUserRatings) => {
     const url = `${endpoint}/ratings`
-    const token = getAccessToken()
+    const token = await getAccessToken()
     const response = await baseRequest<IGetUserRatingsResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
@@ -22,4 +22,3 @@ const useUser = () => {
 }
 
 export default useUser
-

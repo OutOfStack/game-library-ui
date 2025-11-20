@@ -8,6 +8,7 @@ interface IValidationResponse {
     error: string
   }[]
   headers?: Headers
+  status?: number
 }
 
 export type { IValidationResponse }
