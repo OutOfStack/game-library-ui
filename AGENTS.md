@@ -11,7 +11,7 @@
 - `bun run dev`: Start Vite dev server (runs on port 3000).
 - `bun run build`: Production build to `build/`.
 - `bun run preview`: Serve the production build locally.
-- `bun test`: Run Vitest test suite.
+- `bun run test`: Run Vitest test suite.
 - Make targets: `make run` (generate env + dev), `make build`, `make test`, `make update`, `make updateall`.
 - Env injection: `./env.sh` reads `.env` and generates `env-config.js` used at runtime.
 
@@ -30,7 +30,7 @@
 - Framework: Vitest + React Testing Library (`@testing-library/react`, `@testing-library/jest-dom`).
 - Naming: `*.test.tsx|ts` colocated with source.
 - JSDOM is configured in `src/setupTests.ts` (matchMedia, TextEncoder/Decoder, `window._env_`).
-- Run tests: `bun test`. Aim to cover hooks, components, and utils with focused unit tests.
+- Run tests: `bun run test`. Aim to cover hooks, components, and utils with focused unit tests.
 - Test configuration: `vite.config.ts` with jsdom environment.
 - Global test utilities setup: `src/setupTests.ts`.
 

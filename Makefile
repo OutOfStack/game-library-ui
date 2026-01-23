@@ -9,7 +9,7 @@ build:
 	bun run build
 
 test:
-	bun test
+	bun run test
 
 update:
 	bun update

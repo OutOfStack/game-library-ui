@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `bun run dev` - Start development server (runs on port 3000)
 - `bun run build` - Build for production (outputs to `build/` directory)
 - `bun run preview` - Serve the production build locally
-- `bun test` - Run tests using Vitest
+- `bun run test` - Run tests using Vitest
 - `./env.sh` - Generate runtime environment configuration from .env file
 
 ### Make Commands (alternative)

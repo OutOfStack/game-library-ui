@@ -89,7 +89,7 @@ Additional configuration options can be set in [`vite.config.ts`](./vite.config.
 - `bun run dev`: Start the development server
 - `bun run build`: Build the application for production
 - `bun run preview`: Preview the production build locally
-- `bun test`: Run tests
+- `bun run test`: Run tests
 
 ### Make Commands
 
