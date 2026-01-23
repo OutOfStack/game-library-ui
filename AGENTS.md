@@ -5,14 +5,14 @@
 - Entry points: `index.html`, `src/index.tsx`, `src/App.tsx`.
 - Assets/static: `public/` (favicons, HTML policies). Build output: `build/`.
 - Tests live beside code: e.g., `src/App.test.tsx`. Test setup: `src/setupTests.ts`.
-- Deployment manifests: `deploy/` (Kubernetes YAML). Nginx config: `nginx.conf`.
+- Deployment manifests: `.k8s/` (Kubernetes YAML). Nginx config: `nginx.conf`.
 
 ## Build, Test, and Development Commands
-- `npm run dev`: Start Vite dev server (runs on port 3000).
-- `npm run build`: Production build to `build/`.
-- `npm run preview`: Serve the production build locally.
-- `npm test`: Run Vitest test suite.
-- Make targets: `make run` (generate env + dev), `make build`, `make test`.
+- `bun run dev`: Start Vite dev server (runs on port 3000).
+- `bun run build`: Production build to `build/`.
+- `bun run preview`: Serve the production build locally.
+- `bun test`: Run Vitest test suite.
+- Make targets: `make run` (generate env + dev), `make build`, `make test`, `make update`, `make updateall`.
 - Env injection: `./env.sh` reads `.env` and generates `env-config.js` used at runtime.
 
 ### Setup Steps
@@ -20,7 +20,7 @@
 2. Configure `.env` file with backend service URLs and credentials
 
 ## Coding Style & Naming Conventions
-- Language: TypeScript (strict mode). Framework: React 19 + MUI.
+- Language: TypeScript (strict mode). Runtime: Bun. Framework: React 19 + MUI.
 - Files: components as `PascalCase.tsx`; hooks `useSomething.ts`; utils `camelCase.ts`; types `PascalCase.ts` under `src/types/`.
 - Formatting: 2‑space indentation, single quotes, functional components + hooks.
 - Linting: ESLint configured via `.eslintrc.json` (React recommended). Use your editor’s ESLint integration.
@@ -30,7 +30,7 @@
 - Framework: Vitest + React Testing Library (`@testing-library/react`, `@testing-library/jest-dom`).
 - Naming: `*.test.tsx|ts` colocated with source.
 - JSDOM is configured in `src/setupTests.ts` (matchMedia, TextEncoder/Decoder, `window._env_`).
-- Run tests: `npm test`. Aim to cover hooks, components, and utils with focused unit tests.
+- Run tests: `bun test`. Aim to cover hooks, components, and utils with focused unit tests.
 - Test configuration: `vite.config.ts` with jsdom environment.
 - Global test utilities setup: `src/setupTests.ts`.
 
@@ -77,7 +77,7 @@
 - Variables accessed at runtime through `window._env_` global object.
 
 ## Deployment
-- Docker multi-stage build with Nginx serving static files.
-- Kubernetes deployment configurations in `deploy/` directory.
+- Docker multi-stage build using Bun for building and Nginx for serving static files.
+- Kubernetes deployment configurations in `.k8s/` directory.
 - GitHub Actions CI/CD pipeline for automated testing and deployment.
 - Environment variables injected at runtime via `env-config.js`.

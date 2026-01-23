@@ -1,18 +1,18 @@
 # Stage 1 - Build app
-FROM node:25-alpine3.22 AS builder
+FROM oven/bun:1-alpine AS builder
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json /usr/src/app/
+# Copy package.json and bun.lock
+COPY package.json bun.lock /usr/src/app/
 
 # Install dependencies
-RUN npm install --silent
+RUN bun install --frozen-lockfile
 
 # Copy the rest of the app's source code
 COPY . /usr/src/app
 
 # Build the app for production
-RUN npm run build
+RUN bun run build
 
 # Stage 2 - Run app with Nginx
 FROM nginx:1.29-alpine3.22

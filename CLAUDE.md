@@ -5,16 +5,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Essential Commands
-- `npm run dev` - Start development server (runs on port 3000)
-- `npm run build` - Build for production (outputs to `build/` directory)
-- `npm run preview` - Serve the production build locally
-- `npm test` - Run tests using Vitest
+- `bun run dev` - Start development server (runs on port 3000)
+- `bun run build` - Build for production (outputs to `build/` directory)
+- `bun run preview` - Serve the production build locally
+- `bun test` - Run tests using Vitest
 - `./env.sh` - Generate runtime environment configuration from .env file
 
 ### Make Commands (alternative)
-- `make run` - Start development server (runs `./env.sh` then `npm run dev`)
+- `make run` - Start development server (runs `./env.sh` then `bun run dev`)
 - `make build` - Build for production
 - `make test` - Run tests
+- `make update` - Update dependencies within semver ranges
+- `make updateall` - Update all dependencies to latest minor versions
 
 ### Important Setup Steps
 1. Run `./env.sh` before starting development server to generate `env-config.js` from `.env` file
@@ -26,6 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture Overview
 
 ### Tech Stack
+- **Runtime/Package Manager**: Bun
 - **Frontend**: React 19 + TypeScript 5 + Vite 7
 - **UI Framework**: Material-UI (MUI) v7 with custom theming
 - **Routing**: React Router v7
@@ -91,6 +94,13 @@ src/
 - Test files: `*.test.tsx|ts` colocated with source files
 - JSDOM configured with matchMedia, TextEncoder/Decoder, and `window._env_` polyfills
 
+### Dependency Management
+- **Package Manager**: Bun (uses `bun.lock` for lockfile)
+- **Install**: `bun install` (use `--frozen-lockfile` in CI)
+- **Update within semver ranges**: `bun update` - updates minor/patch versions based on package.json ranges
+- **Update to latest minor versions**: `bunx npm-check-updates -u --target minor && bun install` - updates all packages to latest minor versions (no major bumps)
+- **Update to latest versions (including major)**: `bun update --latest` - use with caution, may introduce breaking changes
+
 ## Coding Style & Conventions
 
 ### File Naming
@@ -116,7 +126,7 @@ src/
 - Variables consumed from `window._env_` global object at runtime
 
 ### Deployment
-- Docker multi-stage build with Nginx serving static files
-- Kubernetes deployment configurations in `deploy/` directory
+- Docker multi-stage build using Bun for building and Nginx for serving static files
+- Kubernetes deployment configurations in `.k8s/` directory
 - GitHub Actions CI/CD pipeline for automated testing and deployment
 - Environment variables injected at runtime via `env-config.js`

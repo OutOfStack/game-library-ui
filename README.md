@@ -23,7 +23,7 @@ This service is part of a game-library web application:
 
 ## Installation
 
-Prerequisites: `Node.js`, `npm`, `Make` (optional)
+Prerequisites: `Bun`, `Make` (optional)
 
 1. Clone the repository:
    ```bash
@@ -33,12 +33,12 @@ Prerequisites: `Node.js`, `npm`, `Make` (optional)
 
 2. Install dependencies:
    ```bash
-   npm install
+   bun install
    ```
 
 3. Configure the application:
 
-   Edit the `.env` file to point to your backend and auth services:
+   Edit the [`.env`](./.env) file to point to your backend and auth services:
    ```
    GAMES_URL=http://localhost:8000  # URL to the games backend service
    AUTH_URL=http://localhost:8001   # URL to the auth service
@@ -47,7 +47,7 @@ Prerequisites: `Node.js`, `npm`, `Make` (optional)
 4. Start the development server:
    ```bash
    ./env.sh # generates config from env variables
-   npm run dev
+   bun run dev
    # or with Make
    make run
    ```
@@ -75,21 +75,21 @@ For a complete game-library experience, you'll need to set up the following serv
 
 ## Configuration
 
-The application can be configured using the following environment variables in the [.env](./.env) file:
+The application can be configured using the following environment variables in the [`.env`](./.env) file:
 
 - `GAMES_URL`: URL to the games backend service
 - `AUTH_URL`: URL to the authentication service
 
-Additional configuration options can be set in [vite.config.ts](./vite.config.ts) for the development server.
+Additional configuration options can be set in [`vite.config.ts`](./vite.config.ts) for the development server.
 
 ## Development
 
 ### Available Scripts
 
-- `npm run dev`: Start the development server
-- `npm run build`: Build the application for production
-- `npm run preview`: Preview the production build locally
-- `npm test`: Run tests
+- `bun run dev`: Start the development server
+- `bun run build`: Build the application for production
+- `bun run preview`: Preview the production build locally
+- `bun test`: Run tests
 
 ### Make Commands
 
@@ -98,14 +98,15 @@ If you prefer using Make, the following commands are available:
 - `make run`: Start the development server
 - `make build`: Build the application for production
 - `make test`: Run tests
-- `make updateall`: Update all dependencies
+- `make update`: Update packages respecting version ranges
+- `make updateall`: Update all packages to their latest minor versions
 
 ## Build and Deployment
 
 ### Building for Production
 
 ```bash
-npm run build
+bun run build
 # or with Make
 make build
 ```

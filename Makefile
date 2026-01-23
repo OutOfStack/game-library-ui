@@ -2,15 +2,18 @@
 
 run:
 	./env.sh
-	npm run dev
+	bun run dev
 
 build:
-	npm install
-	npm run build
+	bun install
+	bun run build
 
 test:
-	npm test
+	bun test
+
+update:
+	bun update
 
 updateall:
-	npx npm-check-updates -u
-	npm install
+	bunx npm-check-updates -u --target minor
+	bun install
