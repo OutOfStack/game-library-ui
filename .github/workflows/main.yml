@@ -7,20 +7,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x, 22.x, 24.x, 25.x]
+        bun-version: [1.2.x, 1.3.x, latest]
     steps:
       - uses: actions/checkout@v5
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+      - name: Setup Bun ${{ matrix.bun-version }}
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: ${{ matrix.node-version }}
-      
-      - run: npm ci
-      
-      - run: CI=false && npm run build --if-present
-      
-      - run: npm test
+          bun-version: ${{ matrix.bun-version }}
+
+      - run: bun install --frozen-lockfile
+
+      - run: bun run build
+
+      - run: bun run test
 
   build_push_deploy:
     runs-on: ubuntu-latest
@@ -56,11 +56,11 @@ jobs:
         -e 's/_ACME_EMAIL_/${{ secrets.ACME_EMAIL }}/g' \
         -e 's/_UI_URL_/${{ vars.UI_URL }}/g' \
         -e 's/_GOOGLE_CLIENT_ID_/${{ secrets.GOOGLE_CLIENT_ID }}/g' \
-        deploy/*.yaml
+        .k8s/*.yaml
 
     - name: Kubernetes Apply configs
       run: | 
-        kubectl apply -f deploy/config.yaml
-        kubectl apply -f deploy/deployment.yaml
-        kubectl apply -f deploy/service.yaml
-        kubectl apply -f deploy/ingress.yaml
+        kubectl apply -f .k8s/config.yaml
+        kubectl apply -f .k8s/deployment.yaml
+        kubectl apply -f .k8s/service.yaml
+        kubectl apply -f .k8s/ingress.yaml
