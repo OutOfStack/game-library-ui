@@ -8,7 +8,7 @@ import useAuth from './useAuth'
 const useGames = () => {
   const endpoint = `${config.gamesSvc.domain}${config.gamesSvc.games}`
 
-  const { getAccessToken } = useAuth()
+  const { getAccessToken, notAuthenticatedMsg } = useAuth()
 
   const fetchPage = async (filter: IGamesFilter, pageSize: number = 20, page: number = 1) => {
     let url = `${endpoint}?pageSize=${pageSize}&page=${page}&orderBy=${filter.orderBy}&name=${filter.name}`
@@ -35,7 +35,7 @@ const useGames = () => {
     const url = endpoint
     const token = await getAccessToken()
     if (!token) {
-      return [null, 'Not authenticated'] as [null, string]
+      return [null, notAuthenticatedMsg] as [null, string]
     }
     const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
@@ -45,7 +45,7 @@ const useGames = () => {
     const url = `${endpoint}/${id}`
     const token = await getAccessToken()
     if (!token) {
-      return [null, 'Not authenticated'] as [null, string]
+      return [null, notAuthenticatedMsg] as [null, string]
     }
     const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("PUT", token, data))
     return response
@@ -55,7 +55,7 @@ const useGames = () => {
     const url = `${endpoint}/${id}/rate`
     const token = await getAccessToken()
     if (!token) {
-      return [null, 'Not authenticated'] as [null, string]
+      return [null, notAuthenticatedMsg] as [null, string]
     }
     const response = await baseRequest<IRatingResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
@@ -65,7 +65,7 @@ const useGames = () => {
     const url = `${endpoint}/images`
     const token = await getAccessToken()
     if (!token) {
-      return [null, 'Not authenticated'] as [null, string]
+      return [null, notAuthenticatedMsg] as [null, string]
     }
 
     const formData = new FormData()
