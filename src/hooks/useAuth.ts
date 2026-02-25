@@ -48,6 +48,9 @@ const useAuth = () => {
   const deleteAccount = async () => {
     const url = `${endpoint}${config.authSvc.deleteAccount}`
     const token = await getAccessToken()
+    if (!token) {
+      return 'Not authenticated'
+    }
     const response = await noContentRequest(url, authorizedRequestConfigWithCredentials("DELETE", token))
     return response
   }
@@ -67,6 +70,9 @@ const useAuth = () => {
   const verifyEmail = async (data: IVerifyEmailRequest) => {
     const url = `${endpoint}${config.authSvc.verifyEmail}`
     const token = await getAccessToken()
+    if (!token) {
+      return [null, 'Not authenticated'] as [null, string]
+    }
     const response = await baseRequest<IToken>(url, authorizedRequestConfigWithCredentials("POST", token, data))
     return response
   }
@@ -74,6 +80,7 @@ const useAuth = () => {
   const resendVerification = async () => {
     const url = `${endpoint}${config.authSvc.resendVerification}`
     const token = await getAccessToken()
+    if (!token) return [null, 'Not authenticated'] as [null, string]
     const response = await baseRequest(url, authorizedRequestConfig('POST', token))
     return response
   }

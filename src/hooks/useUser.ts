@@ -12,6 +12,9 @@ const useUser = () => {
   const fetchRatings = async (data: IGetUserRatings) => {
     const url = `${endpoint}/ratings`
     const token = await getAccessToken()
+    if (!token) {
+      return [null, 'Not authenticated'] as [null, string]
+    }
     const response = await baseRequest<IGetUserRatingsResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }

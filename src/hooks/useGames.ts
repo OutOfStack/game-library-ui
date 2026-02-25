@@ -34,6 +34,9 @@ const useGames = () => {
   const create = async (data: ICreateGame) => {
     const url = endpoint
     const token = await getAccessToken()
+    if (!token) {
+      return [null, 'Not authenticated'] as [null, string]
+    }
     const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
@@ -41,6 +44,9 @@ const useGames = () => {
   const updateById = async (data: IUpdateGame, id: number) => {
     const url = `${endpoint}/${id}`
     const token = await getAccessToken()
+    if (!token) {
+      return [null, 'Not authenticated'] as [null, string]
+    }
     const response = await baseRequest<IGameResponse>(url, authorizedRequestConfig("PUT", token, data))
     return response
   }
@@ -48,6 +54,9 @@ const useGames = () => {
   const rate = async (data: ICreateRating, id: number) => {
     const url = `${endpoint}/${id}/rate`
     const token = await getAccessToken()
+    if (!token) {
+      return [null, 'Not authenticated'] as [null, string]
+    }
     const response = await baseRequest<IRatingResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
@@ -55,6 +64,9 @@ const useGames = () => {
   const uploadGameImages = async (cover: File, screenshots: File[]) => {
     const url = `${endpoint}/images`
     const token = await getAccessToken()
+    if (!token) {
+      return [null, 'Not authenticated'] as [null, string]
+    }
 
     const formData = new FormData()
     if (cover) {
