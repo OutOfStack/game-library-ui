@@ -9,64 +9,64 @@ jobs:
       matrix:
         bun-version: [1.2.x, 1.3.x, latest]
     steps:
-      - uses: actions/checkout@v6
+    - uses: actions/checkout@v6
 
-      - name: Setup Bun ${{ matrix.bun-version }}
-        uses: oven-sh/setup-bun@v2
-        with:
+    - name: Setup Bun ${{ matrix.bun-version }}
+      uses: oven-sh/setup-bun@v2
+      with:
           bun-version: ${{ matrix.bun-version }}
 
-      - run: bun install --frozen-lockfile
+    - run: bun install --frozen-lockfile
 
-      - run: bun run build
+    - run: bun run build
 
-      - run: bun run test
+    - run: bun run test
 
   build_push_deploy:
     runs-on: ubuntu-latest
     needs: test
     if: ${{ github.ref_name == 'main' }}
     steps:
-      - uses: actions/checkout@v6
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: asctod/game-library-ui:latest,asctod/game-library-ui:${{ github.sha }}
+    - uses: actions/checkout@v6
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        tags: asctod/game-library-ui:latest,asctod/game-library-ui:${{ github.sha }}
 
-      - name: Kubernetes Set Context
-        uses: Azure/k8s-set-context@v4
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.K8S_CLUSTER_CONFIG }}
+    - name: Kubernetes Set Context
+      uses: Azure/k8s-set-context@v4
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.K8S_CLUSTER_CONFIG }}
 
-      - name: Replace deployment variables
-        run: |
-          sed -i'' \
-          -e 's/_K8S_URL_/${{ secrets.K8S_URL }}/g' \
-          -e 's/_IMAGE_TAG_/${{ github.sha }}/g' \
-          -e 's/_UI_URL_/${{ vars.UI_URL }}/g' \
-          -e 's/_GOOGLE_CLIENT_ID_/${{ secrets.GOOGLE_CLIENT_ID }}/g' \
-          .k8s/*.yaml
+    - name: Replace deployment variables
+      run: |
+        sed -i'' \
+        -e 's/_K8S_URL_/${{ secrets.K8S_URL }}/g' \
+        -e 's/_IMAGE_TAG_/${{ github.sha }}/g' \
+        -e 's/_UI_URL_/${{ vars.UI_URL }}/g' \
+        -e 's/_GOOGLE_CLIENT_ID_/${{ secrets.GOOGLE_CLIENT_ID }}/g' \
+        .k8s/*.yaml
 
-      - name: Kubernetes diff changes
-        run: |
-          kubectl diff -f .k8s/config.yaml || true
-          kubectl diff -f .k8s/deployment.yaml || true
-          kubectl diff -f .k8s/service.yaml || true
-          kubectl diff -f .k8s/ingress.yaml || true
+    - name: Kubernetes diff changes
+      run: |
+        kubectl diff -f .k8s/config.yaml || true
+        kubectl diff -f .k8s/deployment.yaml || true
+        kubectl diff -f .k8s/service.yaml || true
+        kubectl diff -f .k8s/ingress.yaml || true
 
-      - name: Kubernetes Apply configs
-        run: |
-          kubectl apply -f .k8s/config.yaml
-          kubectl apply -f .k8s/deployment.yaml
-          kubectl apply -f .k8s/service.yaml
-          kubectl apply -f .k8s/ingress.yaml
+    - name: Kubernetes Apply configs
+      run: |
+        kubectl apply -f .k8s/config.yaml
+        kubectl apply -f .k8s/deployment.yaml
+        kubectl apply -f .k8s/service.yaml
+        kubectl apply -f .k8s/ingress.yaml

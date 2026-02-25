@@ -80,7 +80,9 @@ const useAuth = () => {
   const resendVerification = async () => {
     const url = `${endpoint}${config.authSvc.resendVerification}`
     const token = await getAccessToken()
-    if (!token) return [null, 'Not authenticated'] as [null, string]
+    if (!token) {
+      return [null, 'Not authenticated'] as [null, string]
+    }
     const response = await baseRequest(url, authorizedRequestConfig('POST', token))
     return response
   }
