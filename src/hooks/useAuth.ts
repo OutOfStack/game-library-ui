@@ -8,8 +8,11 @@ import { ISignUp } from '../types/Auth/SignUp'
 import { ISignIn } from '../types/Auth/SignIn'
 import { IJWToken, IToken } from '../types/Auth/Claims'
 import { IVerifyEmailRequest } from '../types/Auth/EmailVerification'
+import { IValidationResponse } from '../types/Validation'
 
 const lsKey = 'gl_user_token'
+
+const notAuthenticatedMsg = 'Not authenticated'
 
 const subscribers = new Set<() => void>()
 const notify = () => subscribers.forEach((cb) => cb())
@@ -33,48 +36,57 @@ let refreshContext: string | null | undefined
 const useAuth = () => {
   const endpoint = config.authSvc.domain
 
-  const signUp = async (data: ISignUp) => {
+  const signUp = async (data: ISignUp): Promise<[number | IToken | null, string | IValidationResponse | null]> => {
     const url = `${endpoint}${config.authSvc.signUp}`
     const response = await baseRequest<IToken>(url, postRequestConfigWithCredentials(data))
     return response
   }
 
-  const signIn = async (data: ISignIn) => {
+  const signIn = async (data: ISignIn): Promise<[number | IToken | null, string | IValidationResponse | null]> => {
     const url = `${endpoint}${config.authSvc.signIn}`
     const response = await baseRequest<IToken>(url, postRequestConfigWithCredentials(data))
     return response
   }
 
-  const deleteAccount = async () => {
+  const deleteAccount = async (): Promise<string | IValidationResponse | null> => {
     const url = `${endpoint}${config.authSvc.deleteAccount}`
     const token = await getAccessToken()
+    if (!token) {
+      return notAuthenticatedMsg
+    }
     const response = await noContentRequest(url, authorizedRequestConfigWithCredentials("DELETE", token))
     return response
   }
 
-  const signInWithGoogle = async (idToken: string) => {
+  const signInWithGoogle = async (idToken: string): Promise<[number | IToken | null, string | IValidationResponse | null]> => {
     const url = `${endpoint}/oauth/google`
     const response = await baseRequest<IToken>(url, postRequestConfigWithCredentials({ idToken: idToken }))
     return response
   }
 
-  const signOut = async () => {
+  const signOut = async (): Promise<string | IValidationResponse | null> => {
     const url = `${endpoint}${config.authSvc.logout}`
     const response = await noContentRequest(url, postRequestConfigWithCredentials())
     return response
   }
 
-  const verifyEmail = async (data: IVerifyEmailRequest) => {
+  const verifyEmail = async (data: IVerifyEmailRequest): Promise<[number | IToken | null, string | IValidationResponse | null]> => {
     const url = `${endpoint}${config.authSvc.verifyEmail}`
     const token = await getAccessToken()
+    if (!token) {
+      return [null, notAuthenticatedMsg] as [null, string]
+    }
     const response = await baseRequest<IToken>(url, authorizedRequestConfigWithCredentials("POST", token, data))
     return response
   }
 
-  const resendVerification = async () => {
+  const resendVerification = async (): Promise<string | IValidationResponse | null> => {
     const url = `${endpoint}${config.authSvc.resendVerification}`
     const token = await getAccessToken()
-    const response = await baseRequest(url, authorizedRequestConfig('POST', token))
+    if (!token) {
+      return notAuthenticatedMsg
+    }
+    const response = await noContentRequest(url, authorizedRequestConfig('POST', token))
     return response
   }
 
@@ -257,7 +269,8 @@ const useAuth = () => {
     deleteAccount,
     signInWithGoogle,
     verifyEmail,
-    resendVerification
+    resendVerification,
+    notAuthenticatedMsg
   }
 }
 

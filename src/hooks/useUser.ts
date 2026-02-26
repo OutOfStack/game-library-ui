@@ -7,11 +7,14 @@ import { IGetUserRatings, IGetUserRatingsResponse } from '../types/Rating'
 const useUser = () => {
   const endpoint = `${config.gamesSvc.domain}${config.gamesSvc.user}`
 
-  const { getAccessToken } = useAuth()
+  const { getAccessToken, notAuthenticatedMsg } = useAuth()
 
   const fetchRatings = async (data: IGetUserRatings) => {
     const url = `${endpoint}/ratings`
     const token = await getAccessToken()
+    if (!token) {
+      return [null, notAuthenticatedMsg] as [null, string]
+    }
     const response = await baseRequest<IGetUserRatingsResponse>(url, authorizedRequestConfig("POST", token, data))
     return response
   }
