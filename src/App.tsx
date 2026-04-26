@@ -5,8 +5,9 @@ import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/
 import { grey, blueGrey, blue } from '@mui/material/colors'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
-const Landing = lazy(() => import('./views/Landing'))
 import Header from './components/Header'
+import GitHubCallbackPage from './views/GitHubCallback'
+const Landing = lazy(() => import('./views/Landing'))
 
 
 const dmKey = 'gl_dark_mode'
@@ -37,14 +38,14 @@ const App = () => {
         },
         ...(darkMode
           ? {
-              background: { default: '#121212', paper: grey[900] },
-              divider: grey[800]
-            }
+            background: { default: '#121212', paper: grey[900] },
+            divider: grey[800]
+          }
           : {
-              background: { default: grey[200], paper: grey[100] },
-              divider: grey[300],
-              text: { primary: grey[900], secondary: grey[700] }
-            }
+            background: { default: grey[200], paper: grey[100] },
+            divider: grey[300],
+            text: { primary: grey[900], secondary: grey[700] }
+          }
         ),
         tonalOffset: 0.2
       },
@@ -67,17 +68,21 @@ const App = () => {
       path: "/",
       element: (
         <Suspense fallback={<div style={{ display: 'grid', placeItems: 'center', minHeight: '50vh' }}>Loading…</div>}>
-          <Landing darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} />
+          <Landing darkModeProps={{ darkMode: darkMode, changeMode: handleChangeMode }} />
         </Suspense>
       )
     },
     {
+      path: "/oauth/github/callback",
+      element: <GitHubCallbackPage />
+    },
+    {
       path: "*",
-      element: 
+      element:
         <>
-          <Header darkModeProps={{darkMode: darkMode, changeMode: handleChangeMode}} searchFieldProps={{text: "", disabled: true} }/>
+          <Header darkModeProps={{ darkMode: darkMode, changeMode: handleChangeMode }} searchFieldProps={{ text: "", disabled: true }} />
           <Container sx={{ paddingTop: theme.spacing(2) }} disableGutters={true}>
-            <Typography variant="h5" sx={{textAlign: "center"}}>Page Not Found</Typography>
+            <Typography variant="h5" sx={{ textAlign: "center" }}>Page Not Found</Typography>
           </Container>
         </>
     }

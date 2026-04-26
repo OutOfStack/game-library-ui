@@ -69,10 +69,19 @@ Object.defineProperty(window, 'localStorage', {
   writable: true
 })
 
+const sessionStorageMock = new LocalStorageMock()
+global.sessionStorage = sessionStorageMock
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: sessionStorageMock,
+  writable: true
+})
+
 // Mock environment variables
 Object.defineProperty(window, '_env_', {
   value: {
     GOOGLE_CLIENT_ID: 'test-client-id',
+    GITHUB_CLIENT_ID: 'test-client-id',
     EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS: '120',
     GAMES_URL: 'http://localhost:8000',
     AUTH_URL: 'http://localhost:8001'
