@@ -1,4 +1,4 @@
-.PHONY: run build test updateall
+.PHONY: run build test outdated update updateall
 
 run:
 	./env.sh
@@ -10,6 +10,9 @@ build:
 
 test:
 	bun run test
+
+outdated:
+	bun outdated
 
 update:
 	bun update

@@ -39,7 +39,7 @@ const App = () => {
         ...(darkMode
           ? {
             background: { default: '#121212', paper: grey[900] },
-            divider: grey[800]
+            divider: '#373737'
           }
           : {
             background: { default: grey[200], paper: grey[100] },

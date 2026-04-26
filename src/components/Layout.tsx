@@ -1,6 +1,4 @@
 import { Box, Container, Paper } from '@mui/material'
-import { makeStyles } from 'tss-react/mui'
-import { Theme } from '@mui/material/styles'
 import { grey } from '@mui/material/colors'
 
 import Header, { ISearchFieldProps, IDarkModeProps } from './Header'
@@ -14,25 +12,10 @@ interface ILayoutProps {
 
 const Layout = (props: ILayoutProps) => {
   const { children, searchFieldProps, darkModeProps } = props
-  
-  const useStyles = makeStyles()((theme: Theme) => ({
-    paper: {
-      backgroundColor: darkModeProps.darkMode ? grey[800] : grey[200],
-      minHeight: '100vh',
-      elevation: 0
-    },
-    container: {
-      paddingTop: theme.spacing(2),
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1)
-    }
-  }))
-
-  const { classes } = useStyles()
 
   return (
     <Box>
-      <Paper className={classes.paper}>
+      <Paper sx={{ backgroundColor: darkModeProps.darkMode ? grey[800] : grey[200], minHeight: '100vh' }} elevation={0}>
         <Header searchFieldProps={searchFieldProps} darkModeProps={darkModeProps} />
         <Container maxWidth="lg" sx={{ pt: 2 }}>
           {children}
