@@ -55,7 +55,7 @@ jobs:
         -e 's/_IMAGE_TAG_/${{ github.sha }}/g' \
         -e 's/_UI_URL_/${{ vars.UI_URL }}/g' \
         -e 's/_GOOGLE_CLIENT_ID_/${{ secrets.GOOGLE_CLIENT_ID }}/g' \
-        -e 's/_GITHUB_CLIENT_ID_/${{ secrets.GITHUB_CLIENT_ID }}/g' \
+        -e 's/_GITHUB_CLIENT_ID_/${{ secrets.GH_CLIENT_ID }}/g' \
         .k8s/*.yaml
 
     - name: Kubernetes diff changes
