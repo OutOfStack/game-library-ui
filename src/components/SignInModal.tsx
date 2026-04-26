@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material/styles'
 
 import Modal from './Modal'
 import GoogleSignInButton from './GoogleSignInButton'
+import GitHubSignInButton from './GitHubSignInButton'
 import { ISignIn } from '../types/Auth/SignIn'
 import { IToken } from '../types/Auth/Claims'
 import { IValidationResponse } from '../types/Validation'
@@ -172,6 +173,9 @@ const SignInModal = (props: ISignInModalProps) => {
         <GoogleSignInButton
           onSuccess={handleGoogleSignIn}
           onError={handleGoogleError}
+          width={matchesMd ? 250 : 180}
+        />
+        <GitHubSignInButton
           width={matchesMd ? 250 : 180}
         />
       </>

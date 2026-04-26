@@ -202,4 +202,34 @@ describe('useAuth', () => {
     expect(tokens).toEqual(['refreshed-token', 'refreshed-token'])
 
   })
+
+  test('signs in with GitHub using the authorization code', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'content-length': '1' }),
+      json: async () => ({ accessToken: 'github-token' })
+    } as Response)
+    global.fetch = fetchMock as any
+    localStorage.setItem(lsKey, JSON.stringify({ accessToken: 'valid-token' }))
+
+    const { result } = renderHook(() => useAuth())
+
+    let response: any
+    await act(async () => {
+      response = await result.current.signInWithGitHub('github-code')
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8001/oauth/github',
+      expect.objectContaining({
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({ code: 'github-code' })
+      })
+    )
+    expect(response?.[0]).toEqual({ accessToken: 'github-token' })
+    expect(response?.[1]).toBeNull()
+  })
 })

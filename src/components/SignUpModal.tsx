@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material/styles'
 
 import Modal from './Modal'
 import GoogleSignInButton from './GoogleSignInButton'
+import GitHubSignInButton from './GitHubSignInButton'
 import { ISignUp } from '../types/Auth/SignUp'
 import { IToken } from '../types/Auth/Claims'
 import { IValidationResponse } from '../types/Validation'
@@ -220,7 +221,7 @@ const SignUpModal = (props: ISignUpModalProps) => {
         </Grid>
         <Grid sx={{ minWidth: matchesMd ? '400px' : '210px' }}>
           <Tooltip
-            title="Contributors can add games to the library but cannot rate games. Email verification required. Note: Google Sign-In is not available for contributors."
+            title="Contributors can add games to the library but cannot rate games. Email verification required. Note: Social sign-in is not available for contributors."
             placement={matchesMd ? "right" : "top"}
             enterTouchDelay={0}
             leaveTouchDelay={3000}
@@ -312,11 +313,16 @@ const SignUpModal = (props: ISignUpModalProps) => {
           )}
         </Grid>
         {!signUpData.isPublisher && (
-          <GoogleSignInButton
-            onSuccess={handleGoogleSignUp}
-            onError={handleGoogleError}
-            width={matchesMd ? 250 : 180}
-          />
+          <>
+            <GoogleSignInButton
+              onSuccess={handleGoogleSignUp}
+              onError={handleGoogleError}
+              width={matchesMd ? 250 : 180}
+            />
+            <GitHubSignInButton
+              width={matchesMd ? 250 : 180}
+            />
+          </>
         )}
       </>
     </Modal>

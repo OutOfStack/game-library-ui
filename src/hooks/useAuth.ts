@@ -64,6 +64,12 @@ const useAuth = () => {
     return response
   }
 
+  const signInWithGitHub = async (code: string): Promise<[number | IToken | null, string | IValidationResponse | null]> => {
+    const url = `${endpoint}/oauth/github`
+    const response = await baseRequest<IToken>(url, postRequestConfigWithCredentials({ code }))
+    return response
+  }
+
   const signOut = async (): Promise<string | IValidationResponse | null> => {
     const url = `${endpoint}${config.authSvc.logout}`
     const response = await noContentRequest(url, postRequestConfigWithCredentials())
@@ -268,6 +274,7 @@ const useAuth = () => {
     signIn,
     deleteAccount,
     signInWithGoogle,
+    signInWithGitHub,
     verifyEmail,
     resendVerification,
     notAuthenticatedMsg
