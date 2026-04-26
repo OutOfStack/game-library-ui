@@ -3,11 +3,11 @@ import { describe, expect, test } from 'vitest'
 import { buildGitHubAuthUrl, getGitHubAuthErrorMessage } from './githubAuth'
 
 describe('githubAuth utils', () => {
-  test('builds the GitHub authorization url with scopes and callback', () => {
-    const url = buildGitHubAuthUrl('client-id', 'http://localhost:3000')
+  test('builds the GitHub authorization url with scopes, callback, and state', () => {
+    const url = buildGitHubAuthUrl('client-id', 'http://localhost:3000', 'random-state')
 
     expect(url).toBe(
-      'https://github.com/login/oauth/authorize?client_id=client-id&scope=read%3Auser+user%3Aemail&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Fgithub%2Fcallback'
+      'https://github.com/login/oauth/authorize?client_id=client-id&scope=read%3Auser+user%3Aemail&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Fgithub%2Fcallback&state=random-state'
     )
   })
 

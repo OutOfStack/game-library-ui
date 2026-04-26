@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import useAuth from '../hooks/useAuth'
 import { IToken } from '../types/Auth/Claims'
 import { IValidationResponse } from '../types/Validation'
-import { getGitHubAuthErrorMessage } from '../utils/githubAuth'
+import { getGitHubAuthErrorMessage, githubAuthStateKey } from '../utils/githubAuth'
 
 const GitHubCallbackPage = () => {
   const [searchParams] = useSearchParams()
@@ -15,11 +15,22 @@ const GitHubCallbackPage = () => {
   const [errorText, setErrorText] = useState('')
 
   useEffect(() => {
+    if (calledRef.current) {
+      return
+    }
+
+    // CSRF protection: the state we sent in the authorize redirect must come back unchanged
     const code = searchParams.get('code')
-    if (!code || calledRef.current) {
-      if (!code) {
-        setErrorText('Missing GitHub authorization code.')
-      }
+    const state = searchParams.get('state')
+    const storedState = sessionStorage.getItem(githubAuthStateKey)
+    sessionStorage.removeItem(githubAuthStateKey)
+
+    if (!code) {
+      setErrorText('Missing GitHub authorization code.')
+      return
+    }
+    if (!state || !storedState || state !== storedState) {
+      setErrorText('Invalid GitHub authorization state.')
       return
     }
 

@@ -1,10 +1,12 @@
 const githubAuthUrl = 'https://github.com/login/oauth/authorize'
+const githubAuthStateKey = 'gh_auth_state'
 
-const buildGitHubAuthUrl = (clientId: string, origin: string): string => {
+const buildGitHubAuthUrl = (clientId: string, origin: string, state: string): string => {
   const params = new URLSearchParams({
     client_id: clientId,
     scope: 'read:user user:email',
-    redirect_uri: `${origin}/oauth/github/callback`
+    redirect_uri: `${origin}/oauth/github/callback`,
+    state
   })
 
   return `${githubAuthUrl}?${params.toString()}`
@@ -20,4 +22,4 @@ const getGitHubAuthErrorMessage = (status?: number, fallback?: string): string =
   return fallback || 'GitHub sign-in failed'
 }
 
-export { buildGitHubAuthUrl, getGitHubAuthErrorMessage }
+export { buildGitHubAuthUrl, getGitHubAuthErrorMessage, githubAuthStateKey }
