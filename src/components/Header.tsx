@@ -5,7 +5,6 @@ import {
   IconButton, Snackbar, Toolbar, Tooltip, Typography, useMediaQuery
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { makeStyles } from 'tss-react/mui'
 import LoginIcon from '@mui/icons-material/LoginRounded'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import DarkModeIcon from '@mui/icons-material/DarkModeRounded'
@@ -22,12 +21,6 @@ import { IToken } from '../types/Auth/Claims'
 import { IValidationResponse } from '../types/Validation'
 import { stringAvatar } from '../utils/avatar'
 import useAuth from '../hooks/useAuth'
-
-const useStyles = makeStyles()(() => ({
-  title: {
-    cursor: 'pointer'
-  }
-}))
 
 export interface ISearchFieldProps {
   text: string,
@@ -49,7 +42,6 @@ const Header = (props: IHeaderProps) => {
   const { searchFieldProps, darkModeProps } = props
 
   const { claims, isAuthenticated, setUserTokenStorage, logout, verifyEmail, resendVerification } = useAuth()
-  const { classes } = useStyles()
   const navigate = useNavigate()
   const theme = useTheme()
   const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
@@ -192,14 +184,10 @@ const Header = (props: IHeaderProps) => {
         <Toolbar sx={matchesXs ? { pr: 1, pl: 1 } : {}}>
           <Typography
             variant={matchesXs ? 'subtitle2' : 'h5'}
-            sx={matchesMd ? { mr: 2, ml: '5vw' } : {}}
+            sx={{ cursor: 'pointer', ...(matchesMd ? { mr: 2, ml: '5vw' } : {}) }}
+            onClick={() => { navigate("/"); navigate(0) }}
           >
-            <span
-              onClick={() => { navigate("/"); navigate(0) }}
-              className={classes.title}
-            >
-              Game Library
-            </span>
+            Game Library
           </Typography>
 
           <Box sx={{ flexGrow: 1 }} />
