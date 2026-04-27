@@ -184,14 +184,10 @@ const Header = (props: IHeaderProps) => {
         <Toolbar sx={matchesXs ? { pr: 1, pl: 1 } : {}}>
           <Typography
             variant={matchesXs ? 'subtitle2' : 'h5'}
-            sx={matchesMd ? { mr: 2, ml: '5vw' } : {}}
+            sx={{ cursor: 'pointer', ...(matchesMd ? { mr: 2, ml: '5vw' } : {}) }}
+            onClick={() => { navigate("/"); navigate(0) }}
           >
-            <span
-              onClick={() => { navigate("/"); navigate(0) }}
-              style={{ cursor: 'pointer' }}
-            >
-              Game Library
-            </span>
+            Game Library
           </Typography>
 
           <Box sx={{ flexGrow: 1 }} />
