@@ -300,7 +300,7 @@ const Landing = (props: ILandingProps) => {
           )}
 
           {/* Sort row */}
-          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ pb: 2 }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', pb: 2 }}>
             <ToggleButtonGroup
               value={navigation.orderBy}
               size="small"
