@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Backdrop, Box, Button, CircularProgress, Grid, Pagination, Stack, Typography, ToggleButton,
-  ToggleButtonGroup, useMediaQuery, useTheme, Chip, ListItem, List, ListItemText, ListItemButton
+  ToggleButtonGroup, useMediaQuery, useTheme, ListItem, List, ListItemText, ListItemButton, Divider
 } from '@mui/material'
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -9,9 +9,6 @@ import AbcIcon from '@mui/icons-material/AbcRounded'
 import WhatshotIcon from '@mui/icons-material/WhatshotRounded'
 import DateRangeIcon from '@mui/icons-material/DateRangeRounded'
 import StarIcon from '@mui/icons-material/StarHalfRounded'
-import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined'
-import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined'
-import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined'
 
 import Layout from '../components/Layout'
 import GameCard from '../components/GameCard'
@@ -35,7 +32,102 @@ import Footer from '../components/Footer'
 
 
 const topCategoriesLimit = 8
-const selectedCategoryColor = "#1ea0c0"
+
+interface IFacetGroupProps {
+  title: string
+  items: { id: number; name: string }[]
+  selected: number
+  onSelect: (type: 'genre' | 'publisher' | 'developer', id: number) => void
+  type: 'genre' | 'publisher' | 'developer'
+}
+
+const FacetGroup = ({ title, items, selected, onSelect, type }: IFacetGroupProps) => {
+  const theme = useTheme()
+  const accent = theme.palette.primary.main
+
+  if (items.length === 0) return null
+
+  return (
+    <Box sx={{ mb: 3 }}>
+      <Typography variant="overline" sx={{ display: 'block', color: 'text.secondary', mb: 0.5 }}>
+        {title}
+      </Typography>
+      <Divider sx={{ mb: 0.5 }} />
+      <List dense disablePadding>
+        {items.map(item => {
+          const isSel = selected === item.id
+          return (
+            <ListItem key={item.id} disablePadding>
+              <ListItemButton
+                dense
+                selected={isSel}
+                onClick={() => onSelect(type, item.id)}
+                sx={{
+                  borderRadius: 1.5,
+                  borderLeft: `2px solid ${isSel ? accent : 'transparent'}`,
+                  pl: 1.25,
+                  py: 0.75,
+                  '&.Mui-selected': {
+                    bgcolor: 'action.selected',
+                    color: 'text.primary',
+                    fontWeight: 500,
+                    '&:hover': { bgcolor: 'action.selected' },
+                  },
+                }}
+              >
+                <ListItemText
+                  primary={item.name}
+                  slotProps={{ primary: { fontSize: 13, fontWeight: isSel ? 500 : 400 } }}
+                  sx={{ m: 0 }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )
+        })}
+      </List>
+    </Box>
+  )
+}
+
+interface IMobilePillRowProps {
+  items: { id: number; name: string }[]
+  selected: number
+  onSelect: (type: 'genre' | 'publisher' | 'developer', id: number) => void
+  type: 'genre' | 'publisher' | 'developer'
+}
+
+const MobilePillRow = ({ items, selected, onSelect, type }: IMobilePillRowProps) => {
+  const theme = useTheme()
+  if (items.length === 0) return null
+  return (
+    <Box sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', '&::-webkit-scrollbar': { display: 'none' } }}>
+      {items.map(item => {
+        const isSel = selected === item.id
+        return (
+          <Box
+            key={item.id}
+            onClick={() => onSelect(type, item.id)}
+            sx={{
+              flexShrink: 0,
+              px: 1.5, py: 0.625, borderRadius: 999,
+              fontSize: 12, fontWeight: isSel ? 500 : 400,
+              border: '1px solid',
+              borderColor: isSel ? 'primary.main' : 'divider',
+              bgcolor: isSel ? `${theme.palette.primary.main}22` : 'transparent',
+              color: isSel ? 'text.primary' : 'text.secondary',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              userSelect: 'none',
+              transition: 'all 120ms',
+            }}
+          >
+            {item.name}
+          </Box>
+        )
+      })}
+    </Box>
+  )
+}
 
 interface ILandingProps {
   darkModeProps: IDarkModeProps
@@ -63,8 +155,8 @@ const Landing = (props: ILandingProps) => {
   } = useGamesNavigation()
 
   const theme = useTheme()
-  const matchesSm = useMediaQuery(theme.breakpoints.only('sm'))
   const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
+  const matchesMd = useMediaQuery(theme.breakpoints.up('md'))
 
   const [data, setData] = useState<IGame[]>([])
   const [count, setCount] = useState<number>(0)
@@ -72,18 +164,11 @@ const Landing = (props: ILandingProps) => {
   const [topGenres, setTopGenres] = useState<IGenre[]>([])
   const [topDevelopers, setTopDevelopers] = useState<ICompany[]>([])
   const [topPublishers, setTopPublishers] = useState<ICompany[]>([])
-  const [topCategoriesOpen, setTopCategoriesOpen] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const [alert, setAlert] = useState<string | IValidationResponse | null>(null)
 
-  const mediaQueryToSize = (): "small" | "medium" => {
-    return matchesXs ? "small" : "medium"
-  }
-
-  const mediaQueryToTextSize = (): "small" | "medium" => {
-    return matchesXs ? "small" : "medium"
-  }
+  const mediaQueryToSize = (): 'small' | 'medium' => matchesXs ? 'small' : 'medium'
 
   //#region game details modal
   const [selectedGame, setSelectedGame] = useState<IGame | null>(null)
@@ -98,11 +183,9 @@ const Landing = (props: ILandingProps) => {
     setSelectedGame(game)
     setGameDetailsOpen(true)
   }
-
   //#endregion
 
   //#region add game
-
   const [addGameDialogOpen, setAddGameDialogOpen] = useState(false)
 
   const handleAddGameDialogOpen = () => {
@@ -113,22 +196,15 @@ const Landing = (props: ILandingProps) => {
     setAddGameDialogOpen(true)
   }
   const handleAddGameDialogClose = () => setAddGameDialogOpen(false)
-
   //#endregion
 
   // get user ratings
   useEffect(() => {
     const getRatings = async () => {
       const gameIds = data.map(d => d.id)
-      const [resp, err] = await fetchRatings({
-        gameIds: gameIds
-      })
-      if (err) {
-        setAlert(err)
-        return
-      }
-      const ratings = resp as IGetUserRatingsResponse
-      setUserRatings(ratings)
+      const [resp, err] = await fetchRatings({ gameIds })
+      if (err) { setAlert(err); return }
+      setUserRatings(resp as IGetUserRatingsResponse)
     }
     if (isAuthenticated && hasRole([roles.user])) {
       getRatings()
@@ -137,31 +213,23 @@ const Landing = (props: ILandingProps) => {
     }
   }, [data, isAuthenticated])
 
-  // fetch games with pagination when page, order by or search text changes
+  // fetch games
   useEffect(() => {
     const getData = async () => {
       setIsLoading(true)
-      let filter = {
+      const filter = {
         orderBy: navigation.orderBy,
         name: navigation.searchText,
         genre: navigation.genre,
         developer: navigation.developer,
-        publisher: navigation.publisher
+        publisher: navigation.publisher,
       } as IGamesFilter
       const [resp, err] = await fetchGames(filter, navigation.pageSize, navigation.page)
-      if (err) {
-        setAlert(err)
-        setIsLoading(false)
-        return
-      }
+      if (err) { setAlert(err); setIsLoading(false); return }
       const gamesResp = resp as IGames
       setData(gamesResp.games)
-
       setCount(gamesResp.count)
-      if (navigation.page > pagesCount(gamesResp.count)) {
-        resetToFirstPage()
-      }
-
+      if (navigation.page > pagesCount(gamesResp.count)) resetToFirstPage()
       setIsLoading(false)
     }
     getData()
@@ -171,12 +239,8 @@ const Landing = (props: ILandingProps) => {
   useEffect(() => {
     const getTopGenres = async () => {
       const [resp, err] = await fetchTopGenres()
-      if (err) {
-        setAlert(err)
-        return
-      }
-      const genres = resp as IGenre[]
-      setTopGenres(genres.slice(0, topCategoriesLimit))
+      if (err) { setAlert(err); return }
+      setTopGenres((resp as IGenre[]).slice(0, topCategoriesLimit))
     }
     getTopGenres()
   }, [])
@@ -184,13 +248,9 @@ const Landing = (props: ILandingProps) => {
   // fetch top developers
   useEffect(() => {
     const getTopDevelopers = async () => {
-      const [resp, err] = await fetchTopCompanies("dev")
-      if (err) {
-        setAlert(err)
-        return
-      }
-      const developers = resp as ICompany[]
-      setTopDevelopers(developers.slice(0, topCategoriesLimit))
+      const [resp, err] = await fetchTopCompanies('dev')
+      if (err) { setAlert(err); return }
+      setTopDevelopers((resp as ICompany[]).slice(0, topCategoriesLimit))
     }
     getTopDevelopers()
   }, [])
@@ -198,13 +258,9 @@ const Landing = (props: ILandingProps) => {
   // fetch top publishers
   useEffect(() => {
     const getTopPublishers = async () => {
-      const [resp, err] = await fetchTopCompanies("pub")
-      if (err) {
-        setAlert(err)
-        return
-      }
-      const publishers = resp as ICompany[]
-      setTopPublishers(publishers.slice(0, topCategoriesLimit))
+      const [resp, err] = await fetchTopCompanies('pub')
+      if (err) { setAlert(err); return }
+      setTopPublishers((resp as ICompany[]).slice(0, topCategoriesLimit))
     }
     getTopPublishers()
   }, [])
@@ -214,252 +270,134 @@ const Landing = (props: ILandingProps) => {
     changeText: handleSearchTextChange
   }
 
-  const categoryApplied = (): boolean => {
-    return !!navigation.genre || !!navigation.developer || !!navigation.publisher
-  }
+  const categoryApplied = (): boolean =>
+    !!navigation.genre || !!navigation.developer || !!navigation.publisher
+
+  const hasSidebarData = topGenres.length > 0 || topDevelopers.length > 0 || topPublishers.length > 0
 
   return (
     <LocalizationProvider dateAdapter={DateAdapter}>
       <Layout searchFieldProps={searchFieldProps} darkModeProps={darkModeProps}>
-        <Backdrop
-          sx={theme => ({
-            color: '#fff',
-            zIndex: theme.zIndex.drawer + 1
-          })}
-          open={isLoading}
-        >
+        <Backdrop sx={t => ({ color: '#fff', zIndex: t.zIndex.drawer + 1 })} open={isLoading}>
           <CircularProgress color="inherit" />
         </Backdrop>
 
-        {/** Add game modal - closed by default */}
         <AddGameModal
           handleAddGameDialogClose={handleAddGameDialogClose}
           addGameDialogOpen={addGameDialogOpen}
         />
 
-        <Notification
-          message={alert}
-          resetMessage={() => setAlert(null)}
-        />
+        <Notification message={alert} resetMessage={() => setAlert(null)} />
 
-        <Box sx={{ pb: 3 }}>
-          {/** Publisher-specific features like add game */}
-          {hasRole([roles.publisher]) &&
-            <Grid container direction="row" sx={{ justifyContent: "space-between", alignItems: "left", pb: 2 }}>
-              <Grid size={{ xs: 8, sm: 9 }}>
-                <Box />
-              </Grid>
-              <Grid sx={{ textAlign: "right" }} size={{ xs: 4, sm: 3 }}>
-                <Button variant="contained" size={mediaQueryToSize()} onClick={() => handleAddGameDialogOpen()}>ADD GAME</Button>
-              </Grid>
-            </Grid>
-          }
+        <Box sx={{ pb: 4 }}>
+          {/* Publisher — add game */}
+          {hasRole([roles.publisher]) && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pb: 2 }}>
+              <Button variant="contained" size={mediaQueryToSize()} onClick={handleAddGameDialogOpen}>
+                Add game
+              </Button>
+            </Box>
+          )}
 
-          {/** Sorting, filtering by company and genre */}
-          <Grid container spacing={matchesXs ? 0.5 : 2} direction="row" sx={{ justifyContent: "space-between", alignItems: "center", pb: topCategoriesOpen ? 0.5 : 3 }}>
-            <Grid sx={{ pt: 0 }} size={{ xs: 5.5, md: 4 }}>
-              <ToggleButtonGroup
-                value={navigation.orderBy}
-                size="small"
-                exclusive
-                onChange={handleSorting}
-                aria-label="sorting"
-              >
-                <ToggleButton value="default" aria-label="default" title="Ranking" size={mediaQueryToSize()}>
-                  <WhatshotIcon fontSize={mediaQueryToTextSize()} />
-                </ToggleButton>
-                <ToggleButton value="releaseDate" aria-label="release date" title="Release date" size={mediaQueryToSize()}>
-                  <DateRangeIcon fontSize={mediaQueryToTextSize()} />
-                </ToggleButton>
-                <ToggleButton value="name" aria-label="name" title="Name" size={mediaQueryToSize()} >
-                  <AbcIcon fontSize={mediaQueryToTextSize()} />
-                </ToggleButton>
-                <ToggleButton value="rating" aria-label="rating" title="Rating" size={mediaQueryToSize()}>
-                  <StarIcon fontSize={mediaQueryToTextSize()} />
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Grid>
-            <Grid sx={{ textAlign: "center" }} size={{ xs: 3.5, md: 4 }}>
-              <Typography variant={matchesXs ? "body1" : "h5"}>
-                Games <sup style={{ fontSize: matchesXs ? 8 : 11, color: "" }}> {count}</sup>
-              </Typography>
-            </Grid>
-            <Grid sx={{ textAlign: "right" }} size={{ xs: 3, md: 4 }}>
-              {(topGenres.length > 0 || topDevelopers.length > 0 || topPublishers.length > 0) &&
-              <ToggleButton
-                value="check"
-                selected={topCategoriesOpen}
-                onChange={() => { setTopCategoriesOpen(v => !v) }}
-                size={mediaQueryToSize()}
-                title="Categories"
-              >
-                <CategoryOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
-                {topCategoriesOpen
-                  ? <KeyboardArrowUpOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
-                  : <KeyboardArrowDownOutlinedIcon fontSize={mediaQueryToTextSize()} sx={{ color: categoryApplied() ? selectedCategoryColor : "" }} />
-                }
+          {/* Sort row */}
+          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ pb: 2 }}>
+            <ToggleButtonGroup
+              value={navigation.orderBy}
+              size="small"
+              exclusive
+              onChange={handleSorting}
+              aria-label="sorting"
+            >
+              <ToggleButton value="default" title="Trending" size={mediaQueryToSize()}>
+                <WhatshotIcon fontSize="small" sx={{ mr: matchesXs ? 0 : 0.75 }} />
+                {!matchesXs && 'Trending'}
               </ToggleButton>
-              }
-            </Grid>
-          </Grid>
+              <ToggleButton value="releaseDate" title="Newest" size={mediaQueryToSize()}>
+                <DateRangeIcon fontSize="small" sx={{ mr: matchesXs ? 0 : 0.75 }} />
+                {!matchesXs && 'Newest'}
+              </ToggleButton>
+              <ToggleButton value="name" title="A–Z" size={mediaQueryToSize()}>
+                <AbcIcon fontSize="small" sx={{ mr: matchesXs ? 0 : 0.75 }} />
+                {!matchesXs && 'A–Z'}
+              </ToggleButton>
+              <ToggleButton value="rating" title="Top rated" size={mediaQueryToSize()}>
+                <StarIcon fontSize="small" sx={{ mr: matchesXs ? 0 : 0.75 }} />
+                {!matchesXs && 'Top rated'}
+              </ToggleButton>
+            </ToggleButtonGroup>
 
-          {/* Categories (companies genres) filter - closed by default */}
-          {topCategoriesOpen &&
-            <Grid container spacing={1} direction="row" sx={{ justifyContent: "center", alignItems: "flex-start", pb: 2, pt: 0.5 }}>
-              <Grid sx={{ textAlign: "center", pl: 1 }} size={{ xs: 4 }}>
-                <>
-                  <Chip
-                    label={<Typography color="primary" variant="body1">Genres</Typography>}
-                    variant="outlined"
-                    color="info"
-                  />
-                </>
-              </Grid>
-              <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
-                <Chip
-                  label={<Typography color="primary" variant="body1">Publishers</Typography>}
-                  variant="outlined"
-                  color="info"
-                />
-              </Grid>
-              <Grid sx={{ textAlign: "center" }} size={{ xs: 4 }}>
-                <Chip
-                  label={<Typography color="primary" variant="body1">Developers</Typography>}
-                  variant="outlined"
-                  color="info"
-                />
-              </Grid>
+          </Stack>
 
-              {/** Genres */}
-              <Grid sx={{ pt: 0, pl: 0 }} size={{ xs: 4 }}>
-                <List sx={{ pt: 0 }} >
-                  {topGenres.map((genre: IGenre) => (
-                    <ListItem key={genre.id} dense>
-                      <ListItemButton
-                        component="a"
-                        dense
-                        selected={genre.id === navigation.genre}
-                        disableGutters={matchesXs}
-                        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                          event.preventDefault() // Prevent default anchor link behavior
-                          handleCategoryChange("genre", genre.id)
-                        }}
-                      >
-                        <ListItemText
-                          primary={genre.name}
-                          slotProps={{
-                            primary: { textAlign: "center", flex: 1, color: genre.id === navigation.genre ? selectedCategoryColor : "" }
-                          }}
-                          sx={{ mt: 0, mb: 0 }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Grid>
+          {/* Mobile: horizontal scroll category pills */}
+          {!matchesMd && hasSidebarData && (
+            <Stack spacing={1} sx={{ pb: 2 }}>
+              <MobilePillRow items={topGenres} selected={navigation.genre} onSelect={handleCategoryChange} type="genre" />
+              <MobilePillRow items={topPublishers} selected={navigation.publisher} onSelect={handleCategoryChange} type="publisher" />
+              <MobilePillRow items={topDevelopers} selected={navigation.developer} onSelect={handleCategoryChange} type="developer" />
+            </Stack>
+          )}
 
-              {/** Publishers */}
-              <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
-                <List sx={{ pt: 0 }} >
-                  {topPublishers.map((publisher: ICompany) => (
-                    <ListItem key={publisher.id} dense>
-                      <ListItemButton
-                        component="a"
-                        dense
-                        selected={publisher.id === navigation.publisher}
-                        disableGutters={matchesXs}
-                        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                          event.preventDefault() // Prevent default anchor link behavior
-                          handleCategoryChange("publisher", publisher.id)
-                        }}
-                      >
-                        <ListItemText
-                          primary={publisher.name}
-                          slotProps={{
-                            primary: { textAlign: "center", flex: 1, color: publisher.id === navigation.publisher ? selectedCategoryColor : "" }
-                          }}
-                          sx={{ mt: 0, mb: 0 }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Grid>
-
-              {/** Developers */}
-              <Grid sx={{ pt: 0 }} size={{ xs: 4 }}>
-                <List sx={{ pt: 0 }} >
-                  {topDevelopers.map((developer: ICompany) => (
-                    <ListItem key={developer.id} dense>
-                      <ListItemButton
-                        component="a"
-                        dense
-                        selected={developer.id === navigation.developer}
-                        disableGutters={matchesXs}
-                        onClick={(event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-                          event.preventDefault() // Prevent default anchor link behavior
-                          handleCategoryChange("developer", developer.id)
-                        }}
-                      >
-                        <ListItemText
-                          primary={developer.name}
-                          slotProps={{
-                            primary: { textAlign: "center", flex: 1, color: developer.id === navigation.developer ? selectedCategoryColor : "" }
-                          }}
-                          sx={{ mt: 0, mb: 0 }}
-                        />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
-                </List>
-              </Grid>
-            </Grid>
-          }
-
-          {/* Game details modal - closed by default */}
+          {/* Game details modal */}
           <GameDetails
             game={selectedGame}
             showUserRating={isAuthenticated && hasRole([roles.user])}
-            userRating={userRatings[selectedGame?.id?.toString() || ""]}
+            userRating={userRatings[selectedGame?.id?.toString() || '']}
             open={gameDetailsOpen}
             handleClose={handleCloseGameDetails}
           />
 
-          {/* Games grid */}
-          <Grid
-            container
-            rowSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
-            columnSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
-          >
-            {data.map((game: IGame) => (
-              <Grid key={game.id} size={{ xs: 6, sm: 4, md: 3, lg: 2 }}>
-                <GameCard
-                  game={game}
-                  handleOpenDetails={handleOpenGameDetails}
-                  darkMode={darkModeProps.darkMode}
-                  userRating={userRatings[game.id?.toString()]}
-                />
+          {/* 2-col layout: sidebar + grid */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: hasSidebarData ? '200px 1fr' : '1fr' }, gap: { xs: 2, md: 4 } }}>
+            {/* Sidebar — md+ only */}
+            {hasSidebarData && (
+              <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'sticky', top: 80, alignSelf: 'start' }}>
+                <FacetGroup title="Genre" items={topGenres} selected={navigation.genre} onSelect={handleCategoryChange} type="genre" />
+                <FacetGroup title="Publisher" items={topPublishers} selected={navigation.publisher} onSelect={handleCategoryChange} type="publisher" />
+                <FacetGroup title="Developer" items={topDevelopers} selected={navigation.developer} onSelect={handleCategoryChange} type="developer" />
+              </Box>
+            )}
+
+            {/* Games grid + pagination */}
+            <Box>
+              {count > 0 && (
+                <Typography variant="caption" sx={{ display: 'block', color: 'text.disabled', mb: 1.5, fontFamily: 'JetBrains Mono, monospace' }}>
+                  {count.toLocaleString()} titles
+                </Typography>
+              )}
+              <Grid
+                container
+                rowSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
+                columnSpacing={{ xs: 0.5, sm: 1, md: 1.5, lg: 2 }}
+              >
+                {data.map((game: IGame) => (
+                  <Grid key={game.id} size={{ xs: 6, sm: 4, md: 3, lg: 2 }}>
+                    <GameCard
+                      game={game}
+                      handleOpenDetails={handleOpenGameDetails}
+                      userRating={userRatings[game.id?.toString()]}
+                    />
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
-          
-          {/* Pagination */}
-          {count > 0 && (
-            <Stack sx={{ alignItems: 'center', pt: 3 }}>
-              <Pagination
-                defaultPage={defaultNavigation.page}
-                hidePrevButton={navigation.page === defaultNavigation.page}
-                hideNextButton={navigation.page >= pagesCount(count)}
-                siblingCount={0}
-                count={pagesCount(count)}
-                page={navigation.page}
-                variant="outlined"
-                shape="rounded"
-                size="large"
-                onChange={(_, page) => handleNavigation(page)}
-              />
-            </Stack>
-          )}
+
+              {count > 0 && (
+                <Stack sx={{ alignItems: 'center', pt: 3 }}>
+                  <Pagination
+                    defaultPage={defaultNavigation.page}
+                    hidePrevButton={navigation.page === defaultNavigation.page}
+                    hideNextButton={navigation.page >= pagesCount(count)}
+                    siblingCount={0}
+                    count={pagesCount(count)}
+                    page={navigation.page}
+                    variant="outlined"
+                    shape="rounded"
+                    size="large"
+                    onChange={(_, page) => handleNavigation(page)}
+                  />
+                </Stack>
+              )}
+            </Box>
+          </Box>
         </Box>
         <Footer />
       </Layout>

@@ -311,7 +311,7 @@ const AddGameModal = (props: IAddGameModal) => {
       handleSubmit={handleAddGame}
     >
       <>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%' }}>
           <TextField
             required
             error={!!addGameValidation.name}
@@ -323,7 +323,7 @@ const AddGameModal = (props: IAddGameModal) => {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'name')}
           />
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%' }}>
           <TextField
             required
             error={!!addGameValidation.developer}
@@ -335,7 +335,7 @@ const AddGameModal = (props: IAddGameModal) => {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, 'developer')}
           />
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%' }}>
           {isTouchDevice()
             ? <MobileDatePicker
               label="Release date"
@@ -375,7 +375,7 @@ const AddGameModal = (props: IAddGameModal) => {
             />
           }
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%' }}>
           <TextField
             required
             error={!!addGameValidation.summary}
@@ -388,7 +388,7 @@ const AddGameModal = (props: IAddGameModal) => {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameFieldChange(e, "summary")}
           />
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%' }}>
           <TextField
             error={!!addGameValidation.websites}
             helperText={addGameValidation.websites}
@@ -400,7 +400,7 @@ const AddGameModal = (props: IAddGameModal) => {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => handleAddGameWebsitesChange(e)}
           />
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%' }}>
         <Autocomplete
           multiple
           disableCloseOnSelect
@@ -460,7 +460,7 @@ const AddGameModal = (props: IAddGameModal) => {
           )}
         />
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall, pb: 2 }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%', pb: 2 }}>
           <Typography variant="subtitle1">Cover</Typography>
           <Typography variant="subtitle2" color="secondary"> (max size 500 KB, ratio 3:4)</Typography>
           <ImageUploader
@@ -472,7 +472,7 @@ const AddGameModal = (props: IAddGameModal) => {
             {addGameValidation.logo}
           </Typography>
         </Grid>
-        <Grid sx={{ minWidth: matchesMd ? fieldWidthLarge : fieldWidthSmall }}>
+        <Grid sx={{ width: matchesMd ? fieldWidthLarge : '100%' }}>
           <Typography variant="subtitle1">Screenshots</Typography>
           <Typography variant="subtitle2" color="secondary"> (max size 500 KB, max 8 files, ratio 9:5)</Typography>
           <ImageUploader
