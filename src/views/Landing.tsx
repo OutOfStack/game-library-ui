@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   Backdrop, Box, Button, CircularProgress, Grid, Pagination, Stack, Typography, ToggleButton,
-  ToggleButtonGroup, useMediaQuery, useTheme, ListItem, List, ListItemText, ListItemButton, Divider
+  ToggleButtonGroup, useMediaQuery, useTheme, ListItem, List, ListItemText, ListItemButton, Divider, alpha
 } from '@mui/material'
 import { AdapterMoment as DateAdapter } from '@mui/x-date-pickers/AdapterMoment'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -113,7 +113,7 @@ const MobilePillRow = ({ items, selected, onSelect, type }: IMobilePillRowProps)
               fontSize: 12, fontWeight: isSel ? 500 : 400,
               border: '1px solid',
               borderColor: isSel ? 'primary.main' : 'divider',
-              bgcolor: isSel ? `${theme.palette.primary.main}22` : 'transparent',
+              bgcolor: isSel ? alpha(theme.palette.primary.main, 0.13) : 'transparent',
               color: isSel ? 'text.primary' : 'text.secondary',
               cursor: 'pointer',
               whiteSpace: 'nowrap',

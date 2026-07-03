@@ -113,7 +113,8 @@ const AddGameModal = (props: IAddGameModal) => {
   }
 
   const handleAddGameWebsitesChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    const websites = e.target.value?.trimStart().split(",").map(g => g.trim())
+    const value = e.target.value?.trimStart()
+    const websites = value ? value.split(",").map(g => g.trim()) : []
     setAddGame(g => ({ ...g, websites: websites }))
     // remove error if there is a value now
     if (addGameValidation.websites?.length > 0) {

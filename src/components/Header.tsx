@@ -172,95 +172,95 @@ const Header = (props: IHeaderProps) => {
       <AppBar position="sticky" color="transparent">
         <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
           <Box sx={{ maxWidth: 'lg', width: '100%', mx: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography
-            variant={matchesXs ? 'subtitle2' : 'h5'}
-            sx={{ cursor: 'pointer', mr: 1 }}
-            onClick={() => { navigate("/"); navigate(0) }}
-          >
-            Game Library
-          </Typography>
+            <Typography
+              variant={matchesXs ? 'subtitle2' : 'h5'}
+              sx={{ cursor: 'pointer', mr: 1 }}
+              onClick={() => { navigate("/"); navigate(0) }}
+            >
+              Game Library
+            </Typography>
 
-          <Box sx={{ flexGrow: 1 }} />
+            <Box sx={{ flexGrow: 1 }} />
 
-          <Search sx={{ ml: 1 }}>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Enter game name"
-              value={searchFieldProps.text}
-              onChange={searchFieldProps.changeText}
-              disabled={searchFieldProps.disabled}
-            />
-          </Search>
-
-          {isAuthenticated
-            ? <>
-              <Tooltip title={name || username || ''}>
-                <Avatar variant="square" sx={{ ml: 0.5 }} {...stringAvatar(name || username || '')} />
-              </Tooltip>
-              {!matchesXs &&
-                <Typography variant="subtitle1" sx={{ ml: 0.5 }}>{username}</Typography>
-              }
-              <DarkThemeIcon />
-              <Tooltip title={matchesXs ? 'User menu' : ''}>
-                <IconButton onClick={handleMenuOpen} sx={{ ml: 0.5 }}>
-                  <MenuIcon color="inherit" />
-                </IconButton>
-              </Tooltip>
-              <UserMenu
-                anchorEl={menuAnchorEl}
-                onClose={handleMenuClose}
-                vrf_required={vrf_required}
-                onVerifyEmailClick={() => {
-                  setVerifyEmailDialogOpen(true)
-                  setVerifyEmailDismissed(false)
-                }}
-                onLogout={logout}
-                onDeleteSuccess={handleDeleteSuccess}
-                onDeleteError={handleDeleteError}
+            <Search sx={{ ml: 1 }}>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Enter game name"
+                value={searchFieldProps.text}
+                onChange={searchFieldProps.changeText}
+                disabled={searchFieldProps.disabled}
               />
-            </>
-            : <>
-              <DarkThemeIcon />
-              {matchesXs
-                ? <>
-                  <Tooltip title="Register">
-                    <PersonAddIcon fontSize="large" onClick={() => setRegisterDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
-                  </Tooltip>
-                  <Tooltip title="Login">
-                    <LoginIcon fontSize="large" onClick={() => setLoginDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
-                  </Tooltip>
-                </>
-                : <Box>
-                  <Button color="inherit" onClick={() => setRegisterDialogOpen(true)}>Register</Button>
-                  <Button color="inherit" onClick={() => setLoginDialogOpen(true)}>Login</Button>
-                </Box>
-              }
-            </>
-          }
+            </Search>
 
-          <SignUpModal
-            isOpen={registerDialogOpen}
-            onClose={() => setRegisterDialogOpen(false)}
-            onSuccess={handleSignUpSuccess}
-          />
+            {isAuthenticated
+              ? <>
+                <Tooltip title={name || username || ''}>
+                  <Avatar variant="square" sx={{ ml: 0.5 }} {...stringAvatar(name || username || '')} />
+                </Tooltip>
+                {!matchesXs &&
+                  <Typography variant="subtitle1" sx={{ ml: 0.5 }}>{username}</Typography>
+                }
+                <DarkThemeIcon />
+                <Tooltip title={matchesXs ? 'User menu' : ''}>
+                  <IconButton onClick={handleMenuOpen} sx={{ ml: 0.5 }}>
+                    <MenuIcon color="inherit" />
+                  </IconButton>
+                </Tooltip>
+                <UserMenu
+                  anchorEl={menuAnchorEl}
+                  onClose={handleMenuClose}
+                  vrf_required={vrf_required}
+                  onVerifyEmailClick={() => {
+                    setVerifyEmailDialogOpen(true)
+                    setVerifyEmailDismissed(false)
+                  }}
+                  onLogout={logout}
+                  onDeleteSuccess={handleDeleteSuccess}
+                  onDeleteError={handleDeleteError}
+                />
+              </>
+              : <>
+                <DarkThemeIcon />
+                {matchesXs
+                  ? <>
+                    <Tooltip title="Register">
+                      <PersonAddIcon fontSize="large" onClick={() => setRegisterDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
+                    </Tooltip>
+                    <Tooltip title="Login">
+                      <LoginIcon fontSize="large" onClick={() => setLoginDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
+                    </Tooltip>
+                  </>
+                  : <Box>
+                    <Button color="inherit" onClick={() => setRegisterDialogOpen(true)}>Register</Button>
+                    <Button color="inherit" onClick={() => setLoginDialogOpen(true)}>Login</Button>
+                  </Box>
+                }
+              </>
+            }
 
-          <SignInModal
-            isOpen={loginDialogOpen}
-            onClose={() => setLoginDialogOpen(false)}
-            onSuccess={handleSignInSuccess}
-          />
+            <SignUpModal
+              isOpen={registerDialogOpen}
+              onClose={() => setRegisterDialogOpen(false)}
+              onSuccess={handleSignUpSuccess}
+            />
 
-          <EmailVerificationModal
-            isOpen={verifyEmailDialogOpen}
-            closeDialog={() => {
-              setVerifyEmailDialogOpen(false)
-              setVerifyEmailDismissed(true)
-            }}
-            handleSubmit={handleVerifyEmail}
-            handleResend={handleResendVerification}
-          />
+            <SignInModal
+              isOpen={loginDialogOpen}
+              onClose={() => setLoginDialogOpen(false)}
+              onSuccess={handleSignInSuccess}
+            />
+
+            <EmailVerificationModal
+              isOpen={verifyEmailDialogOpen}
+              closeDialog={() => {
+                setVerifyEmailDialogOpen(false)
+                setVerifyEmailDismissed(true)
+              }}
+              handleSubmit={handleVerifyEmail}
+              handleResend={handleResendVerification}
+            />
           </Box>
         </Toolbar>
       </AppBar>
