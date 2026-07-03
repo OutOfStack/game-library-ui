@@ -2,7 +2,6 @@ import { Suspense, useMemo, useState, lazy } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Container, CssBaseline, Typography, useMediaQuery } from '@mui/material'
 import { ThemeProvider, createTheme, StyledEngineProvider } from '@mui/material/styles'
-import { grey, blueGrey, blue } from '@mui/material/colors'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
 import Header from './components/Header'
@@ -26,33 +25,118 @@ const App = () => {
 
   const [darkMode, setDarkMode] = useState(getIsDarkMode())
 
-  const theme = useMemo(() =>
-    createTheme({
+  const theme = useMemo(() => {
+    const accent = 'hsl(188, 72%, 52%)'
+    const dark = {
+      bg: '#0b0c0e',
+      paper: '#141518',
+      paperHover: '#1c1d22',
+      textPrimary: '#ECECEE',
+      textSecondary: '#9A9AA1',
+      textDisabled: '#5e5e66',
+      line: 'rgba(255,255,255,0.07)',
+      lineHi: 'rgba(255,255,255,0.12)',
+    }
+    const light = {
+      bg: '#F6F5F2',
+      paper: '#FFFFFF',
+      paperHover: '#FAF9F6',
+      textPrimary: '#16171A',
+      textSecondary: '#5b5d63',
+      textDisabled: '#9b9da3',
+      line: 'rgba(0,0,0,0.08)',
+      lineHi: 'rgba(0,0,0,0.14)',
+    }
+    const c = darkMode ? dark : light
+
+    return createTheme({
       palette: {
         mode: darkMode ? 'dark' : 'light',
-        primary: {
-          main: darkMode ? grey[300] : grey[800]
-        },
-        secondary: {
-          main: darkMode ? blueGrey[300] : blueGrey[700]
-        },
-        ...(darkMode
-          ? {
-            background: { default: '#121212', paper: grey[900] },
-            divider: '#373737'
-          }
-          : {
-            background: { default: grey[200], paper: grey[100] },
-            divider: grey[300],
-            text: { primary: grey[900], secondary: grey[700] }
-          }
-        ),
-        tonalOffset: 0.2
+        primary: { main: accent, contrastText: '#fff' },
+        secondary: { main: c.textSecondary },
+        background: { default: c.bg, paper: c.paper },
+        divider: c.line,
+        text: { primary: c.textPrimary, secondary: c.textSecondary, disabled: c.textDisabled },
+        tonalOffset: 0.2,
       },
-      shape: { borderRadius: 10 }
-    }),
-    [darkMode]
-  )
+      shape: { borderRadius: 10 },
+      typography: {
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        h1: { fontFamily: 'Fraunces, serif', fontWeight: 600, letterSpacing: '-0.02em' },
+        h2: { fontFamily: 'Fraunces, serif', fontWeight: 600, letterSpacing: '-0.02em' },
+        h3: { fontFamily: 'Fraunces, serif', fontWeight: 600, letterSpacing: '-0.02em' },
+        h4: { fontFamily: 'Fraunces, serif', fontWeight: 600, letterSpacing: '-0.015em' },
+        h5: { fontFamily: 'Fraunces, serif', fontWeight: 600, letterSpacing: '-0.01em' },
+        overline: { fontFamily: 'JetBrains Mono, ui-monospace, monospace', letterSpacing: '0.08em', fontWeight: 500, fontSize: 11 },
+        button: { textTransform: 'none' as const, fontWeight: 600, letterSpacing: 0 },
+      },
+      components: {
+        MuiCssBaseline: {
+          styleOverrides: {
+            body: { backgroundColor: c.bg, color: c.textPrimary },
+          },
+        },
+        MuiButton: {
+          styleOverrides: {
+            root: { boxShadow: 'none', '&:hover': { boxShadow: 'none' } },
+          },
+        },
+        MuiToggleButton: {
+          styleOverrides: {
+            root: {
+              border: 'none',
+              textTransform: 'none' as const,
+              fontWeight: 500,
+              '&.Mui-selected': {
+                background: darkMode ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)',
+                '&:hover': { background: darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)' },
+              },
+            },
+          },
+        },
+        MuiToggleButtonGroup: {
+          styleOverrides: {
+            root: {
+              background: c.paperHover,
+              border: `1px solid ${c.line}`,
+              borderRadius: 10,
+              padding: 3,
+              gap: 2,
+            },
+            grouped: { '&:not(:first-of-type)': { borderRadius: 8 }, '&:first-of-type': { borderRadius: 8 } },
+          },
+        },
+        MuiChip: {
+          styleOverrides: {
+            root: { borderRadius: 999, fontWeight: 500 },
+            outlined: { borderColor: c.line },
+          },
+        },
+        MuiPaper: {
+          styleOverrides: { root: { backgroundImage: 'none' } },
+        },
+        MuiCard: {
+          styleOverrides: { root: { backgroundImage: 'none' } },
+        },
+        MuiTooltip: {
+          styleOverrides: {
+            tooltip: { fontSize: 12, fontWeight: 500, borderRadius: 6, paddingInline: 8, paddingBlock: 4 },
+          },
+        },
+        MuiAppBar: {
+          styleOverrides: {
+            root: {
+              backdropFilter: 'saturate(160%) blur(10px)',
+              background: darkMode ? 'rgba(11,12,14,0.72)' : 'rgba(246,245,242,0.82)',
+              backgroundImage: 'none',
+              boxShadow: 'none',
+              borderBottom: `1px solid ${c.line}`,
+            },
+          },
+        },
+      },
+    })
+  }, [darkMode])
 
   const handleChangeMode = () => {
     setDarkMode(dm => {

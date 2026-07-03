@@ -2,8 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { Alert, AlertColor, Box, Chip, Container, Dialog, DialogContent, Grid, IconButton, Link, Rating, Skeleton, Snackbar, 
   SnackbarCloseReason, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { orange } from '@mui/material/colors'
-import RateIcon from '@mui/icons-material/StarBorderPurple500Rounded'
+import RateIcon from '@mui/icons-material/StarBorderRounded'
 import CloseIcon from '@mui/icons-material/CloseRounded'
 import LanguageIcon from '@mui/icons-material/LanguageRounded'
 import StoreIcon from '@mui/icons-material/StorefrontRounded'
@@ -244,7 +243,7 @@ const GameDetails = (props: IGameDetailsProps) => {
                             max={5}
                             defaultValue={0}
                             size={mediaQueryToSize()}
-                            icon={<RateIcon fontSize={mediaQueryToSize()} sx={{ color: orange[800] }} />}
+                            icon={<RateIcon fontSize={mediaQueryToSize()} sx={{ color: 'primary.main' }} />}
                             emptyIcon={<RateIcon fontSize={mediaQueryToSize()} />}
                             onChange={(_, newValue) => handleRateGame(newValue)}
                           />

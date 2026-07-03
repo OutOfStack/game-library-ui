@@ -154,7 +154,7 @@ const Header = (props: IHeaderProps) => {
   }
 
   return (
-    <Box sx={{ flexGrow: 0 }}>
+    <Box sx={{ position: 'sticky', top: 0, zIndex: 'appBar' }}>
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         open={alert.open}
@@ -169,113 +169,99 @@ const Header = (props: IHeaderProps) => {
           {alert.message}
         </Alert>
       </Snackbar>
-      <AppBar
-        position="sticky"
-        color="default"
-        sx={{
-          backdropFilter: 'saturate(180%) blur(6px)',
-          bgcolor: 'background.paper',
-          backgroundImage: 'none',
-          boxShadow: 'none',
-          borderBottom: '1px solid',
-          borderColor: 'divider'
-        }}
-      >
-        <Toolbar sx={matchesXs ? { pr: 1, pl: 1 } : {}}>
-          <Typography
-            variant={matchesXs ? 'subtitle2' : 'h5'}
-            sx={{ cursor: 'pointer', ...(matchesMd ? { mr: 2, ml: '5vw' } : {}) }}
-            onClick={() => { navigate("/"); navigate(0) }}
-          >
-            Game Library
-          </Typography>
+      <AppBar position="sticky" color="transparent">
+        <Toolbar sx={{ px: { xs: 1, sm: 2 } }}>
+          <Box sx={{ maxWidth: 'lg', width: '100%', mx: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography
+              variant={matchesXs ? 'subtitle2' : 'h5'}
+              sx={{ cursor: 'pointer', mr: 1 }}
+              onClick={() => { navigate("/"); navigate(0) }}
+            >
+              Game Library
+            </Typography>
 
-          <Box sx={{ flexGrow: 1 }} />
+            <Box sx={{ flexGrow: 1 }} />
 
-          <Search sx={{ ml: 1 }}>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Enter game name"
-              value={searchFieldProps.text}
-              onChange={searchFieldProps.changeText}
-              disabled={searchFieldProps.disabled}
-            />
-          </Search>
+            <Search sx={{ ml: 1 }}>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Enter game name"
+                value={searchFieldProps.text}
+                onChange={searchFieldProps.changeText}
+                disabled={searchFieldProps.disabled}
+              />
+            </Search>
 
-          {isAuthenticated
-            ? <>
-              <Tooltip title={name || username || ''}>
-                <Avatar variant="square" style={matchesMd ? { marginLeft: '1vw' } : { marginLeft: theme.spacing(0.5) }} {...stringAvatar(name || username || '')} />
-              </Tooltip>
-              {!matchesXs &&
-                <Typography variant="subtitle1" sx={matchesMd ? { ml: 1 } : { ml: theme.spacing(0.5) }}>{username}</Typography>
-              }
-              <DarkThemeIcon />
-              {matchesXs
-                ? <Tooltip title="User menu">
-                  <IconButton onClick={handleMenuOpen} sx={{ pl: theme.spacing(1) }}>
-                    <MenuIcon color="action" fontSize="large" />
+            {isAuthenticated
+              ? <>
+                <Tooltip title={name || username || ''}>
+                  <Avatar variant="square" sx={{ ml: 0.5 }} {...stringAvatar(name || username || '')} />
+                </Tooltip>
+                {!matchesXs &&
+                  <Typography variant="subtitle1" sx={{ ml: 0.5 }}>{username}</Typography>
+                }
+                <DarkThemeIcon />
+                <Tooltip title={matchesXs ? 'User menu' : ''}>
+                  <IconButton onClick={handleMenuOpen} sx={{ ml: 0.5 }}>
+                    <MenuIcon color="inherit" />
                   </IconButton>
                 </Tooltip>
-                : <IconButton onClick={handleMenuOpen} sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : { ml: theme.spacing(0.5) }}>
-                  <MenuIcon color="inherit" />
-                </IconButton>
-              }
-              <UserMenu
-                anchorEl={menuAnchorEl}
-                onClose={handleMenuClose}
-                vrf_required={vrf_required}
-                onVerifyEmailClick={() => {
-                  setVerifyEmailDialogOpen(true)
-                  setVerifyEmailDismissed(false)
-                }}
-                onLogout={logout}
-                onDeleteSuccess={handleDeleteSuccess}
-                onDeleteError={handleDeleteError}
-              />
-            </>
-            : <>
-              <DarkThemeIcon />
-              {matchesXs
-                ? <>
-                  <Tooltip title="Register">
-                    <PersonAddIcon fontSize="large" onClick={() => setRegisterDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
-                  </Tooltip>
-                  <Tooltip title="Login">
-                    <LoginIcon fontSize="large" onClick={() => setLoginDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
-                  </Tooltip>
-                </>
-                : <Box sx={matchesMd ? { mr: '5vw', ml: theme.spacing(0.5) } : {}} >
-                  <Button color="inherit" onClick={() => setRegisterDialogOpen(true)}>Register</Button>
-                  <Button color="inherit" onClick={() => setLoginDialogOpen(true)}>Login</Button>
-                </Box>
-              }
-            </>
-          }
+                <UserMenu
+                  anchorEl={menuAnchorEl}
+                  onClose={handleMenuClose}
+                  vrf_required={vrf_required}
+                  onVerifyEmailClick={() => {
+                    setVerifyEmailDialogOpen(true)
+                    setVerifyEmailDismissed(false)
+                  }}
+                  onLogout={logout}
+                  onDeleteSuccess={handleDeleteSuccess}
+                  onDeleteError={handleDeleteError}
+                />
+              </>
+              : <>
+                <DarkThemeIcon />
+                {matchesXs
+                  ? <>
+                    <Tooltip title="Register">
+                      <PersonAddIcon fontSize="large" onClick={() => setRegisterDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
+                    </Tooltip>
+                    <Tooltip title="Login">
+                      <LoginIcon fontSize="large" onClick={() => setLoginDialogOpen(true)} sx={{ pl: theme.spacing(1) }} />
+                    </Tooltip>
+                  </>
+                  : <Box>
+                    <Button color="inherit" onClick={() => setRegisterDialogOpen(true)}>Register</Button>
+                    <Button color="inherit" onClick={() => setLoginDialogOpen(true)}>Login</Button>
+                  </Box>
+                }
+              </>
+            }
 
-          <SignUpModal
-            isOpen={registerDialogOpen}
-            onClose={() => setRegisterDialogOpen(false)}
-            onSuccess={handleSignUpSuccess}
-          />
+            <SignUpModal
+              isOpen={registerDialogOpen}
+              onClose={() => setRegisterDialogOpen(false)}
+              onSuccess={handleSignUpSuccess}
+            />
 
-          <SignInModal
-            isOpen={loginDialogOpen}
-            onClose={() => setLoginDialogOpen(false)}
-            onSuccess={handleSignInSuccess}
-          />
+            <SignInModal
+              isOpen={loginDialogOpen}
+              onClose={() => setLoginDialogOpen(false)}
+              onSuccess={handleSignInSuccess}
+            />
 
-          <EmailVerificationModal
-            isOpen={verifyEmailDialogOpen}
-            closeDialog={() => {
-              setVerifyEmailDialogOpen(false)
-              setVerifyEmailDismissed(true)
-            }}
-            handleSubmit={handleVerifyEmail}
-            handleResend={handleResendVerification}
-          />
+            <EmailVerificationModal
+              isOpen={verifyEmailDialogOpen}
+              closeDialog={() => {
+                setVerifyEmailDialogOpen(false)
+                setVerifyEmailDismissed(true)
+              }}
+              handleSubmit={handleVerifyEmail}
+              handleResend={handleResendVerification}
+            />
+          </Box>
         </Toolbar>
       </AppBar>
     </Box>

@@ -1,7 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react'
-import { Box, Card, CardActionArea, CardContent, Chip, Skeleton, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Box, Card, CardActionArea, CardContent, Skeleton, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { grey } from '@mui/material/colors'
 import StarIcon from '@mui/icons-material/Star'
 
 import { IGame } from '../types/Game'
@@ -11,24 +10,21 @@ import { To1Precision } from '../utils/format'
 interface IGameCardProps {
   handleOpenDetails: (game: IGame) => void,
   game: IGame,
-  darkMode: boolean,
   userRating?: number
 }
 
 const GameCard = (props: IGameCardProps) => {
-  const { game, handleOpenDetails, darkMode, userRating } = props
+  const { game, handleOpenDetails, userRating } = props
 
   const logoWidth = 528
   const logoHeight = 748
 
   const theme = useTheme()
-  const matchesXs = useMediaQuery(theme.breakpoints.only('xs'))
 
   const [imageLoaded, setImageLoaded] = useState<boolean>(false)
   const imgRef = useRef<HTMLImageElement | null>(null)
 
   useEffect(() => {
-    // Reset and precheck cache when logo changes
     if (!game.logoUrl) {
       setImageLoaded(true)
       return
@@ -43,14 +39,18 @@ const GameCard = (props: IGameCardProps) => {
 
   return (
     <Card
-      variant="elevation"
+      variant="outlined"
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        transition: '200ms',
+        transition: '220ms',
         overflow: 'hidden',
-        '&:hover': { boxShadow: 6, transform: 'translateY(-2px)' }
+        '&:hover': {
+          borderColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.2)',
+          boxShadow: '0 14px 30px -14px rgba(0,0,0,0.45)',
+          transform: 'translateY(-2px)',
+        }
       }}
     >
       <CardActionArea onClick={() => handleOpenDetails(game)}>
@@ -60,10 +60,9 @@ const GameCard = (props: IGameCardProps) => {
             width: '100%',
             aspectRatio: `${logoWidth} / ${logoHeight}`,
             overflow: 'hidden',
-            bgcolor: darkMode ? grey[800] : grey[200]
+            bgcolor: 'action.hover',
           }}
         >
-          {/* Image fills container; toggled via opacity */}
           <Box
             component="img"
             ref={imgRef}
@@ -82,7 +81,6 @@ const GameCard = (props: IGameCardProps) => {
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageLoaded(true)}
           />
-          {/* Skeleton exactly matches container height */}
           {!imageLoaded && (
             <Skeleton
               animation="wave"
@@ -90,7 +88,6 @@ const GameCard = (props: IGameCardProps) => {
               sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: 0 }}
             />
           )}
-          {/* User rating badge */}
           {userRating && (
             <Box
               sx={{
@@ -100,59 +97,41 @@ const GameCard = (props: IGameCardProps) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                backdropFilter: 'blur(4px)',
+                backgroundColor: 'rgba(0,0,0,0.55)',
+                backdropFilter: 'blur(8px)',
                 borderRadius: '50%',
                 width: 32,
-                height: 32
+                height: 32,
               }}
             >
-              <StarIcon sx={{ fontSize: 20, color: '#ffd700' }} />
+              <StarIcon sx={{ fontSize: 18, color: '#ffd700' }} />
             </Box>
           )}
         </Box>
       </CardActionArea>
-      <CardContent
-        sx={{ 
-          p: 1, 
-          '&:last-child': { pb: 1 }, 
-          backgroundColor: darkMode ? grey[700] : grey[50]
-        }}
-      >
-        <Typography variant={matchesXs ? "body1" : "subtitle1"} noWrap>
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 }, flex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, fontSize: 14, lineHeight: 1.3 }}>
           {game.name}
         </Typography>
 
-        <Typography variant={matchesXs ? "body2" : "subtitle2" } noWrap>
-          {game.publishers?.length > 0 
-            ? game.publishers[0].name 
-            : <div>&nbsp;</div>
+        <Typography variant="subtitle2" noWrap sx={{ fontSize: 12 }}>
+          {game.publishers?.length > 0
+            ? game.publishers[0].name
+            : <span>&nbsp;</span>
           }
         </Typography>
 
-        <Stack 
-          sx={{ 
-            alignItems: "center", 
-            justifyContent: "space-between" 
-          }}
-          direction="row"
-        >
-          {game.rating > 0
-            ? <Chip 
-              label={
-                <Typography variant={matchesXs ? "subtitle2" : "subtitle1"}>
-                  {To1Precision(game.rating)}
-                </Typography>
-              }
-              color={game.rating >= 4 ? "success" : game.rating === 3 ? "warning" : "error"}
-              size="small"
-            />
-            : <Box sx={{ width: "1vw" }} />
-          }
-          <Box>
-            <span>{game.releaseDate?.split("-")[0] || ""}</span>
-          </Box>
-        </Stack>
+        <Box sx={{ mt: 'auto', pt: 0.5, display: 'flex', alignItems: 'center' }}>
+          {game.rating > 0 && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontFamily: 'JetBrains Mono, monospace', fontSize: 12, fontWeight: 600, color: 'text.primary' }}>
+              <StarIcon sx={{ fontSize: 13, color: 'primary.main' }} />
+              {To1Precision(game.rating)}
+            </Box>
+          )}
+          <Typography sx={{ fontSize: 11, color: 'text.disabled', fontFamily: 'JetBrains Mono, monospace', ml: 'auto' }}>
+            {game.releaseDate?.split('-')[0] || ''}
+          </Typography>
+        </Box>
       </CardContent>
     </Card>
   )

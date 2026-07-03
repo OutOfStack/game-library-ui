@@ -27,7 +27,7 @@ const Modal = (props: IModalProps) => {
           <Grid container direction="column" sx={{ alignItems: "center" }}>
             {children}
             {dialogErrorText && 
-              <Grid sx={{ minWidth: matchesMd ? '400px' : '210px', pt: 2 }}>
+              <Grid sx={{ width: matchesMd ? '400px' : '100%', pt: 2 }}>
                 <Alert severity="error" icon={false}>
                   <Typography>
                     {dialogErrorText}
